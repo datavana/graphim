@@ -76,11 +76,18 @@ For keeping ids, scores and descriptions of the web entities in the network,
 
 3. Run a notebook
 
+
 The notebooks, data and lib folders are mounted into the Jupyter environment.
-You can import script directly from the libs folder:
+You can access data by going up one folder:
 ```
-from mymodule import myfunc
+image_path = "../data/memesgerman/images/msg10.png"
 ```
+
+You can import scripts directly from the libs folder:
+```
+from settings import *
+```
+
 
 *Can I haz a GPU?*
 For GPU/CUDA support, adapt the docker-compose.yml to use the DockerfileCuda.
