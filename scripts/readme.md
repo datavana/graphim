@@ -8,3 +8,8 @@ Examples how to convert images in a folder to data URLs
 and inject them into a gexf or csv file.
 
 You can visualise gexf files with [Gephi Lite](https://gephi.org/gephi-lite/).
+
+# Extract
+
+Examples how to extract text (ocrtext.py), image components (snippets.py),
+and generate imae descriptions (descriptions.py).
