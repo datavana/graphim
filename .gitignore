@@ -1,0 +1,13 @@
+**/private/*
+
+data/*
+!data/readme.md
+
+settings.py
+settings.R
+.env
+
+__pycache__
+venv
+.venv
+.idea

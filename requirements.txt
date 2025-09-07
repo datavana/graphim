@@ -1,0 +1,15 @@
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+torch
+torchvision
+opencv-python
+pillow
+scikit-image
+tqdm
+albumentations
+transformers
+python-dotenv
+passlib[bcrypt=4.0.1]

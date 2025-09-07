@@ -1,0 +1,14 @@
+services:
+  jupyter:
+    build:
+      context: ./container/jupyter
+      dockerfile: Dockerfile
+    container_name: jupyterlab
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work/notebooks
+      - ./data:/home/jovyan/work/data
+      - ./libs:/home/jovyan/work/libs
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
