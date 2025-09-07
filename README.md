@@ -2,21 +2,24 @@
 
 The repository contains tools and workflows for image network and context analysis.
 
+The idea of this repository is to develop JavaScript tools running in the browser
+that can be deployed using GitHub Pages. In case server processing is needed,
+mature Python scripts, later, can be integrated into the [Datavana Databoard service](https://databoard.uni-muenster.de/). 
+The Databoard service provides an API that can be accessed by the web apps or other applications
+such as Epigraf or Facepager.
+
+Folder Structure:  
+
 - **apps**: Lightweigt web apps running in the browser, to be deployed using GitHub Pages.
 - **data**: Data is stored outside the repository. 
   You can safely copy it into the data subfolder if it helps you with your scripts accessing the data.   
-  The folder content is ignored by git.  
+  The folder content is ignored by git.
 - **scripts**: Scripts for working with images. Develop your workflows here. 
 - **notebooks**: Interactive Jupyter Notebooks for trying out examples.
   You can start a local Jupyter Environment using docker, see below.
 - **libs**: A place to store helper files to be imported into scripts or notebooks. 
 - **container**: Docker files for docker compose setups.
 
-The idea of this repository is to develop JavaScript tools running in the browser
-that can be deployed using GitHub Pages. In case server processing is needed,
-mature Python scripts, later, can be integrated into the [Datavana Databoard service](https://databoard.uni-muenster.de/). 
-The Databoard service provides an API that can be accessed by the web apps or other applications
-such as Epigraf or Facepager.
 
 ## Getting started with an image network
 
