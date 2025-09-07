@@ -11,9 +11,13 @@ You can visualise gexf files with [Gephi Lite](https://gephi.org/gephi-lite/).
 
 # Extract
 
-Examples how to extract text (ocrtext.py), image components (snippets.py),
-and generate imae descriptions (captions.py).
+Examples how to extract text (ocrtext.py), 
+image components (snippets.py),
+and generate image descriptions (captions.py).
+
+Example how to prompt OpenAI with an image (llm.py).
 
 # Cluster
 
 Example how to get image embeddings, calculate a distance matrix and construct a network dataset.
+The resulting gexf file can be visualised using Gephi Lite.

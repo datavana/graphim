@@ -11,9 +11,8 @@ such as Epigraf or Facepager.
 Folder Structure:  
 
 - **apps**: Lightweigt web apps running in the browser, to be deployed using GitHub Pages.
-- **data**: Data is stored outside the repository. 
-  You can safely copy it into the data subfolder if it helps you with your scripts accessing the data.   
-  The folder content is ignored by git.
+- **data**: Data is stored outside the repository.  Because the folder content is ignored by git,
+  You can safely copy data from outside the repository into the data subfolder.    
 - **scripts**: Scripts for working with images. Develop your workflows here. 
 - **notebooks**: Interactive Jupyter Notebooks for trying out examples.
   You can start a local Jupyter Environment using docker, see below.
@@ -26,7 +25,7 @@ Folder Structure:
 
 1. Go to https://gephi.org/gephi-lite/ 
    and open the local file `Samples/microcefalia/microcefalia.img.gexf`
-   (the file is not in this repository, ask Jakob for the file).
+   (the file is not in this repository, see Sciebo).
 3. Click the color palette button (left sidebar), 
    scroll down to the Images section and select  "imgdata" as image source
 4. Zoom into the network to see the images. Zoom out again for the next step.
@@ -39,6 +38,11 @@ Folder Structure:
 2. Open the file apps/img2url/index.html in you browser
 3. Process some images by clicking the folder selector
 4. See the source code of index.html
+
+## Getting started with image processing
+
+See the scripts folder for examples to generate image descriptions, extract text,
+feed images to a llm, extract image components or calculate image similarity using embeddings.
 
 ## Getting started with using the Google Cloud Vision API
 
