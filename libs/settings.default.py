@@ -6,3 +6,6 @@
 
 # The sciebo folder path
 datapath = "E:/Sciebo/Projekte/graphim/"
+
+# Open AI API key
+openai_apikey = "XXX"
