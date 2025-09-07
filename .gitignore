@@ -11,3 +11,4 @@ __pycache__
 venv
 .venv
 .idea
+.ipynb_checkpoints
