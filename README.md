@@ -18,6 +18,7 @@ Folder Structure:
 - **notebooks**: Interactive Jupyter Notebooks for trying out examples.
   You can start a local Jupyter Environment using docker, see below.
 - **libs**: A place to store helper files to be imported into scripts or notebooks. 
+  Also used for settings, see the settings.default.py.
 - **container**: Docker files for docker compose setups.
 
 
