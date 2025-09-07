@@ -93,11 +93,11 @@ from settings import *
 ```
 
 
-*Can I haz a GPU?*
+*I can haz GPU?*
 For GPU/CUDA support, adapt the docker-compose.yml to use the DockerfileCuda.
 When working in the WSL, you have to install the appropriate Nvidia driver.
 Also, rename the container and service to avoid naming conflicts. 
-Add a deploy key to provide GPU to your containers:    
+Add a deploy key to provide GPU resources to your containers:    
 ```
   deploy:
       resources:
