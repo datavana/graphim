@@ -183,7 +183,7 @@
               filename += ".jpg";
             }
             row.filename = filename;
-            row.thumbnail = await createThumbnailFromBlob(blob);
+            row.imgdata = await createThumbnailFromBlob(blob);
 
             imgFolder.file(filename, blob);
 
@@ -191,7 +191,7 @@
 
             // Update thumbs display (keep last 10)
             const thumbImg = document.createElement("img");
-            thumbImg.src = row.thumbnail;
+            thumbImg.src = row.imgdata;
             thumbsDiv.appendChild(thumbImg);
             if (thumbsDiv.children.length > 10) {
               thumbsDiv.removeChild(thumbsDiv.firstChild);
