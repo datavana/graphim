@@ -2,6 +2,15 @@
 
 This folder hosts simple web apps. No server needed. The apps run with JavaScript in the browser.
 
+## GetImg
+
+[👉 Open GetImg](https://datavana.github.io/graphim/getimg/)
+
+Prepare a csv file with image URLs in one of the columns.
+The app will download the images, add one column for the filename and one with a thumbnail, encoded as data url.
+The resulting images and the csv file will be packaged as zip file.
+
+
 ## Image2URL
 
 [👉 Open Image2URL](https://datavana.github.io/graphim/img2url)
