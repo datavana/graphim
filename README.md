@@ -44,7 +44,16 @@ Folder Structure:
 See the scripts folder for examples to generate image descriptions, extract text,
 feed images to a llm, extract image components or calculate image similarity using embeddings.
 
-## Getting started with using the Google Cloud Vision API
+## Facepager: Getting started with image prompts to the OpenAI API
+
+1. Install the latest Facepager version
+2. Create a database (New database) and 
+   add image files as seed nodes (Add Nodes -> Add files, then select some images). 
+3. Open the image prompt preset in the OpenAI category (Preset button)
+4. Enter your API key into the Access Token field
+5. Fetch data
+
+## Facepager: Getting started with using the Google Cloud Vision API
 
 *You need to register an app at the google cloud console and enable billing.
 Find some hints in the [Facepager wiki](https://github.com/strohne/Facepager/wiki/Getting-Started-with-Google-Cloud-Platform).
@@ -53,14 +62,10 @@ Alternatively, ask someone to borrow credentials. Careful: Costs may be generate
 1. Install the latest Facepager version
 2. Create a database (New database) and 
    add image files as seed nodes (Add Nodes -> Add files, then select some images). 
-3. Open the Google_Cloud_Platform-Web_Detection preset 
-   - Preset button
-   - Click folder in status bar, place Google_Cloud_Platform-Web_Detection.fp4.json in the folder
-   - Reload presets, apply the preset
+3. Open the web detection preset in the Google Cloud Platform category 
 4. Set OAuth2 client key and client secret of your Google Cloud vision project (Settings button). 
    In the headers, change the project ID according to your Google Cloud Vision project.
-5. Login. 
-6. Fetch data
+5. Login and fetch data
 
 You can export the resulting data, 
 convert it to a gexf file using [Table2Net](https://medialab.github.io/table2net/),
