@@ -2,10 +2,10 @@
 
 This folder hosts simple web apps. No server needed. The apps run with JavaScript in the browser.
 
-- [Open Image2URL](https://datavana.github.io/graphim/img2url)
-
 ## Image2URL
 
+[👉 Open Image2URL](https://datavana.github.io/graphim/img2url)
+ 
 Convert images in a folder to data URLs. 
 Conversion is done using JavaScript locally running in the browser.
 
