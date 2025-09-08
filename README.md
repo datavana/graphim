@@ -10,7 +10,7 @@ such as Epigraf or Facepager.
 
 Folder Structure:  
 
-- **apps**: Lightweigt web apps running in the browser, to be deployed using GitHub Pages.
+- **docs**: Lightweigt web apps running in the browser, to be deployed using GitHub Pages.
 - **data**: Data is stored outside the repository.  Because the folder content is ignored by git,
   You can safely copy data from outside the repository into the data subfolder.    
 - **scripts**: Scripts for working with images. Develop your workflows here. 
@@ -35,9 +35,12 @@ Folder Structure:
 ## Getting started with a web app
 
 1. Clone the repository
-2. Open the file apps/img2url/index.html in you browser
+2. Open the file docs/img2url/index.html in you browser
 3. Process some images by clicking the folder selector
 4. See the source code of index.html
+
+This app is deployed using GitHub Pages.
+You can access it online at [https://datavana.github.io/graphim/img2url](https://datavana.github.io/graphim/img2url)
 
 ## Getting started with image processing
 
