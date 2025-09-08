@@ -83,7 +83,7 @@ For keeping ids, scores and descriptions of the web entities in the network,
    ```
 2. Open Jupyter at http://localhost:8888
 
-3. Run a notebook
+3. Run the notebook BLIP example notebook
 
 
 The notebooks, data and lib folders are mounted into the Jupyter environment.
