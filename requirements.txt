@@ -12,4 +12,4 @@ tqdm
 albumentations
 transformers
 python-dotenv
-passlib[bcrypt=4.0.1]
+passlib[bcrypt]
