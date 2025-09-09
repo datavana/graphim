@@ -1,3 +1,10 @@
+:root {
+  --base-corner-radius: 10px;
+  --main-bg-color: #FAF0E6;
+
+}
+
+
 /* General */
 html, body {
   margin: 0;
@@ -5,7 +12,7 @@ html, body {
   display: flex;
   flex-direction: column; /* stack children vertically */
   font-family: "Segoe UI", Roboto, sans-serif;
-  background: #FAF0E6;
+  background: var(--main-bg-color);
   color: #333;
 }
 
@@ -37,12 +44,29 @@ header {
   gap: 0.75rem;
 }
 
+/* Both logos scale proportionally */
 .headerLogo {
-  height: auto;
-  width: 50%;
-  max-width: 300px;
-  min-width: 50px;
+  height: 75px;       /* base height for normal screens */
+  width: auto;        /* keep aspect ratio */
+  max-width: 225px;   /* optional maximum width */
+  flex-shrink: 1;     /* allow shrinking on smaller screens */
 }
+
+/* Make logos shrink on small screens */
+@media (max-width: 600px) {
+  .headerLogo {
+    height: 35px;     /* smaller height on mobile */
+    max-width: 100px; /* reduce max width */
+  }
+}
+
+@media (max-width: 400px) {
+  .headerLogo {
+    height: 25px;     /* very small screens */
+    max-width: 80px;
+  }
+}
+
 
 header h1 {
   font-size: 1.8rem;
@@ -68,7 +92,7 @@ header .subtitle {
 .bar {
   padding: 3rem;
   background: white;
-  border-radius: 10px;
+  border-radius: var(--base-corner-radius);
   margin: 0.75rem 1rem;
   display: flex;
   align-items: center;
