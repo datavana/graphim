@@ -2,6 +2,47 @@ let parsedData = [];
 let zip = null;
 let stopFlag = false;
 
+function generateUniqueFilename(url, index, usedFilenames) {
+  try {
+    const urlObj = new URL(url);
+    let filename = urlObj.pathname.split("/").pop() || `image_${index}`;
+    
+    // Remove query parameters if they exist
+    filename = filename.split('?')[0];
+    
+    // Add extension if missing
+    if (!filename.includes(".") || filename.endsWith(".")) {
+      filename = filename.replace(/\.$/, '') + ".jpg";
+    }
+    
+    // Ensure image filename uniqueness by adding suffix if needed
+    let uniqueFilename = filename;
+    let suffix = 1;
+    while (usedFilenames.has(uniqueFilename)) {
+      const lastDotIndex = filename.lastIndexOf('.');
+      if (lastDotIndex > 0) {
+        const name = filename.substring(0, lastDotIndex);
+        const ext = filename.substring(lastDotIndex);
+        uniqueFilename = `${name}_${suffix}${ext}`;
+      } else {
+        uniqueFilename = `${filename}_${suffix}`;
+      }
+      suffix++;
+    }
+    
+    return uniqueFilename;
+  } catch (e) {
+    // If URL parsing fails, use fallback
+    let fallback = `image_${index}.jpg`;
+    let suffix = 1;
+    while (usedFilenames.has(fallback)) {
+      fallback = `image_${index}_${suffix}.jpg`;
+      suffix++;
+    }
+    return fallback;
+  }
+}
+
 async function createThumbnailFromBlob(blob, maxSize = 50) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -51,12 +92,14 @@ function renderPreview(headers, rows) {
   const table = document.getElementById("previewTable");
   table.innerHTML = "";
 
+  const allHeaders = [...headers, "filename", "imgdata", "_status"];
+
   const thead = document.createElement("thead");
   const headRow = document.createElement("tr");
   const statusTh = document.createElement("th");
   statusTh.textContent = "✔";
   headRow.appendChild(statusTh);
-  headers.forEach(h => {
+  allHeaders.forEach(h => {
     const th = document.createElement("th");
     th.textContent = h;
     headRow.appendChild(th);
@@ -71,9 +114,18 @@ function renderPreview(headers, rows) {
     statusTd.classList.add("status");
     statusTd.textContent = "";
     tr.appendChild(statusTd);
-    headers.forEach(h => {
+    allHeaders.forEach(h => {
       const td = document.createElement("td");
-      td.textContent = row[h] || "";
+      if (h === "imgdata" && row[h]) {
+        // Show thumbnail if available
+        const img = document.createElement("img");
+        img.src = row[h];
+        img.style.maxWidth = "30px";
+        img.style.maxHeight = "30px";
+        td.appendChild(img);
+      } else {
+        td.textContent = row[h] || "";
+      }
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
@@ -92,33 +144,38 @@ document.getElementById("fetchBtn").addEventListener("click", async () => {
   const imgFolder = zip.folder("images");
   stopFlag = false;
 
+  // Init new columns to ensure they're always present in CSV
+  const usedFilenames = new Set();
+  parsedData.forEach((row, index) => {
+    row.filename = "";
+    row.imgdata = "";
+    row._status = "";
+  });
+
   document.getElementById("fileBar").style.display = "none";
   document.getElementById("urlColumn").style.display = "none";
   document.getElementById("fetchBtn").style.display = "none";
   document.getElementById("stopBtn").style.display = "inline-block";
 
-  let total = parsedData.length;
+  let total = parsedData.filter(row => row[urlCol]).length;
   let count = 0;
 
   for (let i = 0; i < parsedData.length; i++) {
     if (stopFlag) break;
     const row = parsedData[i];
+    
     if (row[urlCol]) {
       try {
         const response = await fetch(row[urlCol]);
         if (!response.ok) throw new Error(`Failed to fetch ${row[urlCol]}`);
         const blob = await response.blob();
 
-        const urlObj = new URL(row[urlCol]);
-        let filename = urlObj.pathname.split("/").pop() || `image_${i}`;
-        if (!filename.includes(".")) {
-          filename += ".jpg";
-        }
+        const filename = generateUniqueFilename(row[urlCol], i, usedFilenames);
+        usedFilenames.add(filename);
+        
         row.filename = filename;
         row.imgdata = await createThumbnailFromBlob(blob);
-
         imgFolder.file(filename, blob);
-
         row._status = "✓";
 
         // Update thumbs display (keep last 10)
@@ -128,15 +185,15 @@ document.getElementById("fetchBtn").addEventListener("click", async () => {
         if (thumbsDiv.children.length > 10) {
           thumbsDiv.removeChild(thumbsDiv.firstChild);
         }
+        
+        count++;
       } catch (e) {
         console.error("Error processing:", row[urlCol], e);
         row._status = "✗";
+        count++;
       }
-    } else {
-      total--; // skip rows without URL
     }
 
-    count++;
     progressDiv.textContent = `Processed ${count} of ${total}`;
 
     // Update table preview live (first 20 rows only)
