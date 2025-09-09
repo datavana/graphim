@@ -1,0 +1,71 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+}
+
+header {
+  background: #333;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+}
+
+.bar {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#previewWrapper {
+  flex: 1;
+  overflow-y: auto;
+}
+
+table { 
+  border-collapse: collapse; 
+  width: 100%; 
+}
+
+th, td { 
+  border: 1px solid #ccc; 
+  padding: 0.25rem 0.5rem; 
+  font-size: 0.9rem; 
+}
+
+td.status { 
+  width: 2rem; 
+  text-align: center; 
+}
+
+.done { 
+  background-color: #e6ffe6; 
+}
+
+.fail { 
+  background-color: #ffe6e6; 
+}
+
+#progressControls {
+  display: flex; 
+  flex: 1;
+}
+
+#thumbs {
+  display: flex;
+}
+
+#thumbs img { 
+  max-width: 50px; 
+  max-height: 50px; 
+  margin-left: 0.5rem; 
+}
+
+#progress {
+  font-weight: bold; 
+  margin-left: 2em;
+}
