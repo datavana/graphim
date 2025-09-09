@@ -1,71 +1,196 @@
+/* General */
 html, body {
   margin: 0;
   height: 100%;
   display: flex;
-  flex-direction: column;
-  font-family: sans-serif;
+  flex-direction: column; /* stack children vertically */
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: #FAF0E6;
+  color: #333;
 }
 
+/* Make previewWrapper (table area) grow to fill space */
+#previewWrapper {
+  flex: 1;              /* middle row grows */
+  overflow-y: auto;     /* scroll if content is too tall */
+  padding: 1rem;        /* spacing so table isn’t glued to edges */
+}
+
+/* Header */
 header {
-  background: #333;
+  background: linear-gradient(135deg, #800020, #B03060);
   color: white;
-  padding: 0.5rem 1rem;
-  font-size: 1.2rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.bar {
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid #ccc;
+#headerContent {
   display: flex;
+  justify-content: space-between; /* text left, logos right */
   align-items: center;
   gap: 1rem;
 }
 
-#previewWrapper {
-  flex: 1;
-  overflow-y: auto;
-}
-
-table { 
-  border-collapse: collapse; 
-  width: 100%; 
-}
-
-th, td { 
-  border: 1px solid #ccc; 
-  padding: 0.25rem 0.5rem; 
-  font-size: 0.9rem; 
-}
-
-td.status { 
-  width: 2rem; 
-  text-align: center; 
-}
-
-.done { 
-  background-color: #e6ffe6; 
-}
-
-.fail { 
-  background-color: #ffe6e6; 
-}
-
-#progressControls {
-  display: flex; 
-  flex: 1;
-}
-
-#thumbs {
+#logoContainer {
   display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-#thumbs img { 
-  max-width: 50px; 
-  max-height: 50px; 
-  margin-left: 0.5rem; 
+.headerLogo {
+  height: auto;
+  width: 50%;
+  max-width: 300px;
+  min-width: 50px;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+header .subtitle {
+  font-size: 1rem;
+  font-weight: 300;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Instructions */
+#topText {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Bars */
+.bar {
+  padding: 3rem;
+  background: white;
+  border-radius: 10px;
+  margin: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Table */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+th, td {
+  border: 1px solid #eee;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+}
+
+th {
+  background: #F0E6D9; /* slightly darker than #FAF0E6 */
+  text-align: left;
+  font-weight: 600;
+}
+
+td.status {
+  width: 2rem;
+  text-align: center;
+}
+
+.done {
+  background-color: #D9C7AD;
+}
+
+.fail {
+  background-color: #ffe6e6;
+}
+
+/* Buttons */
+button {
+  background: #800020;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease-in-out;
+}
+
+button:hover {
+  background: #B03060;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Progress controls */
+#progressControls {
+  display: flex;
+  flex: 1;
 }
 
 #progress {
-  font-weight: bold; 
+  font-weight: bold;
   margin-left: 2em;
+}
+
+/* Thumbnails area */
+#thumbs {
+  display: flex;
+  flex-wrap: wrap;             /* wrap into new rows */
+  justify-content: flex-start; /* align items to the left */
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+
+  width: 100%;
+  height: auto;                /* grow as needed */
+  max-height: none;            /* no cutoff */
+  overflow: visible;           /* show all thumbnails */
+}
+
+/* Thumbnails */
+#thumbs img {
+  max-width: 150px;            /* don’t upscale */
+  height: auto;                /* keep proportions */
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  object-fit: contain;         /* never crop */
+}
+
+/* Download button ABOVE thumbnails */
+#downloadZipBtn {
+  display: block;
+  margin: 1rem auto 0;         /* center horizontally */
+  background: #800020;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease-in-out;
+}
+
+#downloadZipBtn:hover {
+  background: #B03060;
+}
+
+
+/* Footer */
+footer {
+  background: linear-gradient(135deg, #800020, #B03060);
+  color: white;
+  text-align: center;
+  padding: 1rem;
 }
