@@ -8,7 +8,7 @@ function addToErrorLog(url, rowIndex, errorMessage, errorDetails) {
   const logEntry = {
     timestamp,
     url,
-    rowIndex: rowIndex + 1, // Human readable (1-based)
+    rowIndex: rowIndex + 1,
     errorMessage,
     errorDetails
   };
@@ -39,7 +39,6 @@ function updateLogViewer() {
     logViewer.appendChild(logEntry);
   });
   
-  // Auto-scroll to bottom
   logViewer.scrollTop = logViewer.scrollHeight;
 }
 
@@ -292,7 +291,6 @@ document.getElementById("fetchBtn").addEventListener("click", async () => {
         count++;
       }
     } else {
-      // Count rows without URLs too
       count++;
     }
 
@@ -344,14 +342,13 @@ document.getElementById("toggleLogBtn").addEventListener("click", () => {
   } else {
     logSection.style.display = "none";
     toggleBtn.textContent = "Show Log";
-    // Show the "Show Error Log" button if there are errors
     if (errorLog.length > 0) {
       showLogBtn.style.display = "inline-block";
     }
   }
 });
 
-// Show Error Log button in progress controls
+// Show Error Log button
 document.getElementById("showLogBtn").addEventListener("click", () => {
   const logSection = document.getElementById("logSection");
   const toggleBtn = document.getElementById("toggleLogBtn");
