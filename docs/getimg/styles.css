@@ -1,7 +1,7 @@
 :root {
   --base-corner-radius: 10px;
   --main-bg-color: #FAF0E6;
-  --header-gradient-bg: linear-gradient(135deg, #800020, #B03060);
+  --header-bg: url("html_images/background.jpg");
   --button-bg-color: #800020;               /* primary button background */
   --button-hover-bg-color: #B03060;
   --fail-bg-color: #ffe6e6;  /* fail status background */
@@ -31,10 +31,12 @@ html, body {
 
 /* Header */
 header {
-  background: var(--header-gradient-bg);
+  background: var(--header-bg);
   color: white;
   padding: 1.5rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background-size: cover;
+  background-position: center;
 }
 
 #headerContent {
@@ -219,7 +221,7 @@ button:disabled {
 
 /* Footer */
 footer {
-  background: var(--header-gradient-bg);
+  background: var(--header-bg);
   color: white;
   text-align: center;
   padding: 1rem;
