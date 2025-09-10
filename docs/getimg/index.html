@@ -9,7 +9,25 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>Download images from CSV file</header>
+<header>
+  <div id="headerContent">
+    <!-- Left: title and subtitle -->
+    <div id="headerText">
+      <h1>ImgNetMaker</h1>
+      <p class="subtitle">Download images from CSV file</p>
+    </div>
+
+    <!-- Right: logos -->
+    <div id="logoContainer">
+      <img src="html_images/logo1.png" alt="Logo 1" class="headerLogo">
+      <img src="html_images/logo2.png" alt="Logo 2" class="headerLogo">
+    </div>
+  </div>
+</header>
+
+<div id="topText">
+  <p>This is the image to net maker. In it ... [add instuctions statement]</p>
+</div>
 
   <div id="fileBar" class="bar">
     <input type="file" id="csvFile" accept=".csv">
@@ -43,5 +61,10 @@
   </div>
 
   <script src="script.js"></script>
+
+  <footer>
+    Footer information here
+  </footer>
+
 </body>
 </html>
