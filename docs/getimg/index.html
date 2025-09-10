@@ -9,20 +9,9 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header>
-  <div id="headerContent">
-    <!-- Left: title and subtitle -->
-    <div id="headerText">
-      <h1>ImgNetMaker</h1>
-      <p class="subtitle">Download images from CSV file</p>
-    </div>
 
-    <!-- Right: logos -->
-    <div id="logoContainer">
-      <img src="html_images/logo1.png" alt="Logo 1" class="headerLogo">
-      <img src="html_images/logo2.png" alt="Logo 2" class="headerLogo">
-    </div>
-  </div>
+<header>
+  <img src="html_images/favicon.svg" alt="Logo" class="headerLogo">
 </header>
 
 <div id="topText">
@@ -42,7 +31,7 @@
 
   <div id="fileBar" class="bar">
     <input type="file" id="csvFile" accept=".csv">
-    <label for="urlColumn">Select URL column: </label>
+    <label for="urlColumn">Select Image URL Column: </label>
     <select id="urlColumn"></select>
     <button id="fetchBtn">Fetch Images</button>
   </div>
@@ -73,9 +62,24 @@
 
   <script src="script.js"></script>
 
-  <footer>
-    Footer information here
-  </footer>
+<footer>
+  <div id="footertext">
+    <h1>
+      ImgNetMaker - Public Beta Version: v0.1.0-beta
+      <a href="https://github.com/your-repo-link" target="_blank">
+      <span class="emoji">📖</span> Documentation/GitHub
+      </a>
+    </h1>
+
+    <h2>Developed by Jakob Juenger, Katharina Maubach, Lennart Hoefig & Jane Knispel</h2>
+    <h3>Vision & Design by Janna Joceli Omena <h3>
+  </div>
+  <div id="inslogo">
+    <img src="html_images/logo1.png" alt="Logo 1" class="headerLogo">
+    <img src="html_images/logo2.png" alt="Logo 2" class="headerLogo">
+  </div>
+</footer>
+
 
 </body>
 </html>
