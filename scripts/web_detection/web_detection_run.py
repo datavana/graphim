@@ -3,7 +3,7 @@ import importlib
 import scripts.web_detection.query as wdquery
 
 #%%
-importlib.reload(scripts.web_detection.query)
+importlib.reload(wsquery)
 
 
 #%% run 2029-09-10
