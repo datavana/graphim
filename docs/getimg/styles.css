@@ -238,6 +238,8 @@ button:disabled {
   font-size: 1rem;
   transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+    width: 200px;     /* ✅ fixed width */
+  text-align: center; /* ✅ center text inside */
 }
 
 /* Hover effect for both buttons */
