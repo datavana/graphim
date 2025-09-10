@@ -1,6 +1,6 @@
 :root {
   --base-corner-radius: 10px;
-  --main-bg-color: #FAF0E6;
+  --main-bg-color: white;
   --header-bg: url("html_images/background.jpg");
   --button-bg-color: #800020;               /* primary button background */
   --button-hover-bg-color: #B03060;
