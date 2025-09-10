@@ -12,7 +12,8 @@ Folder Structure:
 
 - **docs**: Lightweigt web apps running in the browser, to be deployed using GitHub Pages.
 - **data**: Data is stored outside the repository.  Because the folder content is ignored by git,
-  You can safely copy data from outside the repository into the data subfolder.    
+  You can safely copy data from outside the repository into the data subfolder.
+- **models**: Your fine tuned models
 - **scripts**: Scripts for working with images. Develop your workflows here. 
 - **notebooks**: Interactive Jupyter Notebooks for trying out examples.
   You can start a local Jupyter Environment using docker, see below.

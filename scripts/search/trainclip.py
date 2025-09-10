@@ -32,7 +32,8 @@ df["imagepath"] = df["images"].apply(lambda x: os.path.join(imagefolder, x))
 
 #%% Load model
 
-model_name = "openai/clip-vit-base-patch32"  # good starting point
+# TODO: Check, supports German
+model_name = "openai/clip-vit-base-patch32"
 model = CLIPModel.from_pretrained(model_name)
 processor = CLIPProcessor.from_pretrained(model_name)
 
@@ -143,5 +144,5 @@ for epoch in range(3):
 
 #%%
 
-model.save_pretrained("clip-di-finetuned")
-processor.save_pretrained("clip-di-finetuned")
+model.save_pretrained("models/clip-di-finetuned")
+processor.save_pretrained("models/clip-di-finetuned")

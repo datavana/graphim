@@ -70,7 +70,7 @@ class CustomCLIPEmbeddingFunction(EmbeddingFunction):
 
 #%% Load model for embeddings
 
-model_path = "clip-di-finetuned"
+model_path = "models/clip-di-finetuned"
 processor = CLIPProcessor.from_pretrained(model_path)
 model = CLIPModel.from_pretrained(model_path)
 model.eval()
