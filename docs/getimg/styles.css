@@ -13,11 +13,16 @@
 html, body {
   margin: 0;
   height: 100%;
-  display: flex;
-  flex-direction: column; /* stack children vertically */
   font-family: "Segoe UI", Roboto, sans-serif;
   background: var(--main-bg-color);
   color: #333;
+}
+
+#pageWidget {
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column; /* stack children vertically */
 }
 
 /* Make previewWrapper (table area) grow to fill space */
@@ -201,7 +206,7 @@ button:disabled {
 }
 
 /* Thumbnails area */
-#thumbs {
+#thumbsWidget {
   display: flex;
   flex-wrap: wrap;             /* wrap into new rows */
   justify-content: flex-start; /* align items to the left */
@@ -216,7 +221,7 @@ button:disabled {
 }
 
 /* Thumbnails */
-#thumbs img {
+#thumbsWidget img {
   max-width: 150px;            /* don’t upscale */
   height: auto;                /* keep proportions */
   border-radius: 6px;

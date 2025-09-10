@@ -3,14 +3,17 @@
  * Static functions that don't depend on application state
  */
 class Utils {
+
     /**
      * Generates a unique filename from a URL, handling duplicates
+     *
      * @param {string} url - The image URL
      * @param {number} index - Row index for fallback naming
      * @param {Set} usedFilenames - Set of already used filenames
+     * @param {string} defaultExtension The extension to add if the path does not end with a file extension
      * @returns {string} Unique filename
      */
-    static generateUniqueFilename(url, index, usedFilenames) {
+    static generateUniqueFilename(url, index, usedFilenames, defaultExtension = '.jpg') {
         try {
             const urlObj = new URL(url);
             let filename = urlObj.pathname.split("/").pop() || `image_${index}`;
@@ -20,7 +23,7 @@ class Utils {
             
             // Add extension if missing
             if (!filename.includes(".") || filename.endsWith(".")) {
-                filename = filename.replace(/\.$/, '') + ".jpg";
+                filename = filename.replace(/\.$/, '') + defaultExtension;
             }
             
             // Ensure image filename uniqueness by adding suffix if needed
@@ -53,6 +56,7 @@ class Utils {
 
     /**
      * Creates a thumbnail from a blob
+     *
      * @param {Blob} blob - The image blob
      * @param {number} maxSize - Maximum thumbnail size in pixels
      * @returns {Promise<string>} Promise resolving to data URL
@@ -84,6 +88,7 @@ class Utils {
 
     /**
      * Validates if a string is a valid URL
+     *
      * @param {string} string - The string to validate
      * @returns {boolean} True if valid URL
      */

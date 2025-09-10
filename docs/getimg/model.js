@@ -7,6 +7,7 @@
  * Handles HTTP requests and network operations
  */
 class RequestModule {
+
     constructor() {
         this.stopFlag = false;
     }
