@@ -98,7 +98,7 @@ header .subtitle {
 
 /* Bars */
 .bar {
-  padding: 3rem;
+  padding: 1.5rem;
   background: white;
   border-radius: var(--base-corner-radius);
   margin: 0.75rem 1rem;
@@ -115,7 +115,7 @@ table {
   width: 100%;
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
@@ -221,9 +221,9 @@ button:disabled {
 
 /* Footer */
 footer {
-  background: var(--header-bg);
+  background: var(--main-bg-color);
   color: white;
-  text-align: center;
+  text-align: right;
   padding: 1rem;
 }
 
