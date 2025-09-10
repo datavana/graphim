@@ -6,11 +6,27 @@ import io
 from pathlib import Path
 from PIL import Image
 from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 
 #%% lib
-def vision_loop(image_path,  token=None, api_key=None, service_account_key_path=None, limit=5):
 
+# Scope für Cloud Vision API
+SCOPES = ['https://www.googleapis.com/auth/cloud-vision']
+
+def authenticate(service_accout_path):
+    flow = InstalledAppFlow.from_client_secrets_file(
+        service_accout_path,  # Pfad zu deiner OAuth 2.0 Client-ID JSON-Datei
+        SCOPES
+    )
+    credentials = flow.run_local_server(port=0)
+    return credentials
+
+
+
+def vision_loop(image_path,  token=None, api_key=None, service_account_key_path=None, limit=5):
+    print(service_account_key_path)
     # Authenticate and set the URL and headers
     if api_key:
         url = f"https://vision.googleapis.com/v1/images:annotate?key={api_key}"
@@ -24,6 +40,7 @@ def vision_loop(image_path,  token=None, api_key=None, service_account_key_path=
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
         }
+        print("token from service account: ", token)
     elif token:
         url = "https://vision.googleapis.com/v1/images:annotate"
         headers = {
@@ -124,4 +141,9 @@ def examine_result(result):
         print(f"Label: {label['label']}")
         print(f"Language: {label['languageCode']}")
         print("---")
+
+#%%
+token = None
+service_account_key_path = "./secrets/service_account_key.json"
+vision_loop("./data/di-100/images-rest", limit = 1000, token=token)
 
