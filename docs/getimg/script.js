@@ -1,36 +1,33 @@
-class WebApp {
-  constructor() {
-    this.parsedData = [];
-    this.zip = null;
-    this.stopFlag = false;
-    this.errorLog = [];
-    this.initEventListeners();
-  }
-
-  addToErrorLog(url, rowIndex, errorMessage, errorDetails) {
-    const timestamp = new Date().toLocaleTimeString();
-    const logEntry = {
-      timestamp,
-      url,
-      rowIndex: rowIndex + 1,
-      errorMessage,
-      errorDetails
-    };
-    
-    this.errorLog.push(logEntry);
-    this.updateLogViewer();
-    
-    // Show log section if there are errors and update button visibility
-    if (this.errorLog.length === 1) {
-      document.getElementById("logSection").style.display = "block";
-      document.getElementById("showLogBtn").style.display = "none";
+class Logger {
+    constructor(webApp) {
+        this.webApp = webApp;
+        this.errorLog = [];
     }
-  }
 
-  updateLogViewer() {
+    addToErrorLog(url, rowIndex, errorMessage, errorDetails) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = {
+          timestamp,
+          url,
+          rowIndex: rowIndex + 1,
+          errorMessage,
+          errorDetails
+        };
+
+        this.errorLog.push(logEntry);
+        this.updateLogViewer();
+
+        // Show log section if there are errors and update button visibility
+        if (this.errorLog.length === 1) {
+          document.getElementById("logSection").style.display = "block";
+          document.getElementById("showLogBtn").style.display = "none";
+        }
+      }
+
+   updateLogViewer() {
     const logViewer = document.getElementById("logViewer");
     logViewer.innerHTML = "";
-    
+
     this.errorLog.forEach(entry => {
       const logEntry = document.createElement("div");
       logEntry.className = "log-entry";
@@ -42,7 +39,7 @@ class WebApp {
       `;
       logViewer.appendChild(logEntry);
     });
-    
+
     logViewer.scrollTop = logViewer.scrollHeight;
   }
 
@@ -52,13 +49,26 @@ class WebApp {
     document.getElementById("logSection").style.display = "none";
     document.getElementById("showLogBtn").style.display = "none";
   }
+}
+
+class WebApp {
+  constructor() {
+    this.parsedData = [];
+    this.zip = null;
+    this.stopFlag = false;
+
+    // Init subclasses
+    this.logger = new Logger(this);
+
+    this.initEventListeners();
+  }
 
   resetApplication() {
     // Reset global state
     this.parsedData = [];
     this.zip = null;
     this.stopFlag = false;
-    this.clearErrorLog();
+    this.logger.clearErrorLog();
     
     // Reset UI elements
     document.getElementById("csvFile").value = "";
@@ -223,7 +233,7 @@ class WebApp {
     this.stopFlag = false;
 
     // Clear previous error log and hide log section
-    this.clearErrorLog();
+    this.logger.clearErrorLog();
     
     // Init new columns to ensure they are always present in CSV
     const usedFilenames = new Set();
@@ -289,7 +299,7 @@ class WebApp {
             errorMessage = e.message || "Unknown error";
           }
           
-          this.addToErrorLog(row[urlCol], i, errorMessage, errorDetails);
+          this.logger.addToErrorLog(row[urlCol], i, errorMessage, errorDetails);
           
           row._status = "✗";
           count++;
@@ -330,7 +340,7 @@ class WebApp {
   }
 
   handleClearLog() {
-    this.clearErrorLog();
+    this.logger.clearErrorLog();
   }
 
   handleToggleLog() {
