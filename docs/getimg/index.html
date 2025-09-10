@@ -32,10 +32,20 @@
   <div id="fileBar" class="bar">
     <label for="csvFile" class="upload-btn">Upload CSV</label>
     <input type="file" id="csvFile" accept=".csv">
+    <span id="fileName"></span>
     <label for="urlColumn">Select Image URL Column: </label>
     <select id="urlColumn"></select>
     <button id="fetchBtn">Fetch Images</button>
   </div>
+
+<script>
+  document.getElementById('csvFile').onchange = e => {
+    const file = e.target.files[0];
+    if (file) {
+      document.getElementById('fileName').textContent = file.name;
+    }
+  };
+</script>
 
   <div id="fetchBar" class="bar" style="display:none;">
     <div id="progressControls">
