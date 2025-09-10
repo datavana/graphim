@@ -1,6 +1,12 @@
 :root {
   --base-corner-radius: 10px;
   --main-bg-color: #FAF0E6;
+  --header-gradient-bg: linear-gradient(135deg, #800020, #B03060);
+  --button-bg-color: #800020;               /* primary button background */
+  --button-hover-bg-color: #B03060;
+  --fail-bg-color: #ffe6e6;  /* fail status background */
+  --done-bg-color: #D9C7AD;  /* done status background */
+  --th-bg-color: #F0E6D9;
 
 }
 
@@ -25,7 +31,7 @@ html, body {
 
 /* Header */
 header {
-  background: linear-gradient(135deg, #800020, #B03060);
+  background: var(--header-gradient-bg);
   color: white;
   padding: 1.5rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -118,7 +124,7 @@ th, td {
 }
 
 th {
-  background: #F0E6D9; /* slightly darker than #FAF0E6 */
+  background: var(--th-bg-color); /* slightly darker than #FAF0E6 */
   text-align: left;
   font-weight: 600;
 }
@@ -129,16 +135,16 @@ td.status {
 }
 
 .done {
-  background-color: #D9C7AD;
+  background-color: var(--done-bg-color);
 }
 
 .fail {
-  background-color: #ffe6e6;
+  background-color: var(--fail-bg-color);
 }
 
 /* Buttons */
 button {
-  background: #800020;
+  background: var(--button-bg-color);
   color: white;
   border: none;
   padding: 0.6rem 1.2rem;
@@ -149,7 +155,7 @@ button {
 }
 
 button:hover {
-  background: #B03060;
+  background: var(--button-hover-bg-color);
 }
 
 button:disabled {
@@ -196,7 +202,7 @@ button:disabled {
 #downloadZipBtn {
   display: block;
   margin: 1rem auto 0;         /* center horizontally */
-  background: #800020;
+  background: var(--button-bg-color);
   color: white;
   border: none;
   padding: 0.6rem 1.2rem;
@@ -207,13 +213,13 @@ button:disabled {
 }
 
 #downloadZipBtn:hover {
-  background: #B03060;
+  background: var(--button-hover-bg-color);
 }
 
 
 /* Footer */
 footer {
-  background: linear-gradient(135deg, #800020, #B03060);
+  background: var(--header-gradient-bg);
   color: white;
   text-align: center;
   padding: 1rem;
