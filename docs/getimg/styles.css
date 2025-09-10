@@ -3,8 +3,8 @@
   --main-bg-color: white;
   --header-bg: url("html_images/background.jpg");
   --button-bg-color: white;               /* primary button background */
-  --fail-bg-color: #ffe6e6;  /* fail status background */
-  --done-bg-color: #f5f5f5;  /* done status background */
+  --fail-bg-color: #F38CA9;  /* fail status background */
+  --done-bg-color: #C8F5D3;  /* done status background */
 
 }
 
@@ -57,6 +57,8 @@ header::before {
   max-height: 200px; /* cap it so it doesn’t get too huge */
   width: auto;       /* keep aspect ratio */
   flex-shrink: 0;    /* don’t let it shrink too much */
+  position: relative;
+  z-index: 2
 }
 
 /* Responsive shrink on smaller screens */
