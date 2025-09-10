@@ -30,10 +30,20 @@
   <div id="fileBar" class="bar">
     <label for="csvFile" class="upload-btn">Upload CSV</label>
     <input type="file" id="csvFile" accept=".csv">
+    <span id="fileName"></span>
     <label for="urlColumn">Select Image URL Column: </label>
     <select id="urlColumn"></select>
     <button id="fetchBtn">Fetch Images</button>
   </div>
+
+<script>
+  document.getElementById('csvFile').onchange = e => {
+    const file = e.target.files[0];
+    if (file) {
+      document.getElementById('fileName').textContent = file.name;
+    }
+  };
+</script>
 
   <div id="fetchBar" class="bar" style="display:none;">
     <div id="progressControls">
@@ -49,6 +59,7 @@
   <div id="previewWrapper">
     <table id="previewTable"></table>
   </div>
+
 
   <div id="logSection" class="log-section" style="display:none;">
     <div class="log-header">
@@ -77,7 +88,7 @@
     <h3>Vision & Design by Janna Joceli Omena <h3>
   </div>
   <div id="inslogo">
-    <img src="html_images/logo1.png" alt="Logo 1" class="headerLogo">
+    <img src="html_images/logo1.svg" alt="Logo 1" class="headerLogo">
     <img src="html_images/logo2.png" alt="Logo 2" class="headerLogo">
   </div>
 </footer>
