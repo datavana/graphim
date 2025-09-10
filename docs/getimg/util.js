@@ -5,6 +5,18 @@
 class Utils {
 
     /**
+     * Remove all CSS classes starting with a prefix
+     *
+     * @param {HTMLElement} element
+     * @param {String} prefix
+     */
+    static removeClasses(element, prefix) {
+         [...element.classList]
+            .filter(cls => cls.startsWith(prefix))
+            .forEach(cls => element.classList.remove(cls));
+    }
+
+    /**
      * Generates a unique filename from a URL, handling duplicates
      *
      * @param {string} url - The image URL
@@ -98,6 +110,20 @@ class Utils {
             return true;
         } catch (_) {
             return false;
+        }
+    }
+
+    static humanizeError(error) {
+        if (error.name === "TypeError") {
+            return "Network Error";
+        } else if (error.message.includes("404")) {
+            return "File Not Found (404)";
+        } else if (error.message.includes("403")) {
+            return "Access Forbidden (403)";
+        } else if (error.message.includes("500")) {
+            return "Server Error (500)";
+        } else {
+            return error.message || "Unknown error";
         }
     }
 }

@@ -1,6 +1,5 @@
 /**
- * View layer for the Image CSV Processor
- * Handles UI components and user interactions
+ * View layer: Handles UI components and user interactions
  */
 
 /**
@@ -8,9 +7,14 @@
  */
 class BaseWidgetClass {
 
-    constructor(app, elementId, parent) {
-        this.app = app;
+    constructor(elementId, parent, events) {
+
         this.parent = parent;
+        this.events = events;
+        if (!this.events && this.parent) {
+            this.events = this.parent.events;
+        }
+
         this.element = document.getElementById(elementId);
     }
 
@@ -40,27 +44,24 @@ class BaseWidgetClass {
         }
     }
 
-    setContent(content) {
-        if (this.element) {
-            this.element.innerHTML = content;
-        }
-    }
 }
 
 class PageWidget extends BaseWidgetClass {
-    constructor(app, elementId) {
-        super(app, elementId);
+    constructor(elementId, events) {
+        super(elementId, null, events);
 
-        this.tableWidget = new TableWidget(this.app, 'tableWidget', this);
-        this.logWidget = new LogWidget(this.app, 'logWidget', 'logViewer', this);
-        this.fetchWidget = new FetchWidget(this.app,'fetchWidget', this);
-        this.thumbsWidget = new ThumbsWidget(this.app, 'thumbsWidget', this);
+        this.tableWidget = new TableWidget('tableWidget', this);
+        this.logWidget = new LogWidget( 'logWidget', this);
+        this.fetchWidget = new FetchWidget('fetchWidget', this);
+        this.thumbsWidget = new ThumbsWidget( 'thumbsWidget', this);
 
         this.initEvents();
     }
 
     initEvents() {
-        document.getElementById("startOverBtn").addEventListener("click", () => this.app.startOver());
+        document.getElementById("startOverBtn").addEventListener(
+            "click", () => this.events.emit('app:reset:start')
+        );
     }
 
     reset() {
@@ -68,21 +69,41 @@ class PageWidget extends BaseWidgetClass {
         this.logWidget.reset();
         this.fetchWidget.reset();
         this.thumbsWidget.reset();
+
+        this.setStage('start');
+    }
+
+    /**
+     * Replace stage CSS class
+     *
+     * @param {String} stage
+     */
+    setStage(stage) {
+        Utils.removeClasses(this.element, 'stage-');
+        this.element.classList.add(`stage-${stage}`);
     }
 }
 
 class FetchWidget extends BaseWidgetClass {
 
-    constructor(app, elementId, parent) {
-        super(app, elementId, parent);
+    constructor(elementId, parent) {
+        super(elementId, parent);
         this.initEvents();
     }
 
     initEvents() {
-        document.getElementById("csvFile").addEventListener("change", () => this.handleFileChange());
-        document.getElementById("fetchBtn").addEventListener("click", () => this.handleFetch());
-        document.getElementById("stopBtn").addEventListener("click", () => this.handleStop());
-        document.getElementById("downloadZipBtn").addEventListener("click", () => this.handleDownloadZip());
+        document.getElementById("csvFile").addEventListener(
+            "change", () => this.events.emit('app:input:changed', {'type' : 'csv'})
+        );
+        document.getElementById("downloadZipBtn").addEventListener(
+            "click", () => this.events.emit('app:download:start', {'type' : 'zip'})
+        );
+        document.getElementById("fetchBtn").addEventListener(
+            "click", () => this.events.emit('app:fetch:start')
+        );
+        document.getElementById("stopBtn").addEventListener(
+            "click", () => this.events.emit('app:fetch:stop')
+        );
     }
 
     reset() {
@@ -90,197 +111,52 @@ class FetchWidget extends BaseWidgetClass {
         document.getElementById("csvFile").value = "";
         document.getElementById("urlColumn").innerHTML = "";
         document.getElementById("progress").textContent = "";
-
-        // Reset button visibility
-        this.showFileControls();
-        this.hideProcessingControls();
+        document.getElementById('fileName').textContent = "";
     }
 
-    /**
-     * Stop processing
-     */
-    handleStop() {
-        this.app.requestModule.stop();
-    }
-
-    /**
-     * Download ZIP file
-     */
-    async handleDownloadZip() {
-        try {
-            await this.app.dataModule.saveZip();
-        } catch (error) {
-            alert(error.message);
-        }
-    }
-
-    /**
-     * Handle CSV file upload and parsing
-     */
-    async handleFileChange() {
+    getInputFile() {
         const fileInput = document.getElementById("csvFile");
         if (!fileInput.files.length) return;
-        const file = fileInput.files[0]
-
-        try {
-            document.getElementById('fileName').textContent = file.name;
-            const result = await this.app.dataModule.loadCSV(file);
-
-            // Populate column selector
-            const select = document.getElementById("urlColumn");
-            select.innerHTML = "";
-            result.headers.forEach(header => {
-                const option = document.createElement("option");
-                option.value = header;
-                option.textContent = header;
-                select.appendChild(option);
-            });
-
-            // Show preview table
-            this.parent.tableWidget.renderPreview(result.headers, result.data.slice(0, 20));
-
-            // Show fetch controls
-            document.getElementById("fetchBar").style.display = "flex";
-
-        } catch (error) {
-            alert("Error parsing CSV file: " + error.message);
-        }
+        const file = fileInput.files[0];
+        document.getElementById('fileName').textContent = file.name;
+        return file;
     }
 
-    /**
-     * Handle image fetching process
-     *
-     * TODO: split MVC steps
-     */
-    async handleFetch() {
+    getSettings() {
         const urlCol = document.getElementById("urlColumn").value;
-        const progressDiv = document.getElementById("progress");
-
-        // Initialize processing
-        this.app.dataModule.initializeZip();
-        this.app.requestModule.reset();
-        this.parent.logWidget.clearErrorLog();
-
-        // Update UI
-        this.hideFileControls();
-        this.showStopButton();
-
-        // Prepare URLs for processing
-        const urls = this.app.dataModule.getAllData()
-            .map((row, index) => ({
-                url: row[urlCol],
-                rowIndex: index,
-                row: row
-            }))
-            .filter(item => item.url);
-
-        // Process images
-        await this.app.requestModule.processBatch(
-            urls,
-            (processed, total) => this.updateProgress(processed, total, progressDiv),
-            async (blob, url, rowIndex, row) => this.handleImageSuccess(blob, url, rowIndex, row),
-            (error, url, rowIndex, row) => this.handleImageError(error, url, rowIndex, row)
-        );
-
-        // Processing complete
-        this.showDownloadControls();
-    }
-
-    /**
-     * Handle successful image processing
-     */
-    async handleImageSuccess(blob, url, rowIndex, row) {
-        const filename = Utils.generateUniqueFilename(url, rowIndex, this.app.dataModule.getUsedFilenames());
-        const thumbnailData = await Utils.createThumbnailFromBlob(blob);
-
-        // Update data model
-        this.app.dataModule.addResult(rowIndex, filename, thumbnailData, blob);
-
-        // Update thumbnail display
-        this.parent.thumbsWidget.addThumbnail(thumbnailData);
-
-        // Update table if in preview range
-        this.parent.tableWidget.updateTableRow(rowIndex, "✓");
-    }
-
-    /**
-     * Handle image processing errors
-     */
-    handleImageError(error, url, rowIndex, row) {
-        // Parse error for user-friendly message
-        const rawError = `${error.name}: ${error.message}`;
-        let errorMessage = "Failed to fetch image";
-        let errorDetails = `${rawError}`;
-
-        if (error.name === "TypeError") {
-            errorMessage = "Network or CORS Error";
-            errorDetails = `Cannot access this URL from the browser. This could be due to CORS policy, network issues, or server problems.\n\nRaw Error: ${rawError}`;
-        } else if (error.message.includes("404")) {
-            errorMessage = "Image Not Found (404)";
-        } else if (error.message.includes("403")) {
-            errorMessage = "Access Forbidden (403)";
-        } else if (error.message.includes("500")) {
-            errorMessage = "Server Error (500)";
-        } else {
-            errorMessage = error.message || "Unknown error";
+        return {
+            column: urlCol
         }
+    }
 
-        // Log error
-        this.parent.logWidget.addToErrorLog(url, rowIndex, errorMessage, errorDetails);
-
-        // Update data model
-        this.app.dataModule.markRowFailed(rowIndex);
-
-        // Update table if in preview range
-        this.parent.tableWidget.updateTableRow(rowIndex, "✗");
+    updateColumnSelector(data) {
+        const select = document.getElementById("urlColumn");
+        select.innerHTML = "";
+        data.headers.forEach(header => {
+            const option = document.createElement("option");
+            option.value = header;
+            option.textContent = header;
+            select.appendChild(option);
+        });
     }
 
     /**
      * Update progress display
+     *
+     * @param {Object} data A progress object with the properties current and total.
      */
-    updateProgress(processed, total, progressDiv) {
-        progressDiv.textContent = `Processed ${processed} of ${total}`;
-    }
-
-    showDownloadControls() {
-        document.getElementById("stopBtn").style.display = "none";
-        document.getElementById("downloadZipBtn").style.display = "inline-block";
-        document.getElementById("startOverBtn").style.display = "inline-block";
-    }
-
-        /**
-     * UI state management methods
-     */
-    hideFileControls() {
-        document.getElementById("fileBar").style.display = "none";
-        document.getElementById("urlColumn").style.display = "none";
-        document.getElementById("fetchBtn").style.display = "none";
-    }
-
-    showFileControls() {
-        document.getElementById("fileBar").style.display = "flex";
-        document.getElementById("urlColumn").style.display = "inline-block";
-        document.getElementById("fetchBtn").style.display = "inline-block";
-    }
-
-    showStopButton() {
-        document.getElementById("stopBtn").style.display = "inline-block";
-    }
-
-    hideProcessingControls() {
-        document.getElementById("fetchBar").style.display = "none";
-        document.getElementById("stopBtn").style.display = "none";
-        document.getElementById("downloadZipBtn").style.display = "none";
-        document.getElementById("startOverBtn").style.display = "none";
-        document.getElementById("showLogBtn").style.display = "none";
+    updateProgress(data) {
+        const progressDiv = document.getElementById("progress");
+        progressDiv.textContent = `Processed ${data.current} of ${data.total}`;
     }
 
 }
 
 class ThumbsWidget extends BaseWidgetClass {
 
-    constructor(app, elementId, parent) {
-        super(app, elementId, parent);
+    constructor(elementId, parent) {
+        super(elementId, parent);
+        this.events.on('data:node:added', (data) => this.addThumbnail(data.thumb));
     }
 
     reset() {
@@ -309,21 +185,30 @@ class ThumbsWidget extends BaseWidgetClass {
  */
 class TableWidget extends BaseWidgetClass {
 
-    constructor(app, elementId, parent) {
-        super(app, elementId, parent);
+    constructor(elementId, parent) {
+        super(elementId, parent);
+
+        this.events.on('data:node:added', (data) => this.updateRowStatus(data.idx, data.status));
+        this.events.on('data:node:error', (data) => this.updateRowStatus(data.idx, data.status));
     }
 
     reset() {
-        this.setContent("");
+        this.element.innerHTML = '';
     }
 
     /**
      * Renders the preview table (moved from original renderPreview method)
      *
-     * @param {String[]} headers A list of header names
-     * @param {Object} rows A list of rows. Each row is an object with keys matching the headers
+     * @param {Object} data An object with the properties headers and rows.
+     *                      Headers is a list of header names.
+     *                      Rows is a list of rows.
+     *                      Each row is an object with keys matching the headers.
      */
-    renderPreview(headers, rows) {
+    showData(data) {
+
+        const headers = data.headers;
+        const rows = data.rows.slice(0, 20);
+
         if (!this.element) return;
 
         this.element.innerHTML = "";
@@ -345,57 +230,58 @@ class TableWidget extends BaseWidgetClass {
 
         const tbody = document.createElement("tbody");
         rows.forEach((row, idx) => {
-            const tr = document.createElement("tr");
-            const statusTd = document.createElement("td");
-            statusTd.classList.add("status");
-            statusTd.textContent = "";
-            tr.appendChild(statusTd);
-            allHeaders.forEach(h => {
-                const td = document.createElement("td");
-                if (h === "imgdata" && row[h]) {
-                    const img = document.createElement("img");
-                    img.src = row[h];
-                    img.style.maxWidth = "30px";
-                    img.style.maxHeight = "30px";
-                    td.appendChild(img);
-                } else {
-                    td.textContent = row[h] || "";
-                }
-                tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
+           this.addRow(tbody, allHeaders, row)
         });
         this.element.appendChild(tbody);
     }
 
+    addRow(tbody, headers, row) {
+        const tr = document.createElement("tr");
+        const statusTd = document.createElement("td");
+        statusTd.classList.add("status");
+        statusTd.textContent = "";
+        tr.appendChild(statusTd);
+        headers.forEach(h => {
+            const td = document.createElement("td");
+            if (h === "imgdata" && row[h]) {
+                const img = document.createElement("img");
+                img.src = row[h];
+
+                // TODO: Don't! Let CSS handle sizes!
+                img.style.maxWidth = "30px";
+                img.style.maxHeight = "30px";
+                td.appendChild(img);
+            } else {
+                td.textContent = row[h] || "";
+            }
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    }
 
     /**
      * Update table row status (for preview table)
      */
-    updateTableRow(rowIndex, status) {
-        if (rowIndex >= 20) return; // Only update preview rows
-
+    updateRowStatus(rowIndex, status) {
         const table = document.getElementById("tableWidget");
         const tbody = table.querySelector("tbody");
         if (!tbody) return;
 
         const row = tbody.children[rowIndex];
-        if (row) {
-            const statusCell = row.firstChild;
-            statusCell.textContent = status;
-            row.classList.remove("done", "fail");
-            if (status === "✓") row.classList.add("done");
-            if (status === "✗") row.classList.add("fail");
+        if (!row) return;
+
+        row.classList.remove("success", "fail");
+        const statusCell = row.firstChild;
+        if (status === 'success') {
+            statusCell.textContent = "✓";
+            row.classList.add("success");
+        }
+        else if (status === 'fail') {
+            statusCell.textContent = "✗";
+            row.classList.add("fail");
         }
     }
 
-    /**
-     * Adds a single row
-     */
-    addRow(rowData) {
-        // Simple implementation - just for the interface
-        console.log("Row added:", rowData);
-    }
 }
 
 /**
@@ -403,35 +289,31 @@ class TableWidget extends BaseWidgetClass {
  */
 class LogWidget extends BaseWidgetClass {
 
-    constructor(app, logWidgetId, logViewerId, parent) {
-        super(app, logWidgetId, parent);
-        this.logViewer = document.getElementById(logViewerId);
-        this.errorLog = [];
+    constructor(logWidgetId, parent) {
+        super(logWidgetId, parent);
+        this.logViewer =  this.element.querySelector('.log-data');
         this.initEvents();
     }
 
     reset() {
-        this.clearErrorLog();
+        this.clearLog();
     }
 
     initEvents() {
-        document.getElementById("clearLogBtn").addEventListener("click", () => this.handleClearLog());
-        document.getElementById("toggleLogBtn").addEventListener("click", () => this.handleToggleLog());
-        document.getElementById("showLogBtn").addEventListener("click", () => this.handleShowLog());
+        this.events.on('app:log:add', (data) => this.addMessage(data));
+        this.events.on('app:log:clear', () => this.clearLog());
+
+        // TODO: Simplify. One button should rule them all!
+        document.getElementById("toggleLogBtn").addEventListener("click", () => this.toggleLog());
+        document.getElementById("showLogBtn").addEventListener("click", () => this.showLog());
     }
 
-      /**
-     * Log widget event handlers
-     */
-    handleClearLog() {
-        this.clearErrorLog();
-    }
-
-    handleToggleLog() {
+    toggleLog() {
         const logWidget = document.getElementById("logWidget");
         const toggleBtn = document.getElementById("toggleLogBtn");
         const showLogBtn = document.getElementById("showLogBtn");
 
+        // TODO: Don't! Let CSS classes handle visibility!
         if (logWidget.style.display === "none") {
             logWidget.style.display = "block";
             toggleBtn.textContent = "Hide Log";
@@ -439,65 +321,52 @@ class LogWidget extends BaseWidgetClass {
         } else {
             logWidget.style.display = "none";
             toggleBtn.textContent = "Show Log";
-            if (this.errorLog.length > 0) {
-                showLogBtn.style.display = "inline-block";
-            }
+            showLogBtn.style.display = "inline-block";
         }
     }
 
-    handleShowLog() {
+    showLog() {
         const logWidget = document.getElementById("logWidget");
         const toggleBtn = document.getElementById("toggleLogBtn");
         const showLogBtn = document.getElementById("showLogBtn");
 
+        // TODO: Don't! Let CSS classes handle visibility.
         logWidget.style.display = "block";
         toggleBtn.textContent = "Hide Log";
         showLogBtn.style.display = "none";
     }
 
-    addToErrorLog(url, rowIndex, errorMessage, errorDetails) {
+    /**
+     * Add message to the log
+     *
+     * @param {Object} data An object with the properties msg, level, details.
+     */
+    addMessage(data) {
+
+        //url, rowIndex, errorMessage, errorDetails
+
+        // Console logging for development
         const timestamp = new Date().toLocaleTimeString();
-        const logEntry = {
-            timestamp,
-            url,
-            rowIndex: rowIndex + 1,
-            errorMessage,
-            errorDetails
-        };
+        console[data.level === 'error' ? 'error' : 'log'](`[${timestamp}] ${data.msg}`, data.details);
 
-        this.errorLog.push(logEntry);
-        this.updateLogViewer();
+        const logEntry = document.createElement("div");
+        logEntry.className = "log-entry";
+        logEntry.innerHTML = `
+                <div class="log-timestamp">${timestamp}</div>
+                <div class="log-level">${data.level}</span></div>
+                <div class="log-msg">${data.msg}</div>   
+                <div class="log-details">${data.details || ''}</div>
+              `;
+        this.logViewer.appendChild(logEntry);
 
-        if (this.errorLog.length === 1) {
-            document.getElementById("logWidget").style.display = "block";
-            document.getElementById("showLogBtn").style.display = "none";
-        }
-    }
-
-    updateLogViewer() {
-        if (!this.logViewer) return;
-
-        this.logViewer.innerHTML = "";
-
-        this.errorLog.forEach(entry => {
-            const logEntry = document.createElement("div");
-            logEntry.className = "log-entry";
-            logEntry.innerHTML = `
-                <div class="log-timestamp">${entry.timestamp}</div>
-                <div class="log-url">Row ${entry.rowIndex}: <span class="url-text">${entry.url}</span></div>
-                <div class="log-error">${entry.errorMessage}</div>
-                ${entry.errorDetails ? `<div class="log-details">${entry.errorDetails}</div>` : ''}
-            `;
-            this.logViewer.appendChild(logEntry);
-        });
-
+        this.element.classList.remove('log-empty');
+        this.element.classList.add('log-notempty');
         this.logViewer.scrollTop = this.logViewer.scrollHeight;
     }
 
-    clearErrorLog() {
-        this.errorLog = [];
-        this.updateLogViewer();
-        document.getElementById("logWidget").style.display = "none";
-        document.getElementById("showLogBtn").style.display = "none";
+    clearLog() {
+        this.element.classList.add('log-empty');
+        this.element.classList.remove('log-notempty');
+        this.logViewer.innerHTML = "";
     }
 }

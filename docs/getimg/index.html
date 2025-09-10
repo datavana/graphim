@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
   <script src="util.js"></script>
+  <script src="events.js"></script>
   <script src="model.js"></script>
   <script src="view.js"></script>
   <script src="app.js"></script>
@@ -17,57 +18,68 @@
 <body>
   <div id="pageWidget">
 
-  <header>
-    <img src="html_images/favicon.svg" alt="Logo" class="headerLogo">
-  </header>
+    <header>
+      <img src="html_images/favicon.svg" alt="Logo" class="headerLogo">
+    </header>
 
-  <div id="topText">
-    <p>
-      <strong>ImgNetMaker</strong> converts a CSV file
-      (with image URLs) or an image folder into image network-ready data for
-      <a href="https://gephi.org/gephi-lite/" target="_blank" rel="noopener">Gephi Lite</a>
-      (and similar tools) by downloading the images when a CSV is provided, pairing each image with its metadata, and adding two fields:
-      a clean image filename and a Base64 data URL.
-    </p>
-    <p style="color:#7C00FF;">
-    <!--Yep — zoom through 10,000-images in a snap. 👩🏻‍💻✨❣️ Heads-up: performance depends on your browser’s available memory (RAM). -->
-  </p>
-  </div>
+    <section id="introSection">
+
+      <div id="topText">
+        <p>
+          <strong>ImgNetMaker</strong> converts a CSV file
+          (with image URLs) or an image folder into image network-ready data for
+          <a href="https://gephi.org/gephi-lite/" target="_blank" rel="noopener">Gephi Lite</a>
+          (and similar tools) by downloading the images when a CSV is provided, pairing each image with its metadata, and adding two fields:
+          a clean image filename and a Base64 data URL.
+        </p>
+        <!--p style="color:#7C00FF;">
+        Yep — zoom through 10,000-images in a snap. 👩🏻‍💻✨❣️ Heads-up: performance depends on your browser’s available memory (RAM).
+        </p-->
+      </div>
+      <div id="thumbsWidget"></div>
+    </section>
 
   <div id="fetchWidget">
-      <div id="fileBar" class="bar">
+
+      <div id="fetchWidgetSelect" class="bar">
         <label for="csvFile" class="upload-btn">Upload CSV</label>
         <input type="file" id="csvFile" accept=".csv">
         <span id="fileName"></span>
+      </div>
+
+      <div id="fetchWidgetColumn" class="bar">
         <label for="urlColumn">Select Image URL Column: </label>
         <select id="urlColumn"></select>
         <button id="fetchBtn">Fetch Images</button>
       </div>
 
-      <div id="fetchBar" class="bar" style="display:none;">
+      <div id="fetchWidgetProgress" class="bar">
         <div id="progressControls">
-          <button id="stopBtn" style="display:none;">Stop</button>
-          <button id="downloadZipBtn" style="display:none;">Download ZIP</button>
-          <button id="startOverBtn" style="display:none;">Start Over</button>
-          <button id="showLogBtn" style="display:none;">Show Error Log</button>
+          <button id="stopBtn">Stop</button>
+          <button id="showLogBtn">Show Error Log</button>
           <span id="progress"></span>
         </div>
-        <div id="thumbsWidget"></div>
+      </div>
+
+      <div id ="fetchWidgetDownload" class="bar">
+          <button id="downloadZipBtn">Download ZIP</button>
+          <button id="startOverBtn">Start Over</button>
       </div>
     </div>
 
-  <div id="previewWrapper">
-    <table id="tableWidget"></table>
-  </div>
-
-  <div id="logWidget" class="log-section" style="display:none;">
-    <div class="log-header">
-      <h3>Error Log</h3>
-      <button id="clearLogBtn">Clear Log</button>
-      <button id="toggleLogBtn">Hide Log</button>
+  <section id="dataWrapper">
+    <div id="tableWrapper">
+      <table id="tableWidget"></table>
     </div>
-    <div id="logViewer" class="log-viewer"></div>
-  </div>
+
+    <div id="logWidget" class="log-section">
+      <div class="log-header">
+        <h3>Error Log</h3>
+        <button id="toggleLogBtn">Hide Log</button>
+      </div>
+      <div class="log-data"></div>
+      </div>
+  </section>
 
   <footer>
     <div id="footertext">

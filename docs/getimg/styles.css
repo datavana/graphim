@@ -4,7 +4,7 @@
   --header-bg: url("html_images/background.jpg");
   --button-bg-color: white;               /* primary button background */
   --fail-bg-color: #F38CA9;  /* fail status background */
-  --done-bg-color: #C8F5D3;  /* done status background */
+  --success-bg-color: #C8F5D3;  /* success status background */
 
 }
 
@@ -25,11 +25,13 @@ html, body {
   flex-direction: column; /* stack children vertically */
 }
 
-/* Make previewWrapper (table area) grow to fill space */
-#previewWrapper {
+/* Make dataWrapper (table area) grow to fill space */
+#dataWrapper {
+  display: flex;
+  flex-direction: row;
   flex: 1;              /* middle row grows */
-  overflow-y: auto;     /* scroll if content is too tall */
   padding: 1rem;        /* spacing so table isn’t glued to edges */
+  overflow: auto;
 }
 
 /* Header */
@@ -79,10 +81,14 @@ header::before {
   }
 }
 
-
-
 /* Instructions */
+section#introSection {
+  display: flex;
+  flex-direction: row;
+}
+
 #topText {
+  flex:2;
   padding: 0.5rem 1rem;
   margin: 0.5rem 1rem 0;
   font-size: 1rem;
@@ -101,7 +107,85 @@ header::before {
   font-size: 1rem;
 }
 
+/* Log */
+#showLogBtn {
+  display: none;
+}
+
+#logWidget {
+  flex: 1;
+  display: none;
+  overflow: auto;
+  margin-left: 3em;
+}
+
+#logWidget.log-notempty {
+  display: flex;
+}
+
+/** Default stage */
+#fetchWidget {
+  display: flex;
+}
+
+#fetchWidgetSelect {
+  display : flex;
+}
+
+#fetchWidgetColumn,
+#fetchWidgetProgress,
+#fetchWidgetDownload {
+  display: none;
+}
+
+#urlColumn {
+  display: inline-block;
+}
+
+#fetchBtn, #stopButton {
+  display: inline-block;
+}
+
+#showLogBtn {
+  display: none;
+}
+
+/** Select stage **/
+.stage-select #dataWrapper,
+.stage-select #fetchWidgetColumn {
+  display: flex;
+}
+
+/** Fetch stage **/
+.stage-fetch #fetchWidgetSelect,
+.stage-fetch #urlColumn,
+.stage-fetch #fetchBtn {
+  display: none;
+}
+
+.stage-fetch #fetchWidgetProgress
+ {
+  display: flex;
+}
+
+/** Ready stage **/
+.stage-ready #fetchWidgetSelect,
+.stage-ready #stopBtn {
+  display:none;
+}
+
+.stage-select #dataWrapper,
+.stage-ready #fetchWidgetDownload {
+  display: flex;
+}
+
 /* Table */
+#tableWrapper {
+  flex:2;
+  overflow: auto;
+}
+
+
 table {
   border-collapse: collapse;
   width: 100%;
@@ -115,6 +199,10 @@ th, td {
   border: 1px solid #eee;
   padding: 0.6rem 1rem;
   font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 20em;
 }
 
 th {
@@ -128,11 +216,11 @@ td.status {
   text-align: center;
 }
 
-.done {
-  background-color: var(--done-bg-color);
+.success td.status {
+  background-color: var(--success-bg-color);
 }
 
-.fail {
+.fail td.status {
   background-color: var(--fail-bg-color);
 }
 
@@ -207,6 +295,7 @@ button:disabled {
 
 /* Thumbnails area */
 #thumbsWidget {
+  flex:1;
   display: flex;
   flex-wrap: wrap;             /* wrap into new rows */
   justify-content: flex-start; /* align items to the left */
@@ -214,10 +303,9 @@ button:disabled {
   gap: 0.5rem;
   margin-top: 1rem;
 
-  width: 100%;
   height: auto;                /* grow as needed */
   max-height: none;            /* no cutoff */
-  overflow: visible;           /* show all thumbnails */
+  overflow: hidden;
 }
 
 /* Thumbnails */
@@ -231,9 +319,8 @@ button:disabled {
 
 /* Download Zip Button */
 #downloadZipBtn,
-.startOverBtn {
+#startOverBtn {
   display: block;
-  margin: 1rem auto 0;         /* center horizontally */
   background: white;
   color: black;
   border: 2px solid black;
@@ -249,7 +336,7 @@ button:disabled {
 
 /* Hover effect for both buttons */
 #downloadZipBtn:hover,
-.startOverBtn:hover {
+#startOverBtn:hover {
   background: #f5f5f5;
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
 }
@@ -320,7 +407,6 @@ footer {
 .log-section {
   border-top: 1px solid #ccc;
   background: #f9f9f9;
-  max-height: 300px;
   display: flex;
   flex-direction: column;
 }
@@ -353,11 +439,10 @@ footer {
   background: #f0f0f0;
 }
 
-.log-viewer {
+.log-data {
   flex: 1;
   overflow-y: auto;
   padding: 0.5rem;
-  max-height: 250px;
 }
 
 .log-entry {

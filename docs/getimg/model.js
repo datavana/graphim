@@ -8,16 +8,18 @@
  */
 class RequestModule {
 
-    constructor() {
+    constructor(events) {
+        this.events = events;
         this.stopFlag = false;
     }
 
     /**
      * Fetches an image from a URL
+     *
      * @param {string} url - The image URL to fetch
      * @returns {Promise<Blob>} Promise resolving to image blob
      */
-    async fetchImage(url) {
+    async fetchBlob(url) {
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`Failed to fetch ${url} - ${response.status} ${response.statusText}`);
@@ -27,14 +29,15 @@ class RequestModule {
 
     /**
      * Processes a batch of image URLs
-     * @param {Array} urls - Array of URLs to process
-     * @param {Function} onProgress - Callback for progress updates
-     * @param {Function} onSuccess - Callback for successful fetches
+     * @param {Array} urls Array of URLs to process
      * @param {Function} onError - Callback for failed fetches
      */
-    async processBatch(urls, onProgress, onSuccess, onError) {
+    async processBatch(urls,  onError) {
+        this.reset();
         let processed = 0;
         const total = urls.length;
+
+        this.events.emit('data:batch:start');
 
         for (let i = 0; i < urls.length; i++) {
             if (this.stopFlag) break;
@@ -42,15 +45,17 @@ class RequestModule {
             const { url, rowIndex, row } = urls[i];
             
             try {
-                const blob = await this.fetchImage(url);
-                await onSuccess(blob, url, rowIndex, row);
+                const blob = await this.fetchBlob(url);
+                this.events.emit('data:add:node', {idx: rowIndex, row: row, url: url,  status: 'success', blob: blob})
             } catch (error) {
-                onError(error, url, rowIndex, row);
+                this.events.emit('data:node:error', {idx: rowIndex, row: row, url: url, status: 'fail', error: error})
             }
             
             processed++;
-            onProgress(processed, total);
+            this.events.emit('app:progress:step', {current: processed, total: total});
         }
+
+        this.events.emit('data:batch:finish');
     }
 
     /**
@@ -67,61 +72,43 @@ class RequestModule {
         this.stopFlag = false;
     }
 
-    /**
-     * Logs a message with timestamp
-     * @param {string} level - Log level (info, error, warning)
-     * @param {string} message - Message to log
-     * @param {Object} details - Additional details
-     */
-    logMessage(level, message, details = null) {
-        const timestamp = Utils.getCurrentTimestamp();
-        const logEntry = {
-            timestamp,
-            level,
-            message,
-            details
-        };
-        
-        // Emit event for listeners
-        this.emit('log', logEntry);
-        
-        // Console logging for development
-        console[level === 'error' ? 'error' : 'log'](`[${timestamp}] ${message}`, details);
-    }
-
-    /**
-     * Simple event emitter functionality
-     */
-    emit(eventName, data) {
-        if (this.listeners && this.listeners[eventName]) {
-            this.listeners[eventName].forEach(callback => callback(data));
-        }
-    }
-
-    /**
-     * Add event listener
-     */
-    on(eventName, callback) {
-        if (!this.listeners) this.listeners = {};
-        if (!this.listeners[eventName]) this.listeners[eventName] = [];
-        this.listeners[eventName].push(callback);
-    }
 }
 
 /**
  * Handles data management and file operations
  */
 class DataModule {
-    constructor() {
+    constructor(events) {
+        this.events = events;
         this.parsedData = [];
         this.zip = null;
         this.usedFilenames = new Set();
+
+        this.initEvents();
+    }
+
+    initEvents() {
+        this.events.on('data:batch:start', () => this.onBatchStart());
+        this.events.on('data:batch:finish', () => this.onBatchFinish());
+
+        this.events.on('data:add:node', (data) => this.addNode(data));
+        this.events.on('data:node:error', (data) => this.addError(data));
+    }
+
+    /**
+     * Resets all data
+     */
+    reset() {
+        this.parsedData = [];
+        this.zip = null;
+        this.usedFilenames.clear();
     }
 
     /**
      * Loads and parses CSV file
-     * @param {File} file - The CSV file to parse
-     * @returns {Promise<Object>} Promise resolving to parsed data and headers
+     *
+     * @param {File} file The CSV file to parse
+     * @returns {Promise<Object>} Promise resolving to and object with headers and rows
      */
     async loadCSV(file) {
         return new Promise((resolve, reject) => {
@@ -132,6 +119,8 @@ class DataModule {
                     const headers = results.meta.fields;
                     
                     // Initialize new columns for all rows
+                    // TODO: Better implement a update column / add column / update value method
+                    //       that adds columns if necessary
                     this.parsedData.forEach((row, index) => {
                         row.filename = "";
                         row.imgdata = "";
@@ -139,7 +128,7 @@ class DataModule {
                     });
                     
                     resolve({
-                        data: this.parsedData,
+                        rows: this.parsedData,
                         headers: headers
                     });
                 },
@@ -151,86 +140,104 @@ class DataModule {
     }
 
     /**
+     * Returns a list of URLs
+     *
+     * @param {String} urlCol The column containing an URL
+     * @returns {{rowIndex: *, row: *, url: *}[]}
+     */
+    getSeedNodes(urlCol) {
+        return this.parsedData
+            .map((row, index) => ({
+                url: row[urlCol],
+                rowIndex: index,
+                row: row
+            }))
+            .filter(item => item.url);
+    }
+
+    /**
      * Initializes ZIP file for image storage
      */
-    initializeZip() {
+    onBatchStart() {
         this.zip = new JSZip();
-        return this.zip.folder("images");
+        this.zip.folder("images");
+    }
+
+    onBatchFinish() {
+        this.events.emit('data:batch:ready');
     }
 
     /**
-     * Adds a result (image + metadata) to the dataset
-     * @param {number} rowIndex - Index of the row to update
-     * @param {string} filename - Generated filename
-     * @param {string} thumbnailData - Base64 thumbnail data
-     * @param {Blob} imageBlob - Original image blob
-     * @param {string} status - Processing status
+     * Add node to database
+     *
+     * @param {Object} data An Object with the properties idx, row, url, blob, status
      */
-    addResult(rowIndex, filename, thumbnailData, imageBlob, status = "") {
-        if (rowIndex < 0 || rowIndex >= this.parsedData.length) {
-            throw new Error(`Invalid row index: ${rowIndex}`);
+    async addNode(data) {
+
+        if ((data.idx < 0) || (data.idx >= this.parsedData.length)) {
+            throw new Error(`Invalid row index: ${data.idx}`);
         }
 
-        const row = this.parsedData[rowIndex];
+        const usedFilenames = this.getUsedFilenames();
+        const filename = Utils.generateUniqueFilename(data.url, data.idx, usedFilenames);
+        const thumbnailData = await Utils.createThumbnailFromBlob(data.blob);
+
+        const row = this.parsedData[data.idx];
         row.filename = filename;
         row.imgdata = thumbnailData;
-        row._status = status;
+        row._status = data.status;
 
-        // Add to ZIP if successful
-        if (status === "" && this.zip) {
+        // Add to ZIP
+        if (this.zip) {
             const imgFolder = this.zip.folder("images");
-            imgFolder.file(filename, imageBlob);
+            imgFolder.file(filename, data.blob);
             this.usedFilenames.add(filename);
         }
+
+        this.events.emit('data:node:added', {idx: data.idx, status: data.status, thumb: thumbnailData})
     }
 
     /**
-     * Marks a row as failed
-     * @param {number} rowIndex - Index of the row to mark as failed
+     * Handle errors
+     *
+     * @param {Object} data Object with properties idx, row, url, status, error
      */
-    markRowFailed(rowIndex) {
-        if (rowIndex >= 0 && rowIndex < this.parsedData.length) {
-            this.parsedData[rowIndex]._status = "";
+    addError(data) {
+        if ((data.idx >= 0) && (data.idx < this.parsedData.length)) {
+            this.parsedData[data.idx]._status = data.status;
         }
+
+        // Log error
+        let errorDetails = `${data.error.name}: ${data.error.message}`;
+        const errorMessage = `${Utils.humanizeError(data.error)}. ${data.url}. ${data.idx}.`;
+        this.events.emit('app:log:add', {level: 'log', msg: errorMessage, details: errorDetails})
     }
 
     /**
-     * Gets a subset of data for preview
-     * @param {number} limit - Maximum number of rows to return
-     * @returns {Array} Subset of parsed data
-     */
-    getPreviewData(limit = 20) {
-        return this.parsedData.slice(0, limit);
-    }
-
-    /**
-     * Gets all parsed data
-     * @returns {Array} All parsed data
-     */
-    getAllData() {
-        return this.parsedData;
-    }
-
-    /**
-     * Generates and downloads ZIP file with images and updated CSV
-     * @returns {Promise<void>}
+     * Generates ZIP file with images and updated CSV and sends it for downloading
+     *
      */
     async saveZip() {
-        if (!this.zip) {
-            throw new Error("No ZIP archive created yet.");
+        try {
+            if (!this.zip) {
+                throw new Error("No ZIP archive created yet.");
+            }
+
+            // Add updated CSV to ZIP
+            const csv = Papa.unparse(this.parsedData);
+            this.zip.file("updated_images.csv", csv);
+
+            // Generate and download ZIP
+            const content = await this.zip.generateAsync({ type: "blob" });
+            saveAs(content, "output.zip");
+        } catch (error) {
+            this.events.emit('app:log:add', {msg: error.message, level: 'serious'});
         }
-
-        // Add updated CSV to ZIP
-        const csv = Papa.unparse(this.parsedData);
-        this.zip.file("updated_images.csv", csv);
-
-        // Generate and download ZIP
-        const content = await this.zip.generateAsync({ type: "blob" });
-        saveAs(content, "ImgNetMaker_output.zip");
     }
 
     /**
      * Gets processing statistics
+     *
      * @returns {Object} Statistics about processed data
      */
     getStats() {
@@ -249,16 +256,8 @@ class DataModule {
     }
 
     /**
-     * Resets all data
-     */
-    reset() {
-        this.parsedData = [];
-        this.zip = null;
-        this.usedFilenames.clear();
-    }
-
-    /**
      * Gets the set of used filenames
+     *
      * @returns {Set} Set of used filenames
      */
     getUsedFilenames() {
