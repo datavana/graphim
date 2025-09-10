@@ -5,6 +5,7 @@ import os
 import io
 from pathlib import Path
 from PIL import Image
+from google.oauth2 import service_account
 
 
 #%% lib
@@ -16,7 +17,6 @@ def vision_loop(image_path,  token=None, api_key=None, service_account_key_path=
         headers = {"Content-Type": "application/json"}
     elif service_account_key_path:
         # Generate an OAuth2 token using the service account key
-        from google.oauth2 import service_account
         credentials = service_account.Credentials.from_service_account_file(service_account_key_path)
         token = credentials.token
         url = "https://vision.googleapis.com/v1/images:annotate"

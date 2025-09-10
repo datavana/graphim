@@ -13,6 +13,6 @@ venv
 .idea
 .ipynb_checkpoints
 
-scripts/web_detection/*run.py
+# scripts/web_detection/*run.py
 
 secrets/*
