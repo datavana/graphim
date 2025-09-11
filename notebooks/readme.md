@@ -1,4 +1,7 @@
 Notebooks to play around with images
 
-Please, organise tasks in subfolders.
+You can import settings by:
+```
+
+```
  

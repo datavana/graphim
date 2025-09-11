@@ -13,7 +13,7 @@ Folder Structure:
 - **docs**: Lightweigt web apps running in the browser, to be deployed using GitHub Pages.
 - **data**: Data is stored outside the repository.  Because the folder content is ignored by git,
   You can safely copy data from outside the repository into the data subfolder.
-- **models**: Your fine tuned models
+- **models**: Your fine tuned models.
 - **scripts**: Scripts for working with images. Develop your workflows here. 
 - **notebooks**: Interactive Jupyter Notebooks for trying out examples.
   You can start a local Jupyter Environment using docker, see below.
@@ -28,7 +28,7 @@ Folder Structure:
    and open the local file `Samples/microcefalia/microcefalia.img.gexf`
    (the file is not in this repository, see Sciebo).
 3. Click the color palette button (left sidebar), 
-   scroll down to the Images section and select  "imgdata" as image source
+   scroll down to the Images section and select "imgdata" as image source
 4. Zoom into the network to see the images. Zoom out again for the next step.
 5. Click the layout button (left sidebar, last icon),
    select ForceAtlas2, click Guess settings and start
@@ -41,7 +41,7 @@ Folder Structure:
 4. See the source code of index.html
 
 This app is deployed using GitHub Pages.
-You can access it online at [https://datavana.github.io/graphim/img2url](https://datavana.github.io/graphim/img2url)
+You can access it online at [https://datavana.github.io/graphim](https://datavana.github.io/graphim)
 
 ## Getting started with image processing
 
@@ -100,6 +100,9 @@ You can import scripts directly from the libs folder:
 ```
 from settings import *
 ```
+
+Then, for example, you can use `settings.datapath` to get the data path you defined there.
+Place credentials in the settings.py and import them to make sure, nobody sees them.
 
 
 *I can haz GPU?*
