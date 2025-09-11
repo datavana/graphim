@@ -125,9 +125,9 @@ class DataModule {
                     // TODO: Better implement a update column / add column / update value method
                     //       that adds columns if necessary
                     this.parsedData.forEach((row, index) => {
-                        row.filename = "";
-                        row.imgdata = "";
-                        row._status = "";
+                        row.inm_filename = "";
+                        row.inm_imgdata = "";
+                        row.inm_status = "";
                     });
                     
                     resolve({
@@ -204,9 +204,9 @@ class DataModule {
         const thumbnailData = await Utils.createThumbnailFromBlob(data.blob);
 
         const row = this.parsedData[data.idx];
-        row.filename = filename;
-        row.imgdata = thumbnailData;
-        row._status = data.status;
+        row.inm_filename = filename;
+        row.inm_imgdata = thumbnailData;
+        row.inm_status = 'success';
 
         // Add to ZIP
         if (this.zip) {
@@ -225,13 +225,14 @@ class DataModule {
      */
     addError(data) {
         if ((data.idx >= 0) && (data.idx < this.parsedData.length)) {
-            this.parsedData[data.idx]._status = data.status;
+            const errorMessage = Utils.humanizeError(data.error);
+            this.parsedData[data.idx].inm_status = errorMessage;
         }
 
         // Log error
         let errorDetails = `${data.error.name}: ${data.error.message}`;
-        const errorMessage = `${Utils.humanizeError(data.error)}. ${data.url}. ${data.idx}.`;
-        this.events.emit('app:log:add', {level: 'log', msg: errorMessage, details: errorDetails})
+        const logMessage = `${Utils.humanizeError(data.error)}. ${data.url}. Row ${data.idx + 1}.`;
+        this.events.emit('app:log:add', {level: 'log', msg: logMessage, details: errorDetails})
     }
 
     /**
@@ -263,8 +264,8 @@ class DataModule {
      */
     getStats() {
         const total = this.parsedData.length;
-        const successful = this.parsedData.filter(row => row._status === "").length;
-        const failed = this.parsedData.filter(row => row._status === "").length;
+        const successful = this.parsedData.filter(row => row.inm_status === "success").length;
+        const failed = this.parsedData.filter(row => row.inm_status && row.inm_status !== "success" && row.inm_status !== "").length;
         const pending = total - successful - failed;
 
         return {

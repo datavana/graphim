@@ -11,7 +11,7 @@ class WebApp {
         document.addEventListener('DOMContentLoaded', () => {
             this.dataModule = new DataModule(this.eventBus);
             this.requestModule = new RequestModule(this.eventBus);
-            this.pageWidget = new PageWidget('pageWidget', this.eventBus);
+            this.pageWidget = new PageWidget('pageWidget', this.eventBus, this);
 
             this.initEvents();
         });
