@@ -8,7 +8,7 @@ class WarpCanvas {
         this.timing = 0;
         this.sliceSize = 25;
         this.warpStrength = 15;
-        this.alphaValue = 0.3;
+        this.alphaValue = 0.9;
         this.followSpeed = 0.02;
 
         this.imgSrc = imgSrc;
@@ -122,5 +122,5 @@ class WarpCanvas {
 }
 
 window.addEventListener("load", () => {
-  new WarpCanvas("getimg/img/background.jpg", "warpCanvas");
+  new WarpCanvas("getimg/img/background_2000.jpg", "warpCanvas");
 });
