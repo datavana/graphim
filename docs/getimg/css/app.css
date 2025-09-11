@@ -1,7 +1,7 @@
 :root {
   --base-corner-radius: 10px;
   --main-bg-color: white;
-  --header-bg: url("../img/background.jpg");
+  --header-bg: url("../img/background_s.jpg");
   --button-bg-color: white;               /* primary button background */
   --fail-bg-color: #F38CA9;  /* fail status background */
   --success-bg-color: #C8F5D3;  /* success status background */
