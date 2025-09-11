@@ -314,9 +314,8 @@ section#introWrapper {
   overflow: auto;
 }
 
-
 /* Table */
-#tableWrapper {
+.tableWrapper {
   flex:2;
   overflow: auto;
 }

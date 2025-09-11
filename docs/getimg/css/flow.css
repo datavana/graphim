@@ -1,11 +1,13 @@
 
 /* Mode-specific adjustments */
 
-.mode-getimg #processFolderWrapper {
+.mode-getimg #processFolderWrapper,
+.mode-getimg #folderWrapper {
     display: none; /* hide CSV-specific elements in getimg mode */
 }
 
-.mode-geturl #processCsvWrapper {
+.mode-geturl #processCsvWrapper,
+.mode-geturl #csvWrapper {
     display: none; /* hide CSV-specific elements in getimg mode */
 }
 

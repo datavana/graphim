@@ -80,7 +80,7 @@ class WebApp {
         this.requestModule.processBatch(nodes);
     }
 
-    asynch actionExtractStart() {
+    async actionExtractStart() {
 
         // this.eventBus.emit('app:log:clear');
         this.pageWidget.clearStage();
