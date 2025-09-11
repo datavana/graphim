@@ -8,7 +8,7 @@ class WarpCanvas {
         this.timing = 0;
         this.sliceSize = 25;
         this.warpStrength = 15;
-        this.alphaValue = 0.9;
+        this.alphaValue = 1;
         this.followSpeed = 0.02;
 
         this.imgSrc = imgSrc;
