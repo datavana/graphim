@@ -512,13 +512,13 @@ footer {
 }
 
 .accent {
-  color: var(--landing-bg-color);
+  color: black;
   margin-top: 1rem;
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem; /* space between emoji and text */
-  font-size: 1.2rem; /* desktop size */
+  font-size: 1.0rem; /* desktop size */
 }
 
 .linkbutton {
