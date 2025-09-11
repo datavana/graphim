@@ -1,107 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ImageNetMaker</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <meta charset="UTF-8">
+    <title>ImageNetMaker</title>
 
-  <script src="js/util.js"></script>
-  <script src="js/events.js"></script>
-  <script src="js/model.js"></script>
-  <script src="js/view.js"></script>
-  <script src="js/app.js"></script>
+    <link rel="stylesheet" href="getimg/css/app.css">
+    <link rel="stylesheet" href="getimg/css/widgets.css">
+    <link rel="stylesheet" href="getimg/css/flow.css">
 
-  <link rel="stylesheet" href="getimg/css/app.css">
-  <link rel="stylesheet" href="getimg/css/widgets.css">
-  <link rel="stylesheet" href="getimg/css/flow.css">
+    <script src="getimg/js/bg.js"></script>
 </head>
 <body>
-  <div id="pageWidget" class="stage-start">
+<canvas id="warpCanvas"></canvas>
+<div id="pageWidget" class="stage-start">
 
-    <header>
-      <img src="getimg/img/favicon.png" alt="Logo" class="headerLogo">
-      <h1 class="headerTitle">ImgNetMaker</h1>
-    </header>
+  <header>
+    <img src="getimg/img/favicon.png" alt="Logo" class="headerLogo">
+    <h1 class="headerTitle">ImgNetMaker</h1>
+  </header>
 
+  <div id="contentWrapper">
     <section id="introWrapper">
       <div id="topText">
         <p>
           <strong>ImgNetMaker</strong> converts a CSV file
           (with image URLs) or an image folder into image network-ready data for
           <a href="https://gephi.org/gephi-lite/" target="_blank" rel="noopener">Gephi Lite</a>
-          (and similar tools) by downloading the images when a CSV is provided, pairing each image with its metadata, and adding two fields:
+          (and similar tools) by downloading the images when a CSV is provided, pairing each image with its
+          metadata, and adding two fields:
           a clean image filename and a Base64 data URL.
         </p>
         <p style="color:#7C00FF;">
-          Yep — zoom through 10,000-images in a snap. 👩🏻‍💻✨❣️ Heads-up: performance depends on your browser’s available memory (RAM).
+          Yep — zoom through 10,000-images in a snap. 👩🏻‍💻✨❣️ Heads-up: performance depends on your browser’s
+          available memory (RAM).
         </p>
       </div>
     </section>
 
-<div class="two-columns">
-  <section class="csv2image">
-    <div class="text-block">
+    <div class="two-columns">
+      <section class="csv2image">
+        <div class="text-block">
 
-      <h1>
-       <a href="getimg/index.html?mode=getimg" class="linkbutton">Open csv2image</a>
-      </h1>
-      <h2 class="accent"> 📨 Input</h2>
-      <p>
-        CSV with at least one column: <code>image_url</code>.
-        Ensure your file contains additional metadata columns (e.g., <code>id</code>, <code>author</code>, <code>date</code>, …)
-      </p>
+          <h1>
+            <a href="getimg/index.html?mode=getimg" class="linkbutton">Open csv2image</a>
+          </h1>
+          <h2 class="accent"> 📨 Input</h2>
+          <p>
+            CSV with at least one column: <code>image_url</code>.
+            Ensure your file contains additional metadata columns (e.g., <code>id</code>,
+            <code>author</code>, <code>date</code>, …)
+          </p>
 
-      <h2 class="accent">⚙️ What ImgNetMaker does</h2>
-      <ul>
-        <li>Downloads each <code>image_url</code> (when allowed),</li>
-        <li>Derives a stable <code>image_filename</code> from a unique identifier in the URL,</li>
-        <li>Converts each image to a Base64 data URL (inline, text form of the image).</li>
-      </ul>
+          <h2 class="accent">⚙️ What ImgNetMaker does</h2>
+          <ul>
+            <li>Downloads each <code>image_url</code> (when allowed),</li>
+            <li>Derives a stable <code>image_filename</code> from a unique identifier in the URL,</li>
+            <li>Converts each image to a Base64 data URL (inline, text form of the image).</li>
+          </ul>
 
-      <h2 class="accent"> ☑️ Output</h2>
-      <ul>
-        <li>
-          Enhanced CSV with original columns:
-          <code>image_filename</code> — clean filename used as the image key and
-          <code>image_dataurl</code> — the data URL embedding the image (Base64)
-        </li>
-        <li>
-          <code>/images/</code> folder with the downloaded image files
-          (mirrors <code>image_filename</code>)
-        </li>
-      </ul>
+          <h2 class="accent"> ☑️ Output</h2>
+          <ul>
+            <li>
+              Enhanced CSV with original columns:
+              <code>image_filename</code> — clean filename used as the image key and
+              <code>image_dataurl</code> — the data URL embedding the image (Base64)
+            </li>
+            <li>
+              <code>/images/</code> folder with the downloaded image files
+              (mirrors <code>image_filename</code>)
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="image2url">
+        <div class="text-block">
+
+          <h1>
+            <a href="getimg/index.html?mode=geturl" class="linkbutton">Open image2url</a>
+          </h1>
+          <h2 class="accent"> 📨 Input</h2>
+          <p>
+            Provide an image folder whose filenames match the <code>image_filename</code> values in your
+            dataset (CSV, JSON, or other).
+          </p>
+
+          <h2 class="accent">⚙️ What ImgNetMaker does</h2>
+          <ul>
+            <li>Generates a Base64 data URL for each image,</li>
+            <li>Leaves your existing folder as-is (no downloads required).</li>
+          </ul>
+
+          <h2 class="accent"> ☑️ Output</h2>
+          <ul>
+            <li>
+              Enhanced CSV with original columns:
+              <code>image_filename</code> and <code>image_dataurl</code> (Base64 data URL)
+            </li>
+          </ul>
+        </div>
+      </section>
     </div>
-  </section>
+  </div>
 
-  <section class="image2url">
-    <div class="text-block">
-
-      <h1>
-       <a href="getimg/index.html?mode=geturl" class="linkbutton">Open image2url</a>
-      </h1>
-      <h2 class="accent"> 📨  Input</h2>
-      <p>
-        Provide an image folder whose filenames match the <code>image_filename</code> values in your dataset (CSV, JSON, or other).
-      </p>
-
-      <h2 class="accent">⚙️ What ImgNetMaker does</h2>
-      <ul>
-        <li>Generates a Base64 data URL for each image,</li>
-        <li>Leaves your existing folder as-is (no downloads required).</li>
-      </ul>
-
-      <h2 class="accent"> ☑️ Output</h2>
-      <ul>
-        <li>
-          Enhanced CSV with original columns:
-          <code>image_filename</code> and <code>image_dataurl</code> (Base64 data URL)
-        </li>
-      </ul>
-    </div>
-  </section>
-</div>
 
     <footer>
       <div id="footertext">
@@ -120,6 +121,6 @@
       </div>
     </footer>
 
-  </div>
+</div>
 </body>
 </html>

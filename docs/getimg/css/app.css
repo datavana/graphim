@@ -6,7 +6,6 @@
   --fail-bg-color: #F38CA9;  /* fail status background */
   --success-bg-color: #C8F5D3;  /* success status background */
   --landing-bg-color: #7C00FF
-
 }
 
 /*
@@ -18,6 +17,13 @@ html, body {
   font-family: "Segoe UI", Roboto, sans-serif;
   background: var(--main-bg-color);
   color: #333;
+}
+
+canvas#warpCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: multiply;
 }
 
 button {
@@ -48,7 +54,6 @@ button:disabled {
 input[type="file"] {
   display: none;
 }
-
 
 table {
   border-collapse: collapse;
@@ -96,6 +101,11 @@ td.status {
   height: 100%;
   display: flex;
   flex-direction: column; /* stack children vertically */
+}
+
+#contentWrapper {
+  flex:1;
+  overflow: auto;
 }
 
 /* Header */
