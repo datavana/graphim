@@ -3,6 +3,9 @@
 data/*
 !data/readme.md
 
+models/*
+!models/readme.md
+
 settings.py
 settings.R
 .env

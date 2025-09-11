@@ -6,234 +6,98 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      font-family: sans-serif;
-    }
-    header {
-      background: #333;
-      color: white;
-      padding: 0.5rem 1rem;
-      font-size: 1.2rem;
-    }
-    .bar {
-      padding: 0.5rem 1rem;
-      border-bottom: 1px solid #ccc;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    #previewWrapper {
-      flex: 1;
-      overflow-y: auto;
-    }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 0.25rem 0.5rem; font-size: 0.9rem; }
-    td.status { width: 2rem; text-align: center; }
-    .done { background-color: #e6ffe6; }
-    .fail { background-color: #ffe6e6; }
-    #progressControls {display:flex; flex: 1;}
-    #thumbs {display:flex;}
-    #thumbs img { max-width: 50px; max-height: 50px; margin-left: 0.5rem; }
-    #progress {font-weight:bold; margin-left:2em;}
-  </style>
+
+  <script src="util.js"></script>
+  <script src="events.js"></script>
+  <script src="model.js"></script>
+  <script src="view.js"></script>
+  <script src="app.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>Download images from CSV file</header>
+  <div id="pageWidget">
 
-  <div id="fileBar" class="bar">
-    <input type="file" id="csvFile" accept=".csv">
-    <label for="urlColumn">Select URL column: </label>
-    <select id="urlColumn"></select>
-    <button id="fetchBtn">Fetch Images</button>
-  </div>
+    <header>
+      <img src="html_images/favicon.svg" alt="Logo" class="headerLogo">
+    </header>
 
-  <div id="fetchBar" class="bar" style="display:none;">
-    <div id="progressControls">
-      <button id="stopBtn" style="display:none;">Stop</button>
-      <button id="downloadZipBtn" style="display:none;">Download ZIP</button>
-      <span id="progress"></span>
+    <section id="introSection">
+
+      <div id="topText">
+        <p>
+          <strong>ImgNetMaker</strong> converts a CSV file
+          (with image URLs) or an image folder into image network-ready data for
+          <a href="https://gephi.org/gephi-lite/" target="_blank" rel="noopener">Gephi Lite</a>
+          (and similar tools) by downloading the images when a CSV is provided, pairing each image with its metadata, and adding two fields:
+          a clean image filename and a Base64 data URL.
+        </p>
+        <!--p style="color:#7C00FF;">
+        Yep — zoom through 10,000-images in a snap. 👩🏻‍💻✨❣️ Heads-up: performance depends on your browser’s available memory (RAM).
+        </p-->
+      </div>
+      <div id="thumbsWidget"></div>
+    </section>
+
+  <div id="fetchWidget">
+
+      <div id="fetchWidgetSelect" class="bar">
+        <label for="csvFile" class="upload-btn">Upload CSV</label>
+        <input type="file" id="csvFile" accept=".csv">
+        <span id="fileName"></span>
+      </div>
+
+      <div id="fetchWidgetColumn" class="bar">
+        <label for="urlColumn">Select Image URL Column: </label>
+        <select id="urlColumn"></select>
+        <button id="fetchBtn">Fetch Images</button>
+      </div>
+
+      <div id="fetchWidgetProgress" class="bar">
+        <div id="progressControls">
+          <button id="stopBtn">Stop</button>
+          <button id="showLogBtn">Show Error Log</button>
+          <span id="progress"></span>
+        </div>
+      </div>
+
+      <div id ="fetchWidgetDownload" class="bar">
+          <button id="downloadZipBtn">Download ZIP</button>
+          <button id="startOverBtn">Start Over</button>
+      </div>
     </div>
-    <div id="thumbs"></div>
-  </div>
 
-  <div id="previewWrapper">
-    <table id="previewTable"></table>
-  </div>
+  <section id="dataWrapper">
+    <div id="tableWrapper">
+      <table id="tableWidget"></table>
+    </div>
 
-  <script>
-    let parsedData = [];
-    let zip = null;
-    let stopFlag = false;
+    <div id="logWidget" class="log-section">
+      <div class="log-header">
+        <h3>Error Log</h3>
+        <button id="toggleLogBtn">Hide Log</button>
+      </div>
+      <div class="log-data"></div>
+      </div>
+  </section>
 
-    async function createThumbnailFromBlob(blob, maxSize = 50) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-          let scale = Math.min(maxSize / img.width, maxSize / img.height);
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL("image/jpeg"));
-        };
-        img.onerror = reject;
-        img.src = URL.createObjectURL(blob);
-      });
-    }
+  <footer>
+    <div id="footertext">
+      <h1>
+        ImgNetMaker - Public Beta Version: v0.1.0-beta
+        <a href="https://github.com/your-repo-link" target="_blank">
+        <span class="emoji">📖</span> Documentation/GitHub
+        </a>
+      </h1>
 
-    document.getElementById("csvFile").addEventListener("change", () => {
-      const fileInput = document.getElementById("csvFile");
-      if (!fileInput.files.length) return;
-
-      Papa.parse(fileInput.files[0], {
-        header: true,
-        complete: function(results) {
-          parsedData = results.data;
-          const headers = results.meta.fields;
-
-          // Fill column select
-          const select = document.getElementById("urlColumn");
-          select.innerHTML = "";
-          headers.forEach(h => {
-            const opt = document.createElement("option");
-            opt.value = h;
-            opt.textContent = h;
-            select.appendChild(opt);
-          });
-
-          // Show preview table with first 20 rows
-          renderPreview(headers, parsedData.slice(0, 20));
-
-          document.getElementById("fetchBar").style.display = "flex";
-        }
-      });
-    });
-
-    function renderPreview(headers, rows) {
-      const table = document.getElementById("previewTable");
-      table.innerHTML = "";
-
-      const thead = document.createElement("thead");
-      const headRow = document.createElement("tr");
-      const statusTh = document.createElement("th");
-      statusTh.textContent = "✔";
-      headRow.appendChild(statusTh);
-      headers.forEach(h => {
-        const th = document.createElement("th");
-        th.textContent = h;
-        headRow.appendChild(th);
-      });
-      thead.appendChild(headRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement("tbody");
-      rows.forEach((row, idx) => {
-        const tr = document.createElement("tr");
-        const statusTd = document.createElement("td");
-        statusTd.classList.add("status");
-        statusTd.textContent = "";
-        tr.appendChild(statusTd);
-        headers.forEach(h => {
-          const td = document.createElement("td");
-          td.textContent = row[h] || "";
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody);
-    }
-
-    document.getElementById("fetchBtn").addEventListener("click", async () => {
-      const urlCol = document.getElementById("urlColumn").value;
-      const progressDiv = document.getElementById("progress");
-      const table = document.getElementById("previewTable");
-      const tbody = table.querySelector("tbody");
-      const thumbsDiv = document.getElementById("thumbs");
-
-      zip = new JSZip();
-      const imgFolder = zip.folder("images");
-      stopFlag = false;
-
-      document.getElementById("fileBar").style.display = "none";
-      document.getElementById("urlColumn").style.display = "none";
-      document.getElementById("fetchBtn").style.display = "none";
-      document.getElementById("stopBtn").style.display = "inline-block";
-
-      let total = parsedData.length;
-      let count = 0;
-
-      for (let i = 0; i < parsedData.length; i++) {
-        if (stopFlag) break;
-        const row = parsedData[i];
-        if (row[urlCol]) {
-          try {
-            const response = await fetch(row[urlCol]);
-            if (!response.ok) throw new Error(`Failed to fetch ${row[urlCol]}`);
-            const blob = await response.blob();
-
-            const urlObj = new URL(row[urlCol]);
-            let filename = urlObj.pathname.split("/").pop() || `image_${i}`;
-            if (!filename.includes(".")) {
-              filename += ".jpg";
-            }
-            row.filename = filename;
-            row.imgdata = await createThumbnailFromBlob(blob);
-
-            imgFolder.file(filename, blob);
-
-            row._status = "✓";
-
-            // Update thumbs display (keep last 10)
-            const thumbImg = document.createElement("img");
-            thumbImg.src = row.imgdata;
-            thumbsDiv.appendChild(thumbImg);
-            if (thumbsDiv.children.length > 10) {
-              thumbsDiv.removeChild(thumbsDiv.firstChild);
-            }
-          } catch (e) {
-            console.error("Error processing:", row[urlCol], e);
-            row._status = "✗";
-          }
-        } else {
-          total--; // skip rows without URL
-        }
-
-        count++;
-        progressDiv.textContent = `Processed ${count} of ${total}`;
-
-        // Update table preview live (first 20 rows only)
-        if (i < 20) {
-          const tr = tbody.children[i];
-          if (tr) {
-            const statusTd = tr.firstChild;
-            statusTd.textContent = row._status || "-";
-            if (row._status === "✓") tr.classList.add("done");
-            if (row._status === "✗") tr.classList.add("fail");
-          }
-        }
-      }
-
-      document.getElementById("stopBtn").style.display = "none";
-      document.getElementById("downloadZipBtn").style.display = "inline-block";
-    });
-
-    document.getElementById("stopBtn").addEventListener("click", () => {
-      stopFlag = true;
-    });
-
-    document.getElementById("downloadZipBtn").addEventListener("click", async () => {
-      if (!zip) return alert("No ZIP archive created yet.");
-      const csv = Papa.unparse(parsedData);
-      zip.file("updated_images.csv", csv);
-      const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, "images_and_csv.zip");
-    });
-  </script>
+      <h2>Developed by Jakob Juenger, Katharina Maubach, Lennart Hoefig & Jane Knispel</h2>
+      <h3>Vision & Design by Janna Joceli Omena </h3>
+    </div>
+    <div id="inslogo">
+      <img src="html_images/logo1.svg" alt="Logo 1" class="headerLogo">
+      <img src="html_images/logo2.png" alt="Logo 2" class="headerLogo">
+    </div>
+  </footer>
+</div>
 </body>
 </html>
