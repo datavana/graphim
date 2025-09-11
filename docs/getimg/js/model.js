@@ -52,7 +52,7 @@ class RequestModule {
             }
             
             processed++;
-            this.events.emit('app:progress:step', {current: processed, total: total});
+            this.events.emit('data:progress:step', {current: processed, total: total});
         }
 
         this.events.emit('data:batch:finish');
@@ -80,7 +80,10 @@ class RequestModule {
 class DataModule {
     constructor(events) {
         this.events = events;
+
         this.parsedData = [];
+        this.loadedFiles = [];
+
         this.zip = null;
         this.usedFilenames = new Set();
 
@@ -139,6 +142,24 @@ class DataModule {
         });
     }
 
+     async loadFolder(files) {
+        return new Promise((resolve, reject) => {
+
+            this.loadedFiles = Array.from(files)
+                .filter(file => file.type.startsWith('image/'))
+                .map(file => ({
+                    filename: file.name,
+                    fileobject: file
+                }));
+
+
+             resolve({
+                    rows: this.loadedFiles,
+                    headers: ['filename']
+                });
+        });
+    }
+
     /**
      * Returns a list of URLs
      *
@@ -164,7 +185,7 @@ class DataModule {
     }
 
     onBatchFinish() {
-        this.events.emit('data:batch:ready');
+        this.events.emit('app:batch:ready');
     }
 
     /**

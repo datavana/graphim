@@ -18,13 +18,11 @@ class WebApp {
     }
 
     initEvents() {
-        this.eventBus.on('app:progress:step', (data) => this.onProgressStep(data));
-        this.eventBus.on('data:batch:ready', () => this.onBatchReady());
-
         this.eventBus.on('app:reset:start', () => this.actionReset());
         this.eventBus.on('app:input:changed', (data) => this.actionInput(data));
         this.eventBus.on('app:fetch:start', () => this.actionFetchStart());
         this.eventBus.on('app:fetch:stop', () => this.actionFetchStop());
+        this.eventBus.on('app:batch:ready', () => this.onBatchReady());
         this.eventBus.on('app:download:start', (data) => this.actionDownload(data));
     }
 
@@ -43,17 +41,27 @@ class WebApp {
     async actionInput(data) {
 
         try {
-            const file = this.pageWidget.fetchWidget.getInputFile();
-            const result = await this.dataModule.loadCSV(file);
-            this.pageWidget.fetchWidget.updateColumnSelector(result);
-            this.pageWidget.tableWidget.showData(result);
+            if (data.type == 'csv') {
+                const file = this.pageWidget.fetchWidget.getInputFiles();
+                const result = await this.dataModule.loadCSV(file[0]);
+                this.pageWidget.fetchWidget.updateColumnSelector(result);
+                this.pageWidget.tableWidget.showData(result);
+            }
+
+            if (data.type == 'folder') {
+                const files = this.pageWidget.fetchWidget.getFolderFiles();
+                console.log(files);
+
+                const result = await this.dataModule.loadFolder(files);
+                this.pageWidget.folderWidget.showData(result);
+            }
 
             this.pageWidget.setStage('select');
 
         } catch (error) {
             this.eventBus.emit(
                 'app:log:add',
-                { msg: "Error loading CSV file: " + error.message, level: 'serious' }
+                { msg: "Error loading data: " + error.message, level: 'serious' }
             )
         }
     }
@@ -78,10 +86,6 @@ class WebApp {
 
     onBatchReady() {
         this.pageWidget.setStage('ready');
-    }
-
-    async onProgressStep(data){
-        this.pageWidget.fetchWidget.updateProgress(data);
     }
 
 }

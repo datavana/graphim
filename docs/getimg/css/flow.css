@@ -1,6 +1,11 @@
 
 /** Start stage **/
 
+#matchBtn,
+#fetchWidgetFolderColumn {
+    display: none;
+}
+
 /** Select stage **/
 .stage-select #dataWrapper,
 .stage-select #fetchWidgetColumn {
@@ -8,7 +13,7 @@
 }
 
 /** Fetch stage **/
-.stage-fetch #fetchWidgetSelect,
+.stage-fetch #fetchWidgetSelectCsv,
 .stage-fetch #urlColumn,
 .stage-fetch #fetchBtn {
   display: none;
@@ -20,7 +25,7 @@
 }
 
 /** Ready stage **/
-.stage-ready #fetchWidgetSelect,
+.stage-ready #fetchWidgetSelectCsv,
 .stage-ready #stopBtn {
   display:none;
 }

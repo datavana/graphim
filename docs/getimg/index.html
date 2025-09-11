@@ -47,16 +47,32 @@
 
       <div id="fetchWidget">
 
-        <div id="fetchWidgetSelect" class="box">
-          <label for="csvFile" class="upload-btn">Upload CSV</label>
-          <input type="file" id="csvFile" accept=".csv">
-          <span id="fileName"></span>
+        <div id="processCsvWrapper" class="inputWrapper">
+          <div id="fetchWidgetSelectCsv" class="box">
+            <label for="csvFile" class="upload-btn">Upload CSV</label>
+            <input type="file" id="csvFile" accept=".csv">
+            <span id="fileName"></span>
+          </div>
+
+          <div id="fetchWidgetColumn" class="box">
+            <label for="urlColumn">Select Image URL Column: </label>
+            <select id="urlColumn"></select>
+            <button id="fetchBtn">Fetch Images</button>
+          </div>
+
+          <div id="fetchWidgetFolderColumn" class="box">
+            <label for="fileColumn">Select Image File Column: </label>
+            <select id="fileColumn"></select>
+          </div>
+
         </div>
 
-        <div id="fetchWidgetColumn" class="box">
-          <label for="urlColumn">Select Image URL Column: </label>
-          <select id="urlColumn"></select>
-          <button id="fetchBtn">Fetch Images</button>
+        <div id="processFolderWrapper" class="inputWrapper">
+          <div id="fetchWidgetSelectFolder" class="box">
+            <label for="imgFolder" class="upload-btn">Upload Folder</label>
+            <input type="file" id="imgFolder" webkitdirectory multiple>
+            <button id="matchBtn">Match Images</button>
+          </div>
         </div>
 
         <div id="fetchWidgetProgress" class="box">
@@ -78,6 +94,10 @@
   <section id="dataWrapper">
     <div id="tableWrapper">
       <table id="tableWidget"></table>
+    </div>
+
+    <div id="folderWrapper">
+      <table id="folderWidget"></table>
     </div>
 
     <div id="logWidget" class="log-section">

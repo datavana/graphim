@@ -51,6 +51,7 @@ class PageWidget extends BaseWidgetClass {
         super(elementId, null, events);
 
         this.tableWidget = new TableWidget('tableWidget', this);
+        this.folderWidget = new FolderWidget('folderWidget', this);
         this.logWidget = new LogWidget( 'logWidget', this);
         this.fetchWidget = new FetchWidget('fetchWidget', this);
         this.thumbsWidget = new ThumbsWidget( 'thumbsWidget', this);
@@ -95,6 +96,9 @@ class FetchWidget extends BaseWidgetClass {
         document.getElementById("csvFile").addEventListener(
             "change", () => this.events.emit('app:input:changed', {'type' : 'csv'})
         );
+        document.getElementById("imgFolder").addEventListener(
+            "change", () => this.events.emit('app:input:changed', {'type' : 'folder'})
+        );
         document.getElementById("downloadZipBtn").addEventListener(
             "click", () => this.events.emit('app:download:start', {'type' : 'zip'})
         );
@@ -104,6 +108,9 @@ class FetchWidget extends BaseWidgetClass {
         document.getElementById("stopBtn").addEventListener(
             "click", () => this.events.emit('app:fetch:stop')
         );
+
+        this.events.on('data:progress:step', (data) => this.updateProgress(data));
+
     }
 
     reset() {
@@ -115,11 +122,15 @@ class FetchWidget extends BaseWidgetClass {
     }
 
     getInputFile() {
-        const fileInput = document.getElementById("csvFile");
-        if (!fileInput.files.length) return;
-        const file = fileInput.files[0];
+        const inputElm = document.getElementById("csvFile");
+        if (!inputElm.files.length) return;
+        const file = inputElm.files[0];
         document.getElementById('fileName').textContent = file.name;
         return file;
+    }
+    getFolderFiles() {
+        const inputElm = document.getElementById("imgFolder");
+        return  inputElm.files;
     }
 
     getSettings() {
@@ -180,40 +191,38 @@ class ThumbsWidget extends BaseWidgetClass {
     }
 
 }
+
 /**
- * Handles the data table display
+ * Base class for table widgets
  */
-class TableWidget extends BaseWidgetClass {
+
+class BaseTableWidget extends BaseWidgetClass {
 
     constructor(elementId, parent) {
         super(elementId, parent);
-
-        this.events.on('data:node:added', (data) => this.updateRowStatus(data.idx, data.status));
-        this.events.on('data:node:error', (data) => this.updateRowStatus(data.idx, data.status));
     }
 
     reset() {
         this.element.innerHTML = '';
     }
 
-    /**
+      /**
      * Renders the preview table (moved from original renderPreview method)
      *
      * @param {Object} data An object with the properties headers and rows.
      *                      Headers is a list of header names.
      *                      Rows is a list of rows.
      *                      Each row is an object with keys matching the headers.
+       * @param {int} limit Maximum rows to show
      */
-    showData(data) {
+    showData(data, limit = 20) {
 
-        const headers = data.headers;
-        const rows = data.rows.slice(0, 20);
+        const allHeaders = data.headers;
+        const rows = data.rows.slice(0, limit);
 
         if (!this.element) return;
 
-        this.element.innerHTML = "";
-
-        const allHeaders = [...headers, "filename", "imgdata", "_status"];
+        this.reset();
 
         const thead = document.createElement("thead");
         const headRow = document.createElement("tr");
@@ -234,6 +243,7 @@ class TableWidget extends BaseWidgetClass {
         });
         this.element.appendChild(tbody);
     }
+
 
     addRow(tbody, headers, row) {
         const tr = document.createElement("tr");
@@ -280,6 +290,44 @@ class TableWidget extends BaseWidgetClass {
             statusCell.textContent = "✗";
             row.classList.add("fail");
         }
+    }
+}
+
+/**
+ * Handles the data table display
+ */
+class TableWidget extends BaseTableWidget{
+
+    constructor(elementId, parent) {
+        super(elementId, parent);
+
+        this.events.on('data:node:added', (data) => this.updateRowStatus(data.idx, data.status));
+        this.events.on('data:node:error', (data) => this.updateRowStatus(data.idx, data.status));
+    }
+
+
+    /**
+     * Renders the preview table (moved from original renderPreview method)
+     *
+     * @param {Object} data An object with the properties headers and rows.
+     *                      Headers is a list of header names.
+     *                      Rows is a list of rows.
+     *                      Each row is an object with keys matching the headers.
+     */
+    showData(data) {
+        data.headers = [...data.headers, "filename", "imgdata", "_status"];
+        super.showData(data);
+    }
+
+}
+
+class FolderWidget extends BaseTableWidget {
+    constructor(elementId, parent) {
+        super(elementId, parent);
+    }
+
+    showData(data) {
+        super.showData(data);
     }
 
 }

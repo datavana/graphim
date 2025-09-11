@@ -1,7 +1,7 @@
 :root {
   --base-corner-radius: 10px;
   --main-bg-color: white;
-  --header-bg: url("img/background.jpg");
+  --header-bg: url("../img/background.jpg");
   --button-bg-color: white;               /* primary button background */
   --fail-bg-color: #F38CA9;  /* fail status background */
   --success-bg-color: #C8F5D3;  /* success status background */
@@ -43,6 +43,12 @@ button:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
+
+input[type="file"] {
+  display: none;
+}
+
+
 
 /**
  * Page container --------------------------------
@@ -137,7 +143,11 @@ section#introWrapper {
   display: flex;
 }
 
-#fetchWidgetSelect {
+#processCsvWrapper {
+  display: flex;
+}
+
+#fetchWidgetSelectCsv {
   display : flex;
 }
 
@@ -153,10 +163,6 @@ section#introWrapper {
 
 #fetchBtn, #stopButton {
   display: inline-block;
-}
-
-#csvFile {
-  display: none;
 }
 
 #fileName {
