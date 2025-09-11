@@ -1,0 +1,31 @@
+
+/** Start stage **/
+
+/** Select stage **/
+.stage-select #dataWrapper,
+.stage-select #fetchWidgetColumn {
+  display: flex;
+}
+
+/** Fetch stage **/
+.stage-fetch #fetchWidgetSelect,
+.stage-fetch #urlColumn,
+.stage-fetch #fetchBtn {
+  display: none;
+}
+
+.stage-fetch #fetchWidgetProgress
+ {
+  display: flex;
+}
+
+/** Ready stage **/
+.stage-ready #fetchWidgetSelect,
+.stage-ready #stopBtn {
+  display:none;
+}
+
+.stage-select #dataWrapper,
+.stage-ready #fetchWidgetDownload {
+  display: flex;
+}

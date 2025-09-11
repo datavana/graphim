@@ -2,27 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Image CSV Processor</title>
+  <title>ImageNetMaker</title>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 
-  <script src="util.js"></script>
-  <script src="events.js"></script>
-  <script src="model.js"></script>
-  <script src="view.js"></script>
-  <script src="app.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/view.js"></script>
+  <script src="js/app.js"></script>
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/widgets.css">
+  <link rel="stylesheet" href="css/flow.css">
 </head>
 <body>
-  <div id="pageWidget">
+  <div id="pageWidget" class="stage-start">
 
     <header>
-      <img src="html_images/favicon.svg" alt="Logo" class="headerLogo">
+      <img src="img/favicon.svg" alt="Logo" class="headerLogo">
     </header>
 
-    <section id="introSection">
+    <section id="introWrapper">
 
       <div id="topText">
         <p>
@@ -36,36 +38,42 @@
         Yep — zoom through 10,000-images in a snap. 👩🏻‍💻✨❣️ Heads-up: performance depends on your browser’s available memory (RAM).
         </p-->
       </div>
+
       <div id="thumbsWidget"></div>
+
     </section>
 
-  <div id="fetchWidget">
+    <section id="fetchWrapper">
 
-      <div id="fetchWidgetSelect" class="bar">
-        <label for="csvFile" class="upload-btn">Upload CSV</label>
-        <input type="file" id="csvFile" accept=".csv">
-        <span id="fileName"></span>
-      </div>
+      <div id="fetchWidget">
 
-      <div id="fetchWidgetColumn" class="bar">
-        <label for="urlColumn">Select Image URL Column: </label>
-        <select id="urlColumn"></select>
-        <button id="fetchBtn">Fetch Images</button>
-      </div>
+        <div id="fetchWidgetSelect" class="box">
+          <label for="csvFile" class="upload-btn">Upload CSV</label>
+          <input type="file" id="csvFile" accept=".csv">
+          <span id="fileName"></span>
+        </div>
 
-      <div id="fetchWidgetProgress" class="bar">
-        <div id="progressControls">
-          <button id="stopBtn">Stop</button>
-          <button id="showLogBtn">Show Error Log</button>
-          <span id="progress"></span>
+        <div id="fetchWidgetColumn" class="box">
+          <label for="urlColumn">Select Image URL Column: </label>
+          <select id="urlColumn"></select>
+          <button id="fetchBtn">Fetch Images</button>
+        </div>
+
+        <div id="fetchWidgetProgress" class="box">
+          <div id="progressControls">
+            <button id="stopBtn">Stop</button>
+            <button id="showLogBtn">Show Error Log</button>
+            <span id="progress"></span>
+          </div>
+        </div>
+
+        <div id="fetchWidgetDownload" class="box">
+          <button id="downloadZipBtn">Download ZIP</button>
+          <button id="startOverBtn">Start Over</button>
         </div>
       </div>
 
-      <div id ="fetchWidgetDownload" class="bar">
-          <button id="downloadZipBtn">Download ZIP</button>
-          <button id="startOverBtn">Start Over</button>
-      </div>
-    </div>
+    </section>
 
   <section id="dataWrapper">
     <div id="tableWrapper">
@@ -94,8 +102,8 @@
       <h3>Vision & Design by Janna Joceli Omena </h3>
     </div>
     <div id="inslogo">
-      <img src="html_images/logo1.svg" alt="Logo 1" class="headerLogo">
-      <img src="html_images/logo2.png" alt="Logo 2" class="headerLogo">
+      <img src="assets/logo1.svg" alt="Logo 1" class="headerLogo">
+      <img src="assets/logo2.png" alt="Logo 2" class="headerLogo">
     </div>
   </footer>
 </div>

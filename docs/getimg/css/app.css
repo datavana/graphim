@@ -1,15 +1,16 @@
 :root {
   --base-corner-radius: 10px;
   --main-bg-color: white;
-  --header-bg: url("html_images/background.jpg");
+  --header-bg: url("img/background.jpg");
   --button-bg-color: white;               /* primary button background */
   --fail-bg-color: #F38CA9;  /* fail status background */
   --success-bg-color: #C8F5D3;  /* success status background */
 
 }
 
-
-/* General */
+/*
+ * General settings --------------------------------
+ */
 html, body {
   margin: 0;
   height: 100%;
@@ -18,20 +19,39 @@ html, body {
   color: #333;
 }
 
+button {
+  background: white;
+  color: black;
+  border: 2px solid black;   /* proper black border */
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease-in-out,
+              box-shadow 0.2s ease-in-out;
+
+  /* subtle shadow */
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+  background: #f5f5f5;       /* slightly darker on hover */
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/**
+ * Page container --------------------------------
+ */
 #pageWidget {
   margin: 0;
   height: 100%;
   display: flex;
   flex-direction: column; /* stack children vertically */
-}
-
-/* Make dataWrapper (table area) grow to fill space */
-#dataWrapper {
-  display: flex;
-  flex-direction: row;
-  flex: 1;              /* middle row grows */
-  padding: 1rem;        /* spacing so table isn’t glued to edges */
-  overflow: auto;
 }
 
 /* Header */
@@ -81,8 +101,11 @@ header::before {
   }
 }
 
-/* Instructions */
-section#introSection {
+/*
+ * Intro section --------------------------------
+ */
+
+section#introWrapper {
   display: flex;
   flex-direction: row;
 }
@@ -95,8 +118,11 @@ section#introSection {
   font-weight: 600;
 }
 
-/* Bars */
-.bar {
+/*
+ * Fetch section --------------------------------
+ */
+
+.box {
   padding: 1.5rem;
   background: white;
   border-radius: var(--base-corner-radius);
@@ -107,23 +133,6 @@ section#introSection {
   font-size: 1rem;
 }
 
-/* Log */
-#showLogBtn {
-  display: none;
-}
-
-#logWidget {
-  flex: 1;
-  display: none;
-  overflow: auto;
-  margin-left: 3em;
-}
-
-#logWidget.log-notempty {
-  display: flex;
-}
-
-/** Default stage */
 #fetchWidget {
   display: flex;
 }
@@ -146,88 +155,14 @@ section#introSection {
   display: inline-block;
 }
 
-#showLogBtn {
-  display: none;
-}
-
-/** Select stage **/
-.stage-select #dataWrapper,
-.stage-select #fetchWidgetColumn {
-  display: flex;
-}
-
-/** Fetch stage **/
-.stage-fetch #fetchWidgetSelect,
-.stage-fetch #urlColumn,
-.stage-fetch #fetchBtn {
-  display: none;
-}
-
-.stage-fetch #fetchWidgetProgress
- {
-  display: flex;
-}
-
-/** Ready stage **/
-.stage-ready #fetchWidgetSelect,
-.stage-ready #stopBtn {
-  display:none;
-}
-
-.stage-select #dataWrapper,
-.stage-ready #fetchWidgetDownload {
-  display: flex;
-}
-
-/* Table */
-#tableWrapper {
-  flex:2;
-  overflow: auto;
-}
-
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  background: white;
-  border-radius: 8px;
-  overflow: auto;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-th, td {
-  border: 1px solid #eee;
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 20em;
-}
-
-th {
-  background: white; /* slightly darker than #FAF0E6 */
-  text-align: left;
-  font-weight: 600;
-}
-
-td.status {
-  width: 2rem;
-  text-align: center;
-}
-
-.success td.status {
-  background-color: var(--success-bg-color);
-}
-
-.fail td.status {
-  background-color: var(--fail-bg-color);
-}
-
-/* Buttons */
-
 #csvFile {
   display: none;
+}
+
+#fileName {
+  margin-left: 1rem;
+  font-style: italic;
+  color: #333;
 }
 
 .upload-btn {
@@ -249,38 +184,6 @@ td.status {
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
 }
 
-#fileName {
-  margin-left: 1rem;
-  font-style: italic;
-  color: #333;
-}
-
-
-
-button {
-  background: white;
-  color: black;
-  border: 2px solid black;   /* proper black border */
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s ease-in-out,
-              box-shadow 0.2s ease-in-out;
-
-  /* subtle shadow */
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-button:hover {
-  background: #f5f5f5;       /* slightly darker on hover */
-  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
-}
-
-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
 
 /* Progress controls */
 #progressControls {
@@ -342,66 +245,79 @@ button:disabled {
 }
 
 
-footer {
+
+/*
+ * Data section --------------------------------
+ */
+
+#dataWrapper {
   display: flex;
-  justify-content: space-between; /* text left, logos right */
-  align-items: center;
-  padding: 15px 30px;
-  background-color: white;
-  color: black;
+  flex-direction: row;
+  flex: 1;              /* middle row grows */
+  padding: 1rem;        /* spacing so table isn’t glued to edges */
+  overflow: auto;
 }
 
-/* Footer text */
-#footertext h1,
-#footertext h2,
-#footertext h3 {
-  margin: 0;
-  font-weight: normal;
-  font-family: Arial, Helvetica, sans-serif;
+
+/* Table */
+#tableWrapper {
+  flex:2;
+  overflow: auto;
 }
 
-#footertext h1 {
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: auto;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+th, td {
+  border: 1px solid #eee;
+  padding: 0.6rem 1rem;
   font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 20em;
 }
 
-#footertext h2,
-#footertext h3 {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  display: block;
+th {
+  background: white; /* slightly darker than #FAF0E6 */
+  text-align: left;
+  font-weight: 600;
 }
 
-#footertext a {
-  color: black;
-  text-decoration: none;
+td.status {
+  width: 2rem;
+  text-align: center;
 }
 
-#footertext a:hover {
-  text-decoration: underline;
+.success td.status {
+  background-color: var(--success-bg-color);
 }
 
-#footertext a .emoji {
-  text-decoration: none;
-  margin-right: 4px;
-  display: inline-block;
+.fail td.status {
+  background-color: var(--fail-bg-color);
 }
 
-/* Logos container */
-#inslogo {
+/* Log */
+#logWidget {
+  flex: 1;
+  display: none;
+  overflow: auto;
+  margin-left: 3em;
+}
+
+#logWidget.log-notempty {
   display: flex;
-  gap: 10px;
-  align-items: center;
 }
 
-/* Logos themselves */
-#inslogo img {
-  height: 50px;       /* small size */
-  width: auto;        /* keep aspect ratio */
-  filter: brightness(0); /* make black */
+#showLogBtn {
+  display: none;
 }
-
-
-
 
 /* Log Viewer Styles */
 .log-section {
@@ -493,3 +409,64 @@ footer {
   border-radius: 3px;
   border-left: 2px solid #ddd;
 }
+
+/*
+ * Footer section --------------------------------
+ */
+footer {
+  display: flex;
+  justify-content: space-between; /* text left, logos right */
+  align-items: center;
+  padding: 15px 30px;
+  background-color: white;
+  color: black;
+}
+
+#footertext h1,
+#footertext h2,
+#footertext h3 {
+  margin: 0;
+  font-weight: normal;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#footertext h1 {
+  font-size: 1rem;
+}
+
+#footertext h2,
+#footertext h3 {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  display: block;
+}
+
+#footertext a {
+  color: black;
+  text-decoration: none;
+}
+
+#footertext a:hover {
+  text-decoration: underline;
+}
+
+#footertext a .emoji {
+  text-decoration: none;
+  margin-right: 4px;
+  display: inline-block;
+}
+
+/* Logos container */
+#inslogo {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Logos themselves */
+#inslogo img {
+  height: 50px;       /* small size */
+  width: auto;        /* keep aspect ratio */
+  filter: brightness(0); /* make black */
+}
+
