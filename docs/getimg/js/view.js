@@ -117,6 +117,9 @@ class FetchWidget extends BaseWidgetClass {
         document.getElementById("stopBtn").addEventListener(
             "click", () => this.events.emit('app:fetch:stop')
         );
+        document.getElementById("extractBtn").addEventListener(
+            "click", () => this.events.emit('app:extract:start')
+        )
 
         this.events.on('data:progress:step', (data) => this.updateProgress(data));
 

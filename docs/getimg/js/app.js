@@ -21,6 +21,7 @@ class WebApp {
         this.eventBus.on('app:reset:start', () => this.actionReset());
         this.eventBus.on('app:input:changed', (data) => this.actionInput(data));
         this.eventBus.on('app:fetch:start', () => this.actionFetchStart());
+        this.eventBus.on('app:extract:start', () => this.actionExtractStart());
         this.eventBus.on('app:fetch:stop', () => this.actionFetchStop());
         this.eventBus.on('app:batch:ready', () => this.onBatchReady());
         this.eventBus.on('app:download:start', (data) => this.actionDownload(data));
@@ -77,6 +78,16 @@ class WebApp {
         const fetchSettings = this.pageWidget.fetchWidget.getSettings();
         const nodes = this.dataModule.getSeedNodes(fetchSettings.column);
         this.requestModule.processBatch(nodes);
+    }
+
+    asynch actionExtractStart() {
+
+        // this.eventBus.emit('app:log:clear');
+        this.pageWidget.clearStage();
+        this.pageWidget.setStage('extract')
+
+        const nodes = this.dataModule.getAllNodes();
+        this.requestModule.processBatch(nodes, true);
     }
 
     actionFetchStop() {
