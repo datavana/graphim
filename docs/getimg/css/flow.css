@@ -1,4 +1,14 @@
 
+/* Mode-specific adjustments */
+
+.mode-getimg #processFolderWrapper {
+    display: none; /* hide CSV-specific elements in getimg mode */
+}
+
+.mode-geturl #processCsvWrapper {
+    display: none; /* hide CSV-specific elements in getimg mode */
+}
+
 /** Start stage **/
 
 #extractBtn,
