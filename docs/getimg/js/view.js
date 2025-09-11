@@ -51,6 +51,8 @@ class PageWidget extends BaseWidgetClass {
         super(elementId, null, events);
         this.app = app;
 
+        this.setMode();
+
         this.tableWidget = new TableWidget('tableWidget', this);
         this.folderWidget = new FolderWidget('folderWidget', this);
         this.logWidget = new LogWidget( 'logWidget', this);
@@ -74,6 +76,14 @@ class PageWidget extends BaseWidgetClass {
 
         this.clearStage();
         this.setStage('start');
+    }
+
+    setMode() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const mode = urlParams.get('mode');
+
+        this.element.classList.add(`mode-${mode}`);
     }
 
     clearStage(stage) {
