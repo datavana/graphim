@@ -71,7 +71,16 @@ class PageWidget extends BaseWidgetClass {
         this.fetchWidget.reset();
         this.thumbsWidget.reset();
 
+        this.pageWidget.clearStage();
         this.setStage('start');
+    }
+
+    clearStage(stage) {
+        if (!stage) {
+            Utils.removeClasses(this.element, 'stage-');
+        } else {
+            Utils.removeClasses(this.element, 'stage-' + stage);
+        }
     }
 
     /**
@@ -80,7 +89,6 @@ class PageWidget extends BaseWidgetClass {
      * @param {String} stage
      */
     setStage(stage) {
-        Utils.removeClasses(this.element, 'stage-');
         this.element.classList.add(`stage-${stage}`);
     }
 }

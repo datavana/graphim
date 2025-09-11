@@ -46,6 +46,8 @@ class WebApp {
                 const result = await this.dataModule.loadCSV(file);
                 this.pageWidget.fetchWidget.updateColumnSelector(result);
                 this.pageWidget.tableWidget.showData(result);
+                this.pageWidget.clearStage('start');
+                this.pageWidget.setStage('select-urls');
             }
 
             if (data.type == 'folder') {
@@ -54,9 +56,9 @@ class WebApp {
 
                 const result = await this.dataModule.loadFolder(files);
                 this.pageWidget.folderWidget.showData(result);
+                this.pageWidget.clearStage('start');
+                this.pageWidget.setStage('select-imgs');
             }
-
-            this.pageWidget.setStage('select');
 
         } catch (error) {
             this.eventBus.emit(
@@ -69,6 +71,7 @@ class WebApp {
     async actionFetchStart() {
 
         this.eventBus.emit('app:log:clear');
+        this.pageWidget.clearStage();
         this.pageWidget.setStage('fetch')
 
         const fetchSettings = this.pageWidget.fetchWidget.getSettings();
@@ -85,6 +88,7 @@ class WebApp {
     }
 
     onBatchReady() {
+        this.pageWidget.clearStage();
         this.pageWidget.setStage('ready');
     }
 

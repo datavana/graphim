@@ -7,9 +7,15 @@
 }
 
 /** Select stage **/
-.stage-select #dataWrapper,
-.stage-select #fetchWidgetColumn {
+.stage-select-urls #dataWrapper,
+.stage-select-imgs #dataWrapper,
+.stage-select-urls #fetchWidgetColumn {
   display: flex;
+}
+
+.stage-select-imgs.stage-select-urls #fetchWidgetFolderColumn,
+.stage-select-imgs #extractBtn {
+    display: flex;
 }
 
 /** Fetch stage **/
@@ -30,7 +36,6 @@
   display:none;
 }
 
-.stage-select #dataWrapper,
 .stage-ready #fetchWidgetDownload {
   display: flex;
 }
