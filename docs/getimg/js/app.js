@@ -42,8 +42,8 @@ class WebApp {
 
         try {
             if (data.type == 'csv') {
-                const file = this.pageWidget.fetchWidget.getInputFiles();
-                const result = await this.dataModule.loadCSV(file[0]);
+                const file = this.pageWidget.fetchWidget.getCsvFile();
+                const result = await this.dataModule.loadCSV(file);
                 this.pageWidget.fetchWidget.updateColumnSelector(result);
                 this.pageWidget.tableWidget.showData(result);
             }

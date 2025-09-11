@@ -121,7 +121,7 @@ class FetchWidget extends BaseWidgetClass {
         document.getElementById('fileName').textContent = "";
     }
 
-    getInputFile() {
+    getCsvFile() {
         const inputElm = document.getElementById("csvFile");
         if (!inputElm.files.length) return;
         const file = inputElm.files[0];

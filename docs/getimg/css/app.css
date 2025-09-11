@@ -49,6 +49,43 @@ input[type="file"] {
 }
 
 
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: auto;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+th, td {
+  border: 1px solid #eee;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 20em;
+}
+
+th {
+  background: white; /* slightly darker than #FAF0E6 */
+  text-align: left;
+  font-weight: 600;
+}
+
+td.status {
+  width: 2rem;
+  text-align: center;
+}
+
+.success td.status {
+  background-color: var(--success-bg-color);
+}
+
+.fail td.status {
+  background-color: var(--fail-bg-color);
+}
 
 /**
  * Page container --------------------------------
@@ -269,44 +306,6 @@ section#introWrapper {
 #tableWrapper {
   flex:2;
   overflow: auto;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  background: white;
-  border-radius: 8px;
-  overflow: auto;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-th, td {
-  border: 1px solid #eee;
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 20em;
-}
-
-th {
-  background: white; /* slightly darker than #FAF0E6 */
-  text-align: left;
-  font-weight: 600;
-}
-
-td.status {
-  width: 2rem;
-  text-align: center;
-}
-
-.success td.status {
-  background-color: var(--success-bg-color);
-}
-
-.fail td.status {
-  background-color: var(--fail-bg-color);
 }
 
 /* Log */
