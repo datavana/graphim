@@ -47,8 +47,9 @@ class BaseWidgetClass {
 }
 
 class PageWidget extends BaseWidgetClass {
-    constructor(elementId, events) {
+    constructor(elementId, events, app) {
         super(elementId, null, events);
+        this.app = app;
 
         this.tableWidget = new TableWidget('tableWidget', this);
         this.folderWidget = new FolderWidget('folderWidget', this);
@@ -71,7 +72,7 @@ class PageWidget extends BaseWidgetClass {
         this.fetchWidget.reset();
         this.thumbsWidget.reset();
 
-        this.pageWidget.clearStage();
+        this.clearStage();
         this.setStage('start');
     }
 
@@ -261,17 +262,7 @@ class BaseTableWidget extends BaseWidgetClass {
         tr.appendChild(statusTd);
         headers.forEach(h => {
             const td = document.createElement("td");
-            if (h === "imgdata" && row[h]) {
-                const img = document.createElement("img");
-                img.src = row[h];
-
-                // TODO: Don't! Let CSS handle sizes!
-                img.style.maxWidth = "30px";
-                img.style.maxHeight = "30px";
-                td.appendChild(img);
-            } else {
-                td.textContent = row[h] || "";
-            }
+            td.textContent = row[h] || "";
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -294,11 +285,58 @@ class BaseTableWidget extends BaseWidgetClass {
             statusCell.textContent = "✓";
             row.classList.add("success");
         }
-        else if (status === 'fail') {
+        else if (status && status !== '') {
             statusCell.textContent = "✗";
             row.classList.add("fail");
         }
     }
+
+    /**
+     * Updates a row with processed data (filename, thumbnail, status)
+     * @param {number} rowIndex - Row index to update
+     * @param {Object} rowData - Data object with inm_filename, inm_imgdata, inm_status
+     */
+    updateRowData(rowIndex, rowData) {
+        const tbody = this.element.querySelector("tbody");
+        if (!tbody) return;
+
+        const row = tbody.children[rowIndex];
+        if (!row) return;
+
+        // Find the cells for our added columns
+        const cells = row.querySelectorAll("td");
+        const headers = ['inm_filename', 'inm_imgdata', 'inm_status'];
+        
+        // Update cells with new data
+        headers.forEach((header) => {
+            // Skip status column (first cell) and find the right column
+            const cellIndex = this.findColumnIndex(header) + 1; // +1 for status column
+            const cell = cells[cellIndex];
+            
+            if (!cell || !rowData.hasOwnProperty(header)) return;
+
+            cell.textContent = rowData[header] || "";
+        });
+    }
+
+    /**
+     * Helper method to find column index by header name
+     * @param {string} headerName - Name of the header to find
+     * @returns {number} Column index or -1 if not found
+     */
+    findColumnIndex(headerName) {
+        const thead = this.element.querySelector("thead");
+        if (!thead) return -1;
+        
+        const headers = thead.querySelectorAll("th");
+        for (let i = 1; i < headers.length; i++) { // Skip first status column
+            if (headers[i].textContent.trim() === headerName) {
+                return i - 1; // Adjust for status column
+            }
+        }
+        return -1;
+    }
+
 }
 
 /**
@@ -309,13 +347,40 @@ class TableWidget extends BaseTableWidget{
     constructor(elementId, parent) {
         super(elementId, parent);
 
-        this.events.on('data:node:added', (data) => this.updateRowStatus(data.idx, data.status));
-        this.events.on('data:node:error', (data) => this.updateRowStatus(data.idx, data.status));
+        this.events.on('data:node:added', (data) => {
+            this.updateRowStatus(data.idx, data.status);
+            // Update the actual row data with processed information
+            this.updateRowWithProcessedData(data.idx);
+        });
+        this.events.on('data:node:error', (data) => {
+            this.updateRowStatus(data.idx, data.status);
+            // Update the row with error status
+            this.updateRowWithProcessedData(data.idx);
+        });
+    }
+
+    /**
+     * Updates row with current data from the model
+     * @param {number} rowIndex - Row index to update
+     */
+    updateRowWithProcessedData(rowIndex) {
+        // Get updated data from parent's app reference
+        if (this.parent && this.parent.app && this.parent.app.dataModule) {
+            const allData = this.parent.app.dataModule.parsedData;
+            if (rowIndex < allData.length) {
+                const rowData = allData[rowIndex];
+                this.updateRowData(rowIndex, {
+                    inm_filename: rowData.inm_filename,
+                    inm_imgdata: rowData.inm_imgdata,
+                    inm_status: rowData.inm_status
+                });
+            }
+        }
     }
 
 
     /**
-     * Renders the preview table (moved from original renderPreview method)
+     * Render preview table
      *
      * @param {Object} data An object with the properties headers and rows.
      *                      Headers is a list of header names.
@@ -323,7 +388,7 @@ class TableWidget extends BaseTableWidget{
      *                      Each row is an object with keys matching the headers.
      */
     showData(data) {
-        data.headers = [...data.headers, "filename", "imgdata", "_status"];
+        data.headers = [...data.headers, "inm_filename", "inm_imgdata", "inm_status"];
         super.showData(data);
     }
 
