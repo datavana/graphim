@@ -376,10 +376,11 @@ class TableWidget extends BaseTableWidget{
      * Updates row with current data from the model
      * @param {number} rowIndex - Row index to update
      */
-    updateRowWithProcessedData(rowIndex) {
+    updateRowWithProcessedData(rowIndex, sourceType = 'csv') {
         // Get updated data from parent's app reference
         if (this.parent && this.parent.app && this.parent.app.dataModule) {
-            const allData = this.parent.app.dataModule.parsedData;
+            const dataSource = this.parent.app.dataModule.getDataSource(sourceType);
+            const allData = dataSource.data;
             if (rowIndex < allData.length) {
                 const rowData = allData[rowIndex];
                 this.updateRowData(rowIndex, {
