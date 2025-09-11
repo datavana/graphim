@@ -17,6 +17,9 @@ RUN pip install --no-cache-dir \
     albumentations \
     transformers
 
+RUN pip install --no-cache-dir \
+    openai
+
 # Optional: if you also want image/video handling
 # RUN pip install --no-cache-dir imageio moviepy
 
