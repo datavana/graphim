@@ -3,6 +3,7 @@ import json
 import requests
 import os
 import io
+import csv
 from pathlib import Path
 from PIL import Image
 from google.oauth2 import service_account
@@ -75,18 +76,11 @@ def vision_loop(image_path,  token=None, api_key=None, service_account_key_path=
         #                        os.path.splitext(image.name)[0] + '.b64'), "w") as f:
         #     f.write(vision_result)
 
-
 def detect_web_info(image_file, url, headers):
     max_size = 800
     # Read, resize, and encode the image
     with Image.open(image_file, "r") as image:
-        img_width, img_height = image.size
-        scale = min(max_size / img_width, max_size / img_height)
-        resized_image = image.resize((int(img_width * scale), int(img_height * scale)), Image.LANCZOS)
-        buffered = io.BytesIO()
-        resized_image.save(buffered, format="JPEG")
-        img_bytes = buffered.getvalue()
-        encoded_image = base64.b64encode(img_bytes).decode("utf-8")
+        encoded_image = resize_and_encode_image(image, max_size)
 
     # Construct the request body for WEB_DETECTION
     request_body = {
@@ -112,6 +106,53 @@ def detect_web_info(image_file, url, headers):
     result = response.json()
     return result
 
+def resize_and_encode_image(image, max_size):
+
+    # resize image
+    img_width, img_height = image.size
+    scale = min(max_size / img_width, max_size / img_height)
+    resized_image = image.resize((int(img_width * scale), int(img_height * scale)), Image.LANCZOS)
+
+    # encode image
+    buffered = io.BytesIO()
+    resized_image.save(buffered, format="JPEG")
+    img_bytes = buffered.getvalue()
+    encoded_image = base64.b64encode(img_bytes).decode("utf-8")
+
+    return encoded_image
+
+def add_base64encoding_to_csv(input_csvfile, column_with_image_filenames, path_to_image_folder, output_csvfile):
+
+    # additionally: adds two new columns for labels (column with whitespaces for image_id_label and duplicate column of objecttype)
+
+    # Step 1: Read the original CSV into memory
+    with open(input_csvfile, mode='r') as infile:
+        reader = csv.DictReader(infile)
+        rows = list(reader)
+        fieldnames = reader.fieldnames + ["image_base64", "image_id_label", "objecttype_label"]
+        print(fieldnames)
+
+    # Step 2: Process each row and add base64-encoded image
+    max_size = 200
+    for row in rows:
+        filename = row.get(column_with_image_filenames)
+        row["objecttype_label"] = row.get("objecttype")
+        row["image_id_label"] = " "
+        if filename:
+            full_path = os.path.join(path_to_image_folder, filename)
+            if os.path.isfile(full_path):
+                with Image.open(full_path, "r") as image_file:
+                    row["image_base64"] = "data:image/png;base64," + resize_and_encode_image(image_file, max_size)
+            else:
+                row["image_base64"] = ""
+        else:
+            row["image_base64"] = ""
+
+    # Step 3: Write the updated data to a new CSV
+    with open(output_csvfile, mode='w', newline='') as outfile:
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
 def examine_result(result):
     web_detection = result["responses"][0].get("webDetection", {})
@@ -142,6 +183,11 @@ def examine_result(result):
         print(f"Language: {label['languageCode']}")
         print("---")
 
+#%%
+add_base64encoding_to_csv("./data/export_lueneburg_epigraf_no_concat.csv",
+                          "image_id",
+                          "./data/googlekg/di-100",
+                          "./data/export_lueneburg_epigraf_with_base64_no_concat.csv")
 #%%
 token = None
 service_account_key_path = "./secrets/service_account_key.json"
