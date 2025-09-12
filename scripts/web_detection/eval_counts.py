@@ -19,11 +19,17 @@ for filename in os.listdir(input_path):
                 if e.get("description"):
                     records.append({
                         "filename": filename,
-                        "entityId": e.get("entityId"),  # kann None sein
+                        "entityId": e.get("entityId"),
+                        "score": e.get("score"),
                         "description": e["description"]
+
                     })
 
 df = pd.DataFrame(records)
+
+df.to_csv(os.path.join(output_path, "all_entity_scores.csv"),
+                      index=False, encoding="utf-8")
+
 
 #%% Counts nach entityId + Description
 counts = df.dropna(subset=["entityId"]).groupby(
@@ -35,3 +41,4 @@ counts = df.dropna(subset=["entityId"]).groupby(
 
 counts.to_csv(os.path.join(output_path, "pentity_counts.csv"),
                       index=False, encoding="utf-8")
+
