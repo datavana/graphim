@@ -71,6 +71,11 @@ class WebApp {
         }
     }
 
+    /**
+     * TODO: Merge actionFetchSart and actionExtractStart
+     *
+     * @returns {Promise<void>}
+     */
     async actionFetchStart() {
 
         this.pageWidget.clearStage();
@@ -78,7 +83,9 @@ class WebApp {
 
         const fetchSettings = this.pageWidget.fetchWidget.getSettings();
         const nodes = this.dataModule.getSeedNodes('csv', fetchSettings);
-        this.requestModule.processBatch(nodes);
+        const source = this.dataModule.getDataSource('csv');
+        const target = this.dataModule.getDataTarget('folder');
+        this.requestModule.processBatch(nodes, source, target);
     }
 
     async actionExtractStart() {
@@ -88,7 +95,9 @@ class WebApp {
 
         const fetchSettings = {'column': 'fileobject'};
         const nodes = this.dataModule.getSeedNodes('folder', fetchSettings);
-        this.requestModule.processBatch(nodes);
+        const source = this.dataModule.getDataSource('folder');
+        const target = this.dataModule.getDataTarget('csv');
+        this.requestModule.processBatch(nodes, source, target);
     }
 
     actionFetchStop() {
@@ -96,7 +105,9 @@ class WebApp {
     }
 
     async actionDownload(data) {
-        this.dataModule.saveZip();
+        const target = this.dataModule.getDataTarget(data.targetType);
+        const source = this.dataModule.getDataSource(data.sourceType);
+        target.download(source);
     }
 
     onBatchReady() {
