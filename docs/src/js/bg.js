@@ -201,5 +201,5 @@ class WarpCanvas {
 }
 
 window.addEventListener("load", () => {
-  new WarpCanvas("getimg/img/background_2000.jpg", "warpCanvas");
+  new WarpCanvas("src/img/background_2000.jpg", "warpCanvas");
 });
