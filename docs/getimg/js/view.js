@@ -248,6 +248,14 @@ class BaseTableWidget extends BaseWidgetClass {
 
         const thead = document.createElement("thead");
         const headRow = document.createElement("tr");
+        
+        // Add row number column
+        const rowNumTh = document.createElement("th");
+        rowNumTh.textContent = "#";
+        rowNumTh.classList.add("row-number");
+        headRow.appendChild(rowNumTh);
+        
+        // Add status column
         const statusTh = document.createElement("th");
         statusTh.textContent = "";
         headRow.appendChild(statusTh);
@@ -261,14 +269,22 @@ class BaseTableWidget extends BaseWidgetClass {
 
         const tbody = document.createElement("tbody");
         rows.forEach((row, idx) => {
-           this.addRow(tbody, allHeaders, row)
+           this.addRow(tbody, allHeaders, row, idx)
         });
         this.element.appendChild(tbody);
     }
 
 
-    addRow(tbody, headers, row) {
+    addRow(tbody, headers, row, rowIndex = 0) {
         const tr = document.createElement("tr");
+        
+        // Add row number cell
+        const rowNumTd = document.createElement("td");
+        rowNumTd.classList.add("row-number");
+        rowNumTd.textContent = (rowIndex + 1).toString();
+        tr.appendChild(rowNumTd);
+        
+        // Add status cell
         const statusTd = document.createElement("td");
         statusTd.classList.add("status");
         statusTd.textContent = "";
@@ -293,7 +309,7 @@ class BaseTableWidget extends BaseWidgetClass {
         if (!row) return;
 
         row.classList.remove("success", "fail");
-        const statusCell = row.firstChild;
+        const statusCell = row.children[1];
         if (status === 'success') {
             statusCell.textContent = "✓";
             row.classList.add("success");
@@ -322,8 +338,8 @@ class BaseTableWidget extends BaseWidgetClass {
         
         // Update cells with new data
         headers.forEach((header) => {
-            // Skip status column (first cell) and find the right column
-            const cellIndex = this.findColumnIndex(header) + 1; // +1 for status column
+            // Skip row number and status columns, then find the right column
+            const cellIndex = this.findColumnIndex(header) + 2; // +2 for row number and status columns
             const cell = cells[cellIndex];
             
             if (!cell || !rowData.hasOwnProperty(header)) return;
@@ -342,9 +358,9 @@ class BaseTableWidget extends BaseWidgetClass {
         if (!thead) return -1;
         
         const headers = thead.querySelectorAll("th");
-        for (let i = 1; i < headers.length; i++) { // Skip first status column
+        for (let i = 2; i < headers.length; i++) { // Skip row number and status columns
             if (headers[i].textContent.trim() === headerName) {
-                return i - 1; // Adjust for status column
+                return i - 2; // Adjust for row number and status columns
             }
         }
         return -1;
@@ -472,31 +488,46 @@ class LogWidget extends BaseWidgetClass {
     }
 
     /**
-     * Add message to the log
+     * Add structured log message
      *
-     * @param {Object} data An object with the properties msg, level, details.
+     * @param {Object} logData Structured log data {timestamp, severity, name, details}
      */
-    addMessage(data) {
-
-        //url, rowIndex, errorMessage, errorDetails
-
-        // Console logging for development
-        const timestamp = new Date().toLocaleTimeString();
-        console[data.level === 'error' ? 'error' : 'log'](`[${timestamp}] ${data.msg}`, data.details);
+    addMessage(logData) {
+        console[logData.severity === 'error' ? 'error' : 'log'](
+            `[${logData.timestamp}] ${logData.name}`, 
+            logData.details
+        );
 
         const logEntry = document.createElement("div");
         logEntry.className = "log-entry";
         logEntry.innerHTML = `
-                <div class="log-timestamp">${timestamp}</div>
-                <div class="log-level">${data.level}</span></div>
-                <div class="log-msg">${data.msg}</div>   
-                <div class="log-details">${data.details || ''}</div>
-              `;
+            <div class="log-timestamp">${logData.timestamp}</div>
+            <div class="log-severity">${logData.severity.toUpperCase()}</div>
+            <div class="log-name">${logData.name}</div>
+            <div class="log-details">${this.formatDetails(logData.details)}</div>
+        `;
         this.logViewer.appendChild(logEntry);
 
         this.element.classList.remove('log-empty');
         this.element.classList.add('log-notempty');
         this.logViewer.scrollTop = this.logViewer.scrollHeight;
+    }
+
+    /**
+     * Format details object for display
+     *
+     * @param {Object} details Details object
+     * @returns {string} Formatted details string
+     */
+    formatDetails(details) {
+        if (!details || Object.keys(details).length === 0) return '';
+        
+        const parts = [];
+        if (details.statusCode) parts.push(`Status: ${details.statusCode}`);
+        if (details.url) parts.push(`URL: ${details.url}`);  
+        if (details.row) parts.push(`Row: ${details.row}`);
+        
+        return parts.join(' | ');
     }
 
     clearLog() {

@@ -64,10 +64,11 @@ class WebApp {
             }
 
         } catch (error) {
-            this.eventBus.emit(
-                'app:log:add',
-                { msg: "Error loading data: " + error.message, level: 'serious' }
-            )
+            const logEntry = Utils.createLogEntry('error', 'DATA_LOAD_ERROR', {
+                originalMessage: error.message,
+                errorType: error.name
+            });
+            this.eventBus.emit('app:log:add', logEntry);
         }
     }
 

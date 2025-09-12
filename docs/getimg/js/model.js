@@ -253,7 +253,11 @@ class DataTargetZip extends BaseDataDarget {
             const content = await this.zip.generateAsync({ type: "blob" });
             saveAs(content, "output.zip");
         } catch (error) {
-            this.events.emit('app:log:add', {msg: error.message, level: 'serious'});
+            const logEntry = Utils.createLogEntry('error', 'DOWNLOAD_ERROR', {
+                originalMessage: error.message,
+                errorType: error.name
+            });
+            this.events.emit('app:log:add', logEntry);
         }
     }
 }
@@ -392,9 +396,8 @@ class DataModule {
         }
 
         // Log error
-        let errorDetails = `${data.error.name}: ${data.error.message}`;
-        const logMessage = `${Utils.humanizeError(data.error)}. ${data.url}. Row ${data.idx + 1}.`;
-        this.events.emit('app:log:add', {level: 'log', msg: logMessage, details: errorDetails})
+        const structuredError = Utils.structureHttpError(data.error, data.url, data.idx);
+        this.events.emit('app:log:add', structuredError)
     }
 
     /**
