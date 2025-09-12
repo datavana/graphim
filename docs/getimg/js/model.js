@@ -304,7 +304,7 @@ class DataModule {
 
         if (targetType === 'csv') {
             this.dataTargets[targetType] = new DataTargetCsv(this.events);
-        } else if (targetType === 'folder') {
+        } else if (targetType === 'zip') {
             this.dataTargets[targetType] = new DataTargetZip(this.events);
         } else {
             throw Error('Unsupported target type');

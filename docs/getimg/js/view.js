@@ -119,7 +119,7 @@ class FetchWidget extends BaseWidgetClass {
             "change", () => this.events.emit('app:input:changed', {'type' : 'folder'})
         );
         document.getElementById("downloadZipBtn").addEventListener(
-            "click", () => this.events.emit('app:download:start', {'sourceType' : 'csv', 'targetType': 'folder'})
+            "click", () => this.events.emit('app:download:start', {'sourceType' : 'csv', 'targetType': 'zip'})
         );
         document.getElementById("fetchBtn").addEventListener(
             "click", () => this.events.emit('app:fetch:start')

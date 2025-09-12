@@ -84,7 +84,7 @@ class WebApp {
         const fetchSettings = this.pageWidget.fetchWidget.getSettings();
         const nodes = this.dataModule.getSeedNodes('csv', fetchSettings);
         const source = this.dataModule.getDataSource('csv');
-        const target = this.dataModule.getDataTarget('folder');
+        const target = this.dataModule.getDataTarget('zip');
         this.requestModule.processBatch(nodes, source, target);
     }
 
