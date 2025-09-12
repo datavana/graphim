@@ -42,9 +42,12 @@ class WebApp {
     async actionInput(data) {
 
         try {
+            const dataSource = this.dataModule.getDataSource(data.type);
+
             if (data.type == 'csv') {
                 const file = this.pageWidget.fetchWidget.getCsvFile();
-                const result = await this.dataModule.loadCSV(file);
+                const result = await dataSource.load(file);
+
                 this.pageWidget.fetchWidget.updateColumnSelector(result);
                 this.pageWidget.tableWidget.showData(result);
                 this.pageWidget.clearStage('start');
@@ -53,9 +56,8 @@ class WebApp {
 
             if (data.type == 'folder') {
                 const files = this.pageWidget.fetchWidget.getFolderFiles();
-                console.log(files);
+                const result = await dataSource.load(files);
 
-                const result = await this.dataModule.loadFolder(files);
                 this.pageWidget.folderWidget.showData(result);
                 this.pageWidget.clearStage('start');
                 this.pageWidget.setStage('select-imgs');
@@ -69,25 +71,33 @@ class WebApp {
         }
     }
 
+    /**
+     * TODO: Merge actionFetchSart and actionExtractStart
+     *
+     * @returns {Promise<void>}
+     */
     async actionFetchStart() {
 
-        this.eventBus.emit('app:log:clear');
         this.pageWidget.clearStage();
         this.pageWidget.setStage('fetch')
 
         const fetchSettings = this.pageWidget.fetchWidget.getSettings();
-        const nodes = this.dataModule.getSeedNodes(fetchSettings.column);
-        this.requestModule.processBatch(nodes);
+        const nodes = this.dataModule.getSeedNodes('csv', fetchSettings);
+        const source = this.dataModule.getDataSource('csv');
+        const target = this.dataModule.getDataTarget('folder');
+        this.requestModule.processBatch(nodes, source, target);
     }
 
     async actionExtractStart() {
 
-        // this.eventBus.emit('app:log:clear');
         this.pageWidget.clearStage();
         this.pageWidget.setStage('extract')
 
-        const nodes = this.dataModule.getAllNodes();
-        this.requestModule.processBatch(nodes, true);
+        const fetchSettings = {'column': 'fileobject'};
+        const nodes = this.dataModule.getSeedNodes('folder', fetchSettings);
+        const source = this.dataModule.getDataSource('folder');
+        const target = this.dataModule.getDataTarget('csv');
+        this.requestModule.processBatch(nodes, source, target);
     }
 
     actionFetchStop() {
@@ -95,7 +105,9 @@ class WebApp {
     }
 
     async actionDownload(data) {
-        this.dataModule.saveZip();
+        const target = this.dataModule.getDataTarget(data.targetType);
+        const source = this.dataModule.getDataSource(data.sourceType);
+        target.download(source);
     }
 
     onBatchReady() {

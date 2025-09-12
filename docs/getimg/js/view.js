@@ -119,7 +119,7 @@ class FetchWidget extends BaseWidgetClass {
             "change", () => this.events.emit('app:input:changed', {'type' : 'folder'})
         );
         document.getElementById("downloadZipBtn").addEventListener(
-            "click", () => this.events.emit('app:download:start', {'type' : 'zip'})
+            "click", () => this.events.emit('app:download:start', {'sourceType' : 'csv', 'targetType': 'folder'})
         );
         document.getElementById("fetchBtn").addEventListener(
             "click", () => this.events.emit('app:fetch:start')
@@ -376,10 +376,11 @@ class TableWidget extends BaseTableWidget{
      * Updates row with current data from the model
      * @param {number} rowIndex - Row index to update
      */
-    updateRowWithProcessedData(rowIndex) {
+    updateRowWithProcessedData(rowIndex, sourceType = 'csv') {
         // Get updated data from parent's app reference
         if (this.parent && this.parent.app && this.parent.app.dataModule) {
-            const allData = this.parent.app.dataModule.parsedData;
+            const dataSource = this.parent.app.dataModule.getDataSource(sourceType);
+            const allData = dataSource.data;
             if (rowIndex < allData.length) {
                 const rowData = allData[rowIndex];
                 this.updateRowData(rowIndex, {
