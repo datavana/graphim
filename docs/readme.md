@@ -1,5 +1,5 @@
-# Web Apps
+# Image Net Maker
 
-This folder hosts simple web apps. No server needed. 
-The apps run with JavaScript in the browser.
+This folder hosts the web app deployed using GitHub Pages.
+No server needed. The app runs with JavaScript in the browser.
 Just open the index.html to bring it to life.

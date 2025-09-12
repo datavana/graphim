@@ -1,19 +1,23 @@
-# Graphs from Images
+# ImageNetMaker
 
-The repository contains tools and workflows for image network and context analysis.
+This repository contains tools and workflows for image network and context analysis.
 
-The idea of this repository is to develop JavaScript tools running in the browser
-that can be deployed using GitHub Pages. In case server processing is needed,
-mature Python scripts, later, can be integrated into the [Datavana Databoard service](https://databoard.uni-muenster.de/). 
+Source code of the ImageNetMaker tool is located in the docs folder.
+It is made entirely from HTML, CSS and JavaScript, 
+runs in the browser and is deployed using GitHub Pages.
+
+In case server processing is needed, mature Python scripts, later, 
+can be integrated into the [Datavana Databoard service](https://databoard.uni-muenster.de/). 
 The Databoard service provides an API that can be accessed by the web apps or other applications
 such as Epigraf or Facepager.
 
 Folder Structure:  
 
 - **docs**: Lightweigt web apps running in the browser, to be deployed using GitHub Pages.
-- **data**: Data is stored outside the repository.  Because the folder content is ignored by git,
-  You can safely copy data from outside the repository into the data subfolder.
-- **models**: Your fine tuned models.
+- **data**: Data is stored outside the repository. 
+  You can safely copy data from outside the repository into the data folder,
+  because the folder content is ignored by git.
+- **models**: Your fine tuned models. Ignored by git.
 - **scripts**: Scripts for working with images. Develop your workflows here. 
 - **notebooks**: Interactive Jupyter Notebooks for trying out examples.
   You can start a local Jupyter Environment using docker, see below.
@@ -22,26 +26,26 @@ Folder Structure:
 - **container**: Docker files for docker compose setups.
 
 
-## Getting started with an image network
-
-1. Go to https://gephi.org/gephi-lite/ 
-   and open the local file `Samples/microcefalia/microcefalia.img.gexf`
-   (the file is not in this repository, see Sciebo).
-3. Click the color palette button (left sidebar), 
-   scroll down to the Images section and select "imgdata" as image source
-4. Zoom into the network to see the images. Zoom out again for the next step.
-5. Click the layout button (left sidebar, last icon),
-   select ForceAtlas2, click Guess settings and start
-
-## Getting started with a web app
+## Getting started with ImageNetMaker
 
 1. Clone the repository
-2. Open the file docs/img2url/index.html in you browser
-3. Process some images by clicking the folder selector
-4. See the source code of index.html
+2. Open the file docs/index.html in you browser
+3. Process some images
+4. See the source code of docs/src/index.html.
 
 This app is deployed using GitHub Pages.
 You can access it online at [https://datavana.github.io/graphim](https://datavana.github.io/graphim)
+
+
+## Getting started with Gephi Lite
+
+1. Go to https://gephi.org/gephi-lite/ 
+   and open a gexf file containing the attribute inm_imgdataurl.
+3. Click the color palette button (left sidebar), 
+   scroll down to the Images section and select "inm_imgdataurl" as image source
+4. Zoom into the network to see the images. Zoom out again for the next step.
+5. Click the layout button (left sidebar, last icon),
+   select ForceAtlas2, click Guess settings and start
 
 ## Getting started with image processing
 
@@ -91,12 +95,13 @@ For keeping ids, scores and descriptions of the web entities in the network,
 
 
 The notebooks, data and lib folders are mounted into the Jupyter environment.
-You can access data by going up one folder:
+You can place your image samples in the data folder. 
+Access them from a notebook by going up one folder:
 ```
 image_path = "../data/memesgerman/images/msg10.png"
 ```
 
-You can import scripts directly from the libs folder:
+In the notebooks, You can import scripts directly from the libs folder:
 ```
 from settings import *
 ```
@@ -133,13 +138,17 @@ All folder named "private" are ignored by git.
 
 # Contributions
 
-- Janna Joceli Omena
-- Paula Dicke
-- Georg Hertkorn
-- Lenart Hoefig
-- Jakob Juenger
-- Jane Knispel [HTML & CSS Styling]
-- Katharina Maubach [HTML & CSS Styling]
-- Johanna Stahl
+In September 2025, the Net Image Research Initiative emerged during a Methods Café Week in Münster, Germany.
 
-#[insert names & role attribution here]
+- Annabell Jendrilek
+- Georg Hertkorn
+- Henrieke Kotthoff
+- Jakob Jünger
+- Jane Knispel
+- Janna Joceli Omena
+- Johanna Stahl
+- Katharina Maubach
+- Lennart Höfig
+- Luana Moraes Costa
+- Maiia Guseva
+- Paula Dicke
