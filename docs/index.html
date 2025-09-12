@@ -23,12 +23,11 @@
     <section id="introWrapper">
       <div id="topText">
         <p>
-          <strong>ImgNetMaker</strong> converts a CSV file
-          (with image URLs) or an image folder into image network-ready data for
-          <a href="https://gephi.org/gephi-lite/" target="_blank" rel="noopener">Gephi Lite</a>
-          (and similar tools) by downloading the images when a CSV is provided, pairing each image with its
-          metadata, and adding two fields:
-          a clean image filename and a Base64 data URL.
+          <strong>ImgNetMaker</strong> converts your CSV and/or image folder into 
+          network-ready data for visualising image networks with
+          <a href="https://gephi.org/gephi-lite/" target="_blank" rel="noopener">Gephi Lite</a>.
+          It downloads the images when a CSV is provided, pairing each image with 
+          its metadata, and adding two fields: a clean image filename and a Base64 data URL.
         </p>
         <p style="color:#7C00FF;">
           Yep — zoom through 10,000-images in a snap. 👩🏻‍💻✨❣️ Heads-up: performance depends on your browser’s
@@ -42,7 +41,7 @@
         <div class="text-block">
 
           <h1>
-            <a href="getimg/index.html?mode=getimg" class="linkbutton">Open csv2image</a>
+            <a href="getimg/index.html?mode=getimg" class="linkbutton">CSV → Images + Data URLs</a>
           </h1>
           <h2 class="accent"> 📨 Input</h2>
           <p>
@@ -63,7 +62,7 @@
             <li>
               Enhanced CSV with original columns:
               <code>image_filename</code> — clean filename used as the image key and
-              <code>image_dataurl</code> — the data URL embedding the image (Base64)
+              <code>img_dataurl</code> — the data URL embedding the image (Base64)
             </li>
             <li>
               <code>/images/</code> folder with the downloaded image files
@@ -71,13 +70,37 @@
             </li>
           </ul>
         </div>
+        
+       <h2 class="accent">What’s next?</h2>
+
+
+    Build the bipartite network with
+    <a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>.
+    <ul>
+      <li>Include <code>img_dataurl</code> as an attribute on the <strong>image</strong> nodes (along with any other metadata).</li>
+      <li>Export as <strong>GEXF</strong> (nodes, edges, and attributes).</li>
+    </ul>
+<p>
+    Open in Gephi Lite
+    </p>
+    <ul>
+      <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
+    </ul>
+<p>
+    Display images
+     </p>
+    <ul>
+      <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
+      <li>Set images from <em>Attribute</em> and choose the <code>img_dataurl</code> column.</li>
+    </ul>
+        
       </section>
 
       <section class="image2url">
         <div class="text-block">
 
           <h1>
-            <a href="getimg/index.html?mode=geturl" class="linkbutton">Open image2url</a>
+            <a href="getimg/index.html?mode=geturl" class="linkbutton">Image folder → Data URLs</a>
           </h1>
           <h2 class="accent"> 📨 Input</h2>
           <p>
@@ -95,9 +118,40 @@
           <ul>
             <li>
               Enhanced CSV with original columns:
-              <code>image_filename</code> and <code>image_dataurl</code> (Base64 data URL)
+              <code>image_filename</code> and <code>img_dataurl</code> (Base64 data URL)
+             
+
             </li>
           </ul>
+          
+           <h2 class="accent">What’s next?</h2>
+					<p>
+					Join the enhanced CSV to your dataset using <code>image_filename</code> as the key.
+				  </p>
+
+					<p>Build the bipartite network with</p>
+					<a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>
+					<ul>
+					  <li>Include <code>img_dataurl</code> as an attribute on the 
+					  <strong>image</strong> nodes (along with any other metadata).</li>
+					  <li>Export as <strong>GEXF</strong>.</li>
+					</ul>
+					<p>
+					Open in Gephi Lite
+					</p>
+					<ul>
+					  <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
+					</ul>
+				  </li>
+				
+					<p>
+					Display images
+					</p>
+					<ul>
+					  <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
+					  <li>Set images from <em>Attribute</em> and select the <code>img_dataurl</code> column.</li>
+					</ul>
+				
         </div>
       </section>
     </div>
@@ -113,7 +167,7 @@
           </a>
         </h1>
         <h2>Developed by Jakob Juenger, Lennart Hoefig, Katharina Maubach & Jane Knispel</h2>
-        <h3>Vision & Design by Janna Joceli Omena</h3>
+        <h3>Vision & Concept by Janna Joceli Omena</h3>
       </div>
       <div id="inslogo">
         <img src="getimg/img/logo1.svg" alt="Logo 1" class="headerLogo">
