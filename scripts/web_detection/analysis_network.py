@@ -6,14 +6,8 @@ import os
 
 
 # %%
-def list_to_csv(origin_list, output_file, fieldnames):
-    with open(output_file, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(origin_list)
+def create_csv_with_entitites_from_google_vision_json(json_path, output_csv_path):
 
-
-def create_csv(json_path):
     tmp_list = []
 
     # loop over json files
@@ -33,10 +27,40 @@ def create_csv(json_path):
 
     # write tmp_list to csv file
     fieldnames = ['img_path', 'entities']
-    list_to_csv(tmp_list, './data/entities_network.csv', fieldnames)
+    list_to_csv(tmp_list, output_csv_path, fieldnames)
 
+def create_csv_with_full_matches_from_google_vision_json(json_path, output_csv_path):
 
-def filter_searchterm(searchterm, csvfile, column_to_search):
+    tmp_list = []
+
+    # loop over json files
+    for jsonfile in Path(json_path).iterdir():
+
+        # read json
+        with open(jsonfile, 'r') as file:
+            data = json.load(file)
+
+        # append json data as dictionary to tmp_list
+        try:
+            matching_pages = data['responses'][0]['webDetection']['fullMatchingImages']
+            filtered = [item['url'] for item in matching_pages if "url" in item]
+            tmp_list.append({'img_path': os.path.splitext(jsonfile.name)[0] + '.jpg', 'matching_pages': ';'.join(filtered)})
+        except KeyError as e:
+            tmp_list.append({'img_path': os.path.splitext(jsonfile.name)[0] + '.jpg', 'matching_pages': 'No matching pages!'})
+
+    # write tmp_list to csv file
+    fieldnames = ['img_path', 'matching_pages']
+    list_to_csv(tmp_list, output_csv_path, fieldnames)
+
+def list_to_csv(origin_list, output_csv_path, fieldnames):
+
+    with open(output_csv_path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(origin_list)
+
+def filter_csv_for_searchterm(searchterm, csvfile, column_to_search, output_csv_path):
+
     filtered_list = []
 
     with open(csvfile, newline='') as file:
@@ -45,31 +69,7 @@ def filter_searchterm(searchterm, csvfile, column_to_search):
             if searchterm.lower() in row[column_to_search].lower():
                 filtered_list.append(row)
 
-        print(filtered_list)
-        print(reader.fieldnames)
-        list_to_csv(filtered_list, './data/entities_deutsche_inschriften_network.csv', reader.fieldnames)
-
-
-def find_inschriften_matching(json_path):
-    tmp_list = []
-
-    for jsonfile in Path(json_path).iterdir():
-
-        # read json
-        with open(jsonfile, 'r') as file:
-            data = json.load(file)
-
-        web_detection = data["responses"][0].get("webDetection", {})
-        # collect urls with matching images in tmp_list
-        for page in web_detection.get("pagesWithMatchingImages", []):
-            if "www.inschriften.net" in page['url']:
-                tmp_list.append(
-                    {'img_path': os.path.splitext(jsonfile.name)[0] + '.jpg', 'url_matching_site': page['url']})
-
-        # write tmp_list to csv file
-        fieldnames = ['img_path', 'url_matching_site']
-        list_to_csv(tmp_list, './data/matching_site_inschriften.csv', fieldnames)
-
+        list_to_csv(filtered_list, output_csv_path, reader.fieldnames)
 
 def compare_two_columns_on_equality(csvfile1, column_to_compare1, csvfile2, column_to_compare2):
     # Read column from file1.csv
@@ -96,15 +96,33 @@ def compare_two_columns_on_equality(csvfile1, column_to_compare1, csvfile2, colu
 
 
 # %%
-create_csv(json_path="./data/vision_results")
+create_csv_with_entitites_from_google_vision_json(
+    json_path="./data/vision_results",
+    output_csv_path='./data/entities_network.csv'
+)
 
 # %%
-filter_searchterm(searchterm="die deutschen inschriften", csvfile="./data/entities_network.csv",
-                  column_to_search="entities")
+filter_csv_for_searchterm(
+    searchterm="die deutschen inschriften",
+    csvfile="./data/entities_network.csv",
+    column_to_search="entities",
+    output_csv_path="./data/entities_deutsche_inschriften_network.csv"
+)
 
-# %%
-find_inschriften_matching(json_path="./data/vision_results")
+#%%
+create_csv_with_full_matches_from_google_vision_json(
+    json_path="./data/vision_results",
+    output_csv_path="./data/matching_pages_network.csv"
+)
+
+#%%
+filter_csv_for_searchterm(
+    searchterm="www.inschriften.net",
+    csvfile="./data/matching_pages_network.csv",
+    column_to_search="matching_pages",
+    output_csv_path="./data/matching_pages_inschriften_network.csv"
+)
 
 # %%
 compare_two_columns_on_equality("./data/entities_deutsche_inschriften_network.csv", "img_path",
-                                "./data/matching_site_inschriften.csv", "img_path")
+                                "./data/matching_pages_inschriften_network.csv", "img_path")
