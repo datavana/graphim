@@ -6,14 +6,15 @@ import requests
 
 def enhance_csv(input_file, output_file, source_column, new_column, new_column_value_func):
     """
-    Liest eine CSV-Datei, fügt eine neue Spalte hinzu und speichert das Ergebnis.
+    Read a CSV file, add a column and save the result.
 
     Args:
-        input_file (str): Pfad zur Eingabedatei (z. B. "input.csv").
-        output_file (str): Pfad zur Ausgabedatei (z. B. "output.csv").
-        new_column (str): Name der neuen Spalte (z. B. "Status").
-        new_column_value_func (function): Funktion, die den Wert der neuen Spalte für jede Zeile berechnet.
-            Signatur: `def func(row: dict) -> any`
+        input_file (str): path to the CSV file
+        output_file (str): path to the result file
+        source_column (str): column name of the column that is being processed
+        new_column (str): new column name
+        new_column_value_func (function): function that yields the new column value
+            signature: `def func(row[source_column]) -> any`
     """
     with open(input_file, mode='r', encoding='utf-8') as infile, \
          open(output_file, mode='w', encoding='utf-8', newline='') as outfile:
@@ -28,34 +29,25 @@ def enhance_csv(input_file, output_file, source_column, new_column, new_column_v
         row_counter = 0
         for row in reader:
             row_counter += 1
-            # Berechne den Wert der neuen Spalte
             row[new_column] = new_column_value_func(row[source_column])
             writer.writerow(row)
             if row_counter % msg_interval == 0:
                 print(f"row: {row_counter}")
 
-
-# example usagge
-# def set_status(row):
-#     return "Aktiv" if int(row.get("Alter", 0)) > 18 else "Inaktiv"
-#
-# enhance_csv("input.csv", "output.csv", "Status", set_status)
-
-#%% test 2025-09-11
-get_wikidata_property_by_freebase_id("/m/0135kl", "P31")
-
 #%% lib2
-
 def get_wikidata_by_freebase_id(freebase_id: str, language: str = "de") -> dict:
     """
-    Abfrage der Wikidata-SPARQL-Schnittstelle für eine gegebene Freebase-ID (P646)
-    und Rückgabe der Labels für die Eigenschaften P31, P136 und P279.
+    Query the Wikidata SPARQL-API for a freebase id (P646), or a google knowledge graph id (P2671)
+    Get labels for properties
+    - instance of (P31)
+    - genre (P136)
+    - subclass of (P279)
 
-    :param freebase_id: Die Freebase-ID (z. B. "/m/068hy" für Berlin)
-    :param language: Die Sprache für die Labels (Standard: "de" für Deutsch)
-    :return: Dictionary mit den Labels der gefundenen Eigenschaften
+    :param freebase_id: freebase id or google knowledge graph id
+    :param language: language for the labels
+    :return: dictionary with the labels for the collected properties
     """
-    # SPARQL-Abfrage mit festen Eigenschaften
+
     query = f"""
     SELECT DISTINCT ?item ?itemLabel
                     (GROUP_CONCAT(DISTINCT ?p31Label; separator=", ") AS ?p31Labels)
@@ -94,15 +86,13 @@ def get_wikidata_by_freebase_id(freebase_id: str, language: str = "de") -> dict:
     GROUP BY ?item ?itemLabel
     """
 
-    # URL des Wikidata Query Service
+    # wikidata query service
     url = "https://query.wikidata.org/sparql"
 
-    # Header für die Anfrage
     headers = {
         "Accept": "application/sparql-results+json"
     }
 
-    # Anfrage senden
     response = requests.get(url, params={"query": query}, headers=headers)
 
     # Ergebnis verarbeiten
@@ -120,24 +110,18 @@ def get_wikidata_by_freebase_id(freebase_id: str, language: str = "de") -> dict:
             results.append(item_result)
         return results
     else:
-        # raise Exception(f"Fehler bei der Abfrage: {response.status_code}")
+        # raise Exception(f"Error during the query: {response.status_code}")
         return []
 
-# Beispielaufruf
-# if __name__ == "__main__":
-#     freebase_id = "/m/068hy"  # Freebase-ID für Berlin
-#     results = get_wikidata_by_freebase_id(freebase_id, language="de")
-#     for result in results:
-#         print(f"Item: {result['label']}")
-#         print(f"  P31 (Instanz von): {', '.join(result['p31']) if result['p31'] else 'nicht vorhanden'}")
-#         print(f"  P136 (Genre): {', '.join(result['p136']) if result['p136'] else 'nicht vorhanden'}")
-#         print(f"  P279 (Unterklasse von): {', '.join(result['p279']) if result['p279'] else 'nicht vorhanden'}")
 
 #%% test wikidata query
 get_wikidata_by_freebase_id("/m/0135kl")
 
 #%% lib3
 def extract_query_results(q_results):
+    """
+    Create an array of arrays from the Wikidata SPARQL query results
+    """
     results = []
     for q_result in q_results:
         for key in ['p31', 'p136', 'p279']:
@@ -155,21 +139,22 @@ def query_wikipedia(source_file, output_file, limit = 5):
     delimiter = ','
     with open(output_file, mode='w', encoding='utf-8', newline='') as out_handle:
         with open(source_file, mode='r', encoding='utf-8') as source_handle:
-            reader = csv.DictReader(source_handle)  # Liest die erste Zeile als Spaltennamen
+            reader = csv.DictReader(source_handle)  # Reads first row
             writer = csv.writer(out_handle, delimiter=delimiter)
             writer.writerow(['id', 'label', 'class'])
             counter = 0
             msg_interval = 50
             for row in reader:
-                # hack to go for free-base IDs only
                 entityId = row["entityId"]
+                if not (entityId.startswith("/m/") or entityId.startswith("/g/")):
+                    continue
                 counter += 1
                 if msg_interval > 0 and counter % msg_interval == 0:
                     print("Row: " + str(counter))
                 if counter >= limit:
                     break
                 #print(row['entityId'])
-                q_result = extract_query_results(get_wikidata_by_freebase_id(row["entityId"]))
+                q_result = extract_query_results(get_wikidata_by_freebase_id(row["entityId"], "en"))
                 for entry in q_result:
                     writer.writerow(entry)
 
@@ -179,7 +164,7 @@ extract_query_results(get_wikidata_by_freebase_id("/m/0135kl"))
 
 #%% run 2025-09-12
 source_file = "./data/di-100/counts/entity_counts.csv"
-wikidata_file = "./data/di-100/counts/wikidata-p31-gm.csv"
+wikidata_file = "./data/di-100/counts/wikidata-p31-gm-en.csv"
 query_wikipedia(source_file, wikidata_file, limit=400)
 
 
