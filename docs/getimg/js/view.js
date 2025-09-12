@@ -307,7 +307,7 @@ class BaseTableWidget extends BaseWidgetClass {
     /**
      * Updates a row with processed data (filename, thumbnail, status)
      * @param {number} rowIndex - Row index to update
-     * @param {Object} rowData - Data object with inm_filename, inm_imgdata, inm_status
+     * @param {Object} rowData - Data object with inm_filename, inm_imgdataurl, inm_status
      */
     updateRowData(rowIndex, rowData) {
         const tbody = this.element.querySelector("tbody");
@@ -318,7 +318,7 @@ class BaseTableWidget extends BaseWidgetClass {
 
         // Find the cells for our added columns
         const cells = row.querySelectorAll("td");
-        const headers = ['inm_filename', 'inm_imgdata', 'inm_status'];
+        const headers = ['inm_filename', 'inm_imgdataurl', 'inm_status'];
         
         // Update cells with new data
         headers.forEach((header) => {
@@ -385,7 +385,7 @@ class TableWidget extends BaseTableWidget{
                 const rowData = allData[rowIndex];
                 this.updateRowData(rowIndex, {
                     inm_filename: rowData.inm_filename,
-                    inm_imgdata: rowData.inm_imgdata,
+                    inm_imgdataurl: rowData.inm_imgdataurl,
                     inm_status: rowData.inm_status
                 });
             }
@@ -402,7 +402,7 @@ class TableWidget extends BaseTableWidget{
      *                      Each row is an object with keys matching the headers.
      */
     showData(data) {
-        data.headers = [...data.headers, "inm_filename", "inm_imgdata", "inm_status"];
+        data.headers = [...data.headers, "inm_filename", "inm_imgdataurl", "inm_status"];
         super.showData(data);
     }
 
