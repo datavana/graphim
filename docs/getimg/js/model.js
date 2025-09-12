@@ -98,7 +98,7 @@ class CsvDataSource extends BaseDataSource {
                     //       that adds columns if necessary
                     this.data.forEach((row, index) => {
                         row.inm_filename = "";
-                        row.inm_imgdata = "";
+                        row.inm_imgdataurl = "";
                         row.inm_status = "";
                     });
 
@@ -222,7 +222,7 @@ class DataTargetZip extends BaseDataDarget {
         const thumbnailData = await Utils.createThumbnailFromBlob(data.blob);
 
         row.inm_filename = filename;
-        row.inm_imgdata = thumbnailData;
+        row.inm_imgdataurl = thumbnailData;
         row.inm_status = 'success';
 
         // Add to ZIP
