@@ -62,7 +62,14 @@ def get_wikidata_by_freebase_id(freebase_id: str, language: str = "de") -> dict:
                     (GROUP_CONCAT(DISTINCT ?p136Label; separator=", ") AS ?p136Labels)
                     (GROUP_CONCAT(DISTINCT ?p279Label; separator=", ") AS ?p279Labels)
     WHERE {{
+    
+      {{    
       ?item wdt:P646 "{freebase_id}" .
+      }}
+      UNION 
+      {{
+      ?item wdt:P2671 "{freebase_id}" .
+      }}
 
       OPTIONAL {{
         ?item wdt:P31 ?p31 .
@@ -129,7 +136,7 @@ def get_wikidata_by_freebase_id(freebase_id: str, language: str = "de") -> dict:
 #%% test wikidata query
 get_wikidata_by_freebase_id("/m/0135kl")
 
-#%% lib2
+#%% lib3
 def extract_query_results(q_results):
     results = []
     for q_result in q_results:
@@ -156,8 +163,6 @@ def query_wikipedia(source_file, output_file, limit = 5):
             for row in reader:
                 # hack to go for free-base IDs only
                 entityId = row["entityId"]
-                if entityId[0:2] != "/m":
-                    continue
                 counter += 1
                 if msg_interval > 0 and counter % msg_interval == 0:
                     print("Row: " + str(counter))
@@ -174,8 +179,8 @@ extract_query_results(get_wikidata_by_freebase_id("/m/0135kl"))
 
 #%% run 2025-09-12
 source_file = "./data/di-100/counts/entity_counts.csv"
-wikidata_file = "./data/di-100/counts/wikidata-p31a.csv"
-query_wikipedia(source_file, wikidata_file, limit=10)
+wikidata_file = "./data/di-100/counts/wikidata-p31-gm.csv"
+query_wikipedia(source_file, wikidata_file, limit=400)
 
 
 
