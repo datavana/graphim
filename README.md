@@ -1,15 +1,17 @@
-# ImageNetMaker
+# ImgNetMaker
 
 This repository contains tools and workflows for image network and context analysis.
 
-Source code of the ImageNetMaker tool is located in the docs folder.
+1. ImgNetMaker
+
+Converts your CSV and/or image folder into network-ready data for visualising image networks with Gephi Lite. 
+It downloads the images when a CSV is provided, pairing each image with its metadata, and adding two fields:
+a clean image filename and a Base64 data URL.
+Source code of the ImgNetMaker tool is located in the docs folder.
 It is made entirely from HTML, CSS and JavaScript, 
 runs in the browser and is deployed using GitHub Pages.
 
-In case server processing is needed, mature Python scripts, later, 
-can be integrated into the [Datavana Databoard service](https://databoard.uni-muenster.de/). 
-The Databoard service provides an API that can be accessed by the web apps or other applications
-such as Epigraf or Facepager.
+2. Exploration & Analysis
 
 Folder Structure:  
 
@@ -25,24 +27,30 @@ Folder Structure:
   Also used for settings, see the settings.default.py.
 - **container**: Docker files for docker compose setups.
 
+In case server processing is needed, mature Python scripts, later, 
+can be integrated into the [Datavana Databoard service](https://databoard.uni-muenster.de/). 
+The Databoard service provides an API that can be accessed by the web apps or other applications
+such as Epigraf or Facepager.
 
 ## Getting started with ImageNetMaker
+
+The app is deployed using GitHub Pages.
+You can access it online at [https://datavana.github.io/graphim](https://datavana.github.io/graphim)
+
+For local development:
 
 1. Clone the repository
 2. Open the file docs/index.html in you browser
 3. Process some images
 4. See the source code of docs/src/index.html.
 
-This app is deployed using GitHub Pages.
-You can access it online at [https://datavana.github.io/graphim](https://datavana.github.io/graphim)
-
-
 ## Getting started with Gephi Lite
 
 1. Go to https://gephi.org/gephi-lite/ 
    and open a gexf file containing the attribute inm_imgdataurl.
 3. Click the color palette button (left sidebar), 
-   scroll down to the Images section and select "inm_imgdataurl" as image source
+   scroll down to the Images section and  
+   select the attribute containing data url encoded images as image source
 4. Zoom into the network to see the images. Zoom out again for the next step.
 5. Click the layout button (left sidebar, last icon),
    select ForceAtlas2, click Guess settings and start
