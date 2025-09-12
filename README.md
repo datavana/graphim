@@ -130,3 +130,16 @@ Please mind, before you commit and push any scripts or notebooks:
 
 If you need folders or files not to be pushed to the repository:
 All folder named "private" are ignored by git.
+
+# Contributions
+
+- Janna Joceli Omena
+- Paula Dicke
+- Georg Hertkorn
+- Lenart Hoefig
+- Jakob Juenger
+- Jane Knispel [HTML & CSS Styling]
+- Katharina Maubach [HTML & CSS Styling]
+- Johanna Stahl
+
+#[insert names & role attribution here]
