@@ -5,17 +5,20 @@
 class WarpCanvas {
     constructor(imgSrc, canvasId) {
         // Config
-        this.timing = 0;
-        this.sliceSize = 25;
+        this.warpSpeed = 0.02;
+        this.sliceSize = 30;
         this.warpStrength = 15;
         this.alphaValue = 1;
         this.followSpeed = 0.02;
         this.exitSpeed = 2;
         this.exitFade = 0.01;
+        this.baseOverlap = 15;
+        this.extraOverlap = 20;
 
         this.imgSrc = imgSrc;
         this.canvasId = canvasId;
 
+        this.timing = 0;
         this.isDestroying = false;
         this.exitProgress = 0;
         this.exitVectors = [];
@@ -100,7 +103,7 @@ class WarpCanvas {
     }
 
     animate() {
-        this.timing += 0.02;
+        this.timing += this.warpSpeed;
         const {width, height} = this.canvas;
         const ctx = this.ctx;
 
@@ -131,8 +134,13 @@ class WarpCanvas {
                     const dy = y - this.focusY;
                     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-                    const warp = Math.sin(dist * 0.02 - this.timing) * this.warpStrength;
+                    // Scale warp strength with motion
+                    //const movement = Math.abs(this.targetX - this.focusX) + Math.abs(this.targetY - this.focusY);
+                    // this.warpFactor = (this.warpFactor || 1) * 0.1 + Math.min(0.5, movement * 0.1);
+                    this.warpFactor = 1.0;
 
+
+                    const warp = Math.sin(dist * 0.02 - this.timing) * this.warpStrength * this.warpFactor;
                     const srcX = (x - offsetX) / drawW * this.img.width;
                     const srcY = (y - offsetY) / drawH * this.img.height;
 
@@ -173,13 +181,21 @@ class WarpCanvas {
         const sW = (this.sliceSize / drawW) * this.img.width;
         const sH = (this.sliceSize / drawH) * this.img.height;
 
+        // Distance from the current tile to the focal point
+        const dx = x - this.focusX;
+        const dy = y - this.focusY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Adaptive overlap: bigger near the focal point
+        const influence = Math.max(0, 1 - dist / 200); // within 200px from focus
+        const overlap = this.baseOverlap + this.extraOverlap * influence;
+
         this.ctx.drawImage(
             this.img,
-            srcX, srcY,
-            sW, sH,
-            x, y,
-            this.sliceSize,
-            this.sliceSize
+            Math.floor(srcX), Math.floor(srcY),
+            Math.ceil(sW) + overlap, Math.ceil(sH) + overlap,
+            Math.floor(x), Math.floor(y),
+            this.sliceSize + overlap, this.sliceSize + overlap
         );
     }
 }
