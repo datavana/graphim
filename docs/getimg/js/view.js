@@ -47,14 +47,14 @@ class BaseWidgetClass {
 }
 
 class PageWidget extends BaseWidgetClass {
-    constructor(elementId, events, app) {
+    constructor(elementId, events) {
         super(elementId, null, events);
-        this.app = app;
 
         this.setMode();
 
         this.tableWidget = new TableWidget('tableWidget', this);
-        this.folderWidget = new FolderWidget('folderWidget', this);
+        this.folderWidget = new TableWidget('folderWidget', this);
+
         this.logWidget = new LogWidget( 'logWidget', this);
         this.fetchWidget = new FetchWidget('fetchWidget', this);
         this.thumbsWidget = new ThumbsWidget( 'thumbsWidget', this);
@@ -121,6 +121,9 @@ class FetchWidget extends BaseWidgetClass {
         document.getElementById("downloadZipBtn").addEventListener(
             "click", () => this.events.emit('app:download:start', {'sourceType' : 'csv', 'targetType': 'zip'})
         );
+        document.getElementById("downloadCsvBtn").addEventListener(
+            "click", () => this.events.emit('app:download:start', {'sourceType' : 'folder', 'targetType': 'csv'})
+        );
         document.getElementById("fetchBtn").addEventListener(
             "click", () => this.events.emit('app:fetch:start')
         );
@@ -166,10 +169,12 @@ class FetchWidget extends BaseWidgetClass {
         const select = document.getElementById("urlColumn");
         select.innerHTML = "";
         data.headers.forEach(header => {
-            const option = document.createElement("option");
-            option.value = header;
-            option.textContent = header;
-            select.appendChild(option);
+            if (!header.startsWith('inm_')) {
+                const option = document.createElement("option");
+                option.value = header;
+                option.textContent = header;
+                select.appendChild(option);
+            }
         });
     }
 
@@ -189,7 +194,7 @@ class ThumbsWidget extends BaseWidgetClass {
 
     constructor(elementId, parent) {
         super(elementId, parent);
-        this.events.on('data:node:added', (data) => this.addThumbnail(data.thumb));
+        this.events.on('data:node:added', (data) => this.addThumbnail(data.row.inm_imgdataurl));
     }
 
     reset() {
@@ -215,20 +220,37 @@ class ThumbsWidget extends BaseWidgetClass {
 }
 
 /**
- * Base class for table widgets
+ * Class for table widgets
  */
+class TableWidget extends BaseWidgetClass {
 
-class BaseTableWidget extends BaseWidgetClass {
-
-    constructor(elementId, parent) {
+    constructor(elementId, parent, dataSource) {
         super(elementId, parent);
+
+        this.dataSource = dataSource;
+        this.events.on('data:node:added', (data) => {
+            if (data.data.source === this.dataSource) {
+                this.updateRowStatus(data.data);
+                this.updateRowData(data.data);
+            }
+        });
+        this.events.on('data:node:error', (data) => {
+            if (data.source === this.dataSource) {
+                this.updateRowStatus(data);
+                this.updateRowData(data);
+            }
+        });
+    }
+
+    setSource(dataSource) {
+        this.dataSource = dataSource;
     }
 
     reset() {
         this.element.innerHTML = '';
     }
 
-      /**
+    /**
      * Renders the preview table (moved from original renderPreview method)
      *
      * @param {Object} data An object with the properties headers and rows.
@@ -239,28 +261,25 @@ class BaseTableWidget extends BaseWidgetClass {
      */
     showData(data, limit = 20) {
 
-        const allHeaders = data.headers;
-        const rows = data.rows.slice(0, limit);
-
         if (!this.element) return;
-
         this.reset();
 
         const thead = document.createElement("thead");
         const headRow = document.createElement("tr");
-        
+
         // Add row number column
         const rowNumTh = document.createElement("th");
         rowNumTh.textContent = "#";
         rowNumTh.classList.add("row-number");
         headRow.appendChild(rowNumTh);
-        
-        // Add status column
-        const statusTh = document.createElement("th");
-        statusTh.textContent = "";
-        headRow.appendChild(statusTh);
+
+        // Add table headers
+        const allHeaders = [...data.headers];
         allHeaders.forEach(h => {
             const th = document.createElement("th");
+            if (h.startsWith('inm_')) {
+                th.classList.add('inm-column');
+            }
             th.textContent = h;
             headRow.appendChild(th);
         });
@@ -268,10 +287,22 @@ class BaseTableWidget extends BaseWidgetClass {
         this.element.appendChild(thead);
 
         const tbody = document.createElement("tbody");
+
+        const rows = data.rows.slice(0, limit);
         rows.forEach((row, idx) => {
            this.addRow(tbody, allHeaders, row, idx)
         });
         this.element.appendChild(tbody);
+
+     // Create footer with total row count
+        const tfoot = document.createElement("tfoot");
+        const footRow = document.createElement("tr");
+        const footCell = document.createElement("td");
+        footCell.colSpan = allHeaders.length + 1;
+        footCell.textContent = `Total rows: ${data.rows.length}`;
+        footRow.appendChild(footCell);
+        tfoot.appendChild(footRow);
+        this.element.appendChild(tfoot);
     }
 
 
@@ -284,11 +315,7 @@ class BaseTableWidget extends BaseWidgetClass {
         rowNumTd.textContent = (rowIndex + 1).toString();
         tr.appendChild(rowNumTd);
         
-        // Add status cell
-        const statusTd = document.createElement("td");
-        statusTd.classList.add("status");
-        statusTd.textContent = "";
-        tr.appendChild(statusTd);
+        // Table cells
         headers.forEach(h => {
             const td = document.createElement("td");
             td.textContent = row[h] || "";
@@ -300,8 +327,12 @@ class BaseTableWidget extends BaseWidgetClass {
     /**
      * Update table row status (for preview table)
      */
-    updateRowStatus(rowIndex, status) {
-        const table = document.getElementById("tableWidget");
+    updateRowStatus(data) {
+
+        const rowIndex = data.idx;
+        const status = data.status;
+
+        const table = this.element;
         const tbody = table.querySelector("tbody");
         if (!tbody) return;
 
@@ -309,23 +340,29 @@ class BaseTableWidget extends BaseWidgetClass {
         if (!row) return;
 
         row.classList.remove("success", "fail");
-        const statusCell = row.children[1];
+        const statusCell = row.children[0];
         if (status === 'success') {
-            statusCell.textContent = "✓";
             row.classList.add("success");
         }
         else if (status && status !== '') {
-            statusCell.textContent = "✗";
             row.classList.add("fail");
         }
     }
 
     /**
      * Updates a row with processed data (filename, thumbnail, status)
-     * @param {number} rowIndex - Row index to update
-     * @param {Object} rowData - Data object with inm_filename, inm_imgdataurl, inm_status
+     *
+     * @param {Object} data - Data object with idx, inm_filename, inm_imgdataurl, inm_status
      */
-    updateRowData(rowIndex, rowData) {
+    updateRowData(data) {
+
+        if (data.idx >= data.source.data.length) {
+            throw Error('Invalid row index')
+        }
+
+        const rowData = data.source.data[data.idx];
+        const rowIndex = data.idx;
+
         const tbody = this.element.querySelector("tbody");
         if (!tbody) return;
 
@@ -338,99 +375,30 @@ class BaseTableWidget extends BaseWidgetClass {
         
         // Update cells with new data
         headers.forEach((header) => {
-            // Skip row number and status columns, then find the right column
-            const cellIndex = this.findColumnIndex(header) + 2; // +2 for row number and status columns
+            const cellIndex = this.findColumnIndex(header);
+            if (cellIndex === undefined) return;
             const cell = cells[cellIndex];
-            
             if (!cell || !rowData.hasOwnProperty(header)) return;
-
             cell.textContent = rowData[header] || "";
         });
     }
 
     /**
      * Helper method to find column index by header name
-     * @param {string} headerName - Name of the header to find
-     * @returns {number} Column index or -1 if not found
+     * @param {string} headerName Name of the header to find
+     * @returns {number} Column index or undefined if not found
      */
     findColumnIndex(headerName) {
         const thead = this.element.querySelector("thead");
-        if (!thead) return -1;
+        if (!thead) return;
         
         const headers = thead.querySelectorAll("th");
-        for (let i = 2; i < headers.length; i++) { // Skip row number and status columns
+        for (let i = 0; i < headers.length; i++) {
             if (headers[i].textContent.trim() === headerName) {
-                return i - 2; // Adjust for row number and status columns
+                return i;
             }
         }
-        return -1;
-    }
-
-}
-
-/**
- * Handles the data table display
- */
-class TableWidget extends BaseTableWidget{
-
-    constructor(elementId, parent) {
-        super(elementId, parent);
-
-        this.events.on('data:node:added', (data) => {
-            this.updateRowStatus(data.idx, data.status);
-            // Update the actual row data with processed information
-            this.updateRowWithProcessedData(data.idx);
-        });
-        this.events.on('data:node:error', (data) => {
-            this.updateRowStatus(data.idx, data.status);
-            // Update the row with error status
-            this.updateRowWithProcessedData(data.idx);
-        });
-    }
-
-    /**
-     * Updates row with current data from the model
-     * @param {number} rowIndex - Row index to update
-     */
-    updateRowWithProcessedData(rowIndex, sourceType = 'csv') {
-        // Get updated data from parent's app reference
-        if (this.parent && this.parent.app && this.parent.app.dataModule) {
-            const dataSource = this.parent.app.dataModule.getDataSource(sourceType);
-            const allData = dataSource.data;
-            if (rowIndex < allData.length) {
-                const rowData = allData[rowIndex];
-                this.updateRowData(rowIndex, {
-                    inm_filename: rowData.inm_filename,
-                    inm_imgdataurl: rowData.inm_imgdataurl,
-                    inm_status: rowData.inm_status
-                });
-            }
-        }
-    }
-
-
-    /**
-     * Render preview table
-     *
-     * @param {Object} data An object with the properties headers and rows.
-     *                      Headers is a list of header names.
-     *                      Rows is a list of rows.
-     *                      Each row is an object with keys matching the headers.
-     */
-    showData(data) {
-        data.headers = [...data.headers, "inm_filename", "inm_imgdataurl", "inm_status"];
-        super.showData(data);
-    }
-
-}
-
-class FolderWidget extends BaseTableWidget {
-    constructor(elementId, parent) {
-        super(elementId, parent);
-    }
-
-    showData(data) {
-        super.showData(data);
+        return;
     }
 
 }

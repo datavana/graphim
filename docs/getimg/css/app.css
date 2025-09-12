@@ -5,7 +5,8 @@
   --button-bg-color: white;               /* primary button background */
   --fail-bg-color: #F38CA9;  /* fail status background */
   --success-bg-color: #C8F5D3;  /* success status background */
-  --landing-bg-color: #7C00FF
+  --landing-bg-color: #7C00FF;
+  --inm-bg-color: #efefff;
 }
 
 /*
@@ -85,11 +86,15 @@ td.status {
   text-align: center;
 }
 
-.success td.status {
+th.row-number, th.inm-column {
+  background-color: var(--inm-bg-color);
+}
+
+.success td.row-number {
   background-color: var(--success-bg-color);
 }
 
-.fail td.status {
+.fail td.row-number {
   background-color: var(--fail-bg-color);
 }
 
@@ -207,7 +212,8 @@ section#introWrapper {
   display: flex;
 }
 
-#fetchWidgetSelectCsv {
+#fetchWidgetSelectCsv,
+#fetchWidgetSelectFolder {
   display : flex;
 }
 
@@ -286,8 +292,9 @@ section#introWrapper {
   object-fit: contain;         /* never crop */
 }
 
-/* Download Zip Button */
+/* Finish buttons */
 #downloadZipBtn,
+#downloadCsvBtn,
 #startOverBtn {
   display: block;
   background: white;
@@ -303,8 +310,9 @@ section#introWrapper {
   text-align: center; /* ✅ center text inside */
 }
 
-/* Hover effect for both buttons */
+/* Hover effect for finish buttons */
 #downloadZipBtn:hover,
+#downloadCsvBtn:hover,
 #startOverBtn:hover {
   background: #f5f5f5;
   box-shadow: 0.1875rem 0.1875rem 0.5rem rgba(0, 0, 0, 0.3);

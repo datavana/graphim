@@ -90,6 +90,59 @@ class Utils {
         });
     }
 
+     /**
+     * Creates a thumbnail from an image file.
+     *
+     * @param {File} file - Image file to process
+     * @param {number} maxSize - Maximum thumb width and height
+     * @returns {Promise<string>} - Promise resolving to base64 data URL of the thumbnail
+     */
+    static async createThumbnailFromFile(file, maxSize = 50) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = event => {
+          const img = new Image();
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxSize) {
+                height = Math.round(height * (maxSize / width));
+                width = maxSize;
+              }
+            } else {
+              if (height > maxSize) {
+                width = Math.round(width * (maxSize / height));
+                height = maxSize;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const dataURL = canvas.toDataURL('image/png');
+            resolve(dataURL);
+          };
+
+          img.onerror = error => {console.log(error); reject(error);};
+          img.src = event.target.result;
+        };
+
+        reader.onerror = error => reject(error);
+        try {
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.log(error);
+            reject(error)
+        }
+      });
+    }
+
     /**
      * Formats timestamp for logging
      * @returns {string} Formatted timestamp

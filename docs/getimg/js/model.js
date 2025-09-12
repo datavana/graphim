@@ -30,10 +30,10 @@ class RequestModule {
             const { seed, rowIndex, row } = nodes[i];
             
             try {
-                const blob = await dataSource.fetch(seed);
-                this.events.emit('data:add:node', {idx: rowIndex, row: row, url: seed,  status: 'success', blob: blob, source: dataSource, target: dataTarget})
+                const raw = await dataSource.fetch(seed);
+                this.events.emit('data:add:node', {idx: rowIndex, row: row, seed: seed,  status: 'success', raw: raw, source: dataSource, target: dataTarget})
             } catch (error) {
-                this.events.emit('data:node:error', {idx: rowIndex, row: row, url: seed, status: 'fail', error: error, source: dataSource, target: dataTarget})
+                this.events.emit('data:node:error', {idx: rowIndex, row: row, seed: seed, status: 'fail', error: error, source: dataSource, target: dataTarget})
             }
             
             processed++;
@@ -63,10 +63,12 @@ class BaseDataSource {
     constructor() {
 
         this.data = [];
+        this.headers = [];
     }
 
     clear() {
         this.data = [];
+        this.headers = [];
     }
 
     async fetch() {
@@ -77,6 +79,12 @@ class BaseDataSource {
 class CsvDataSource extends BaseDataSource {
     constructor() {
         super();
+        this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
+    }
+
+    clear() {
+        super.clear();
+         this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
     }
 
  /**
@@ -91,20 +99,11 @@ class CsvDataSource extends BaseDataSource {
                 header: true,
                 complete: (results) => {
                     this.data = results.data;
-                    const headers = results.meta.fields;
-
-                    // Initialize new columns for all rows
-                    // TODO: Better implement a update column / add column / update value method
-                    //       that adds columns if necessary
-                    this.data.forEach((row, index) => {
-                        row.inm_filename = "";
-                        row.inm_imgdataurl = "";
-                        row.inm_status = "";
-                    });
+                    this.headers = [...this.headers, ...results.meta.fields];
 
                     resolve({
-                        rows: this.data,
-                        headers: headers
+                        headers: this.headers,
+                        rows: this.data
                     });
                 },
                 error: (error) => {
@@ -132,6 +131,12 @@ class CsvDataSource extends BaseDataSource {
 class FolderDataSource extends BaseDataSource {
     constructor() {
         super();
+         this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
+    }
+
+        clear() {
+        super.clear();
+         this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
     }
 
 
@@ -141,14 +146,14 @@ class FolderDataSource extends BaseDataSource {
             this.data = Array.from(files)
                 .filter(file => file.type.startsWith('image/'))
                 .map(file => ({
-                    filename: file.name,
+                    inm_filename: file.name,
                     fileobject: file
                 }));
 
 
              resolve({
-                    rows: this.data,
-                    headers: ['filename']
+                    headers: this.headers,
+                    rows: this.data
                 });
         });
     }
@@ -180,7 +185,7 @@ class BaseDataDarget {
 
     }
 
-    add(data, row) {
+    add(data) {
 
     }
 
@@ -216,11 +221,24 @@ class DataTargetZip extends BaseDataDarget {
         this.usedFilenames.clear();
     }
 
-    async add(data, row) {
-        const usedFilenames = this.getUsedFilenames();
-        const filename = Utils.generateUniqueFilename(data.url, data.idx, usedFilenames);
-        const thumbnailData = await Utils.createThumbnailFromBlob(data.blob);
+    /**
+     * Add new data
+     *
+     * @param {Object} data Object with properties source, target, idx, seed, raw
+     * @returns {Promise<void>}
+     */
+    async add(data) {
 
+        const usedFilenames = this.getUsedFilenames();
+        const filename = Utils.generateUniqueFilename(data.seed, data.idx, usedFilenames);
+        const thumbnailData = await Utils.createThumbnailFromBlob(data.raw);
+
+        const dataSource = data.source;
+
+        const row = dataSource.data[data.idx] || null;
+        if (!row) {
+            throw Error('Invalid node index');
+        }
         row.inm_filename = filename;
         row.inm_imgdataurl = thumbnailData;
         row.inm_status = 'success';
@@ -228,11 +246,11 @@ class DataTargetZip extends BaseDataDarget {
         // Add to ZIP
         if (this.zip) {
             const imgFolder = this.zip.folder("images");
-            imgFolder.file(filename, data.blob);
+            imgFolder.file(filename, data.raw);
             this.usedFilenames.add(filename);
         }
 
-        this.events.emit('data:node:added', {idx: data.idx, status: data.status, thumb: thumbnailData})
+        this.events.emit('data:node:added', {data: data, row: row})
     }
 
   /**
@@ -251,7 +269,7 @@ class DataTargetZip extends BaseDataDarget {
 
             // Generate and download ZIP
             const content = await this.zip.generateAsync({ type: "blob" });
-            saveAs(content, "output.zip");
+            saveAs(content, "imgnetmaker.zip");
         } catch (error) {
             const logEntry = Utils.createLogEntry('error', 'DOWNLOAD_ERROR', {
                 originalMessage: error.message,
@@ -265,6 +283,45 @@ class DataTargetZip extends BaseDataDarget {
 class DataTargetCsv extends BaseDataDarget {
     constructor(eventBus) {
         super(eventBus);
+    }
+
+
+    /**
+     * Add new data
+     *
+     * @param {Object} data Object with properties source, target, idx, seed, raw
+     * @returns {Promise<void>}
+     */
+    async add(data) {
+
+        const dataSource = data.source;
+        const row = dataSource.data[data.idx] || null;
+        if (!row) {
+            throw Error('Invalid node index');
+        }
+        row.inm_status = 'success';
+        row.inm_imgdataurl = await Utils.createThumbnailFromFile(data.raw);
+
+        this.events.emit('data:node:added', {data: data, row: row})
+    }
+
+/**
+     * Generates CSV file and sends it for downloading
+     *
+     */
+    async download(dataSource) {
+        try {
+
+            let csv = Papa.unparse(dataSource.data, {columns : dataSource.headers});
+            csv = new Blob([csv], {type: "text/csv;charset=utf-8"});
+            saveAs(csv, "imgnetmaker.csv");
+        } catch (error) {
+            const logEntry = Utils.createLogEntry('error', 'DOWNLOAD_ERROR', {
+                originalMessage: error.message,
+                errorType: error.name
+            });
+            this.events.emit('app:log:add', logEntry);
+        }
     }
 }
 
@@ -369,18 +426,10 @@ class DataModule {
     /**
      * Add node to database
      *
-     * @param {Object} data An Object with the properties idx, row, url, blob, status, source
+     * @param {Object} data An Object with the properties idx, row, seed, raw, status, source
      */
     async addNode(data) {
-        const dataSource = data.source;
-        const dataTarget = data.target;
-
-        if ((data.idx < 0) || (data.idx >= dataSource.data.length)) {
-            throw new Error(`Invalid row index: ${data.idx}`);
-        }
-
-        const row = dataSource.data[data.idx];
-        dataTarget.add(data, row);
+        data.target.add(data);
     }
 
     /**
@@ -396,7 +445,7 @@ class DataModule {
         }
 
         // Log error
-        const structuredError = Utils.structureHttpError(data.error, data.url, data.idx);
+        const structuredError = Utils.structureHttpError(data.error, data.seed, data.idx);
         this.events.emit('app:log:add', structuredError)
     }
 

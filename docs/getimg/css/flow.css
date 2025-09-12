@@ -17,6 +17,23 @@
     display: none;
 }
 
+#downloadZipBtn {
+    display: flex;
+}
+
+#downloadCsvBtn {
+    display: none;
+}
+
+.mode-geturl #downloadZipBtn {
+    display: none;
+}
+
+.mode-geturl #downloadCsvBtn {
+    display: flex;
+}
+
+
 /** Start stage **/
 
 #extractBtn,
@@ -38,6 +55,7 @@
 
 /** Fetch stage **/
 .stage-fetch #fetchWidgetSelectCsv,
+.stage-fetch #fetchWidgetSelectFolder,
 .stage-fetch #urlColumn,
 .stage-fetch #fetchBtn {
   display: none;
@@ -50,6 +68,7 @@
 
 /** Ready stage **/
 .stage-ready #fetchWidgetSelectCsv,
+.stage-ready #fetchWidgetSelectFolder,
 .stage-ready #stopBtn {
   display:none;
 }
