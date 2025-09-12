@@ -10,9 +10,15 @@ class WarpCanvas {
         this.warpStrength = 15;
         this.alphaValue = 1;
         this.followSpeed = 0.02;
+        this.exitSpeed = 2;
+        this.exitFade = 0.01;
 
         this.imgSrc = imgSrc;
         this.canvasId = canvasId;
+
+        this.isDestroying = false;
+        this.exitProgress = 0;
+        this.exitVectors = [];
 
         this.initCanvas();
         this.initEvents();
@@ -26,7 +32,7 @@ class WarpCanvas {
         });
 
         // Remove canvas on click
-        this.canvas.addEventListener("click", () => this.destroy());
+        this.canvas.addEventListener("click", () => this.exit());
 
         // Handle resize
         window.addEventListener("resize", () => this.resize());
@@ -63,8 +69,33 @@ class WarpCanvas {
         this.canvas.height = window.innerHeight;
     }
 
+    exit() {
+        if (!this.isDestroying) {
+            this.isDestroying = true;
+            this.exitProgress = 0;
+            this.exitVectors = [];
+
+            // assign outward directions per tile
+            const { width, height } = this.canvas;
+            const cx = this.focusX;
+            const cy = this.focusY;
+
+            for (let y = 0; y < height; y += this.sliceSize) {
+                for (let x = 0; x < width; x += this.sliceSize) {
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                    this.exitVectors.push({
+                        x, y,
+                        dirX: dx / dist,
+                        dirY: dy / dist
+                    });
+                }
+            }
+        }
+    }
+
     destroy() {
-        cancelAnimationFrame(this.animationFrame);
         this.canvas.remove();
     }
 
@@ -93,31 +124,63 @@ class WarpCanvas {
 
         ctx.globalAlpha = this.alphaValue;
 
-        for (let y = 0; y < height; y += this.sliceSize) {
-            for (let x = 0; x < width; x += this.sliceSize) {
-                const dx = x - cx;
-                const dy = y - cy;
-                const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+       if (!this.isDestroying) {
+            for (let y = 0; y < height; y += this.sliceSize) {
+                for (let x = 0; x < width; x += this.sliceSize) {
+                    const dx = x - this.focusX;
+                    const dy = y - this.focusY;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-                const warp = Math.sin(dist * 0.02 - this.timing) * this.warpStrength;
+                    const warp = Math.sin(dist * 0.02 - this.timing) * this.warpStrength;
 
-                const srcX = (x - offsetX) / drawW * this.img.width;
-                const srcY = (y - offsetY) / drawH * this.img.height;
+                    const srcX = (x - offsetX) / drawW * this.img.width;
+                    const srcY = (y - offsetY) / drawH * this.img.height;
 
-                ctx.drawImage(
-                    this.img,
-                    srcX, srcY,
-                    (this.sliceSize / drawW) * this.img.width,
-                    (this.sliceSize / drawH) * this.img.height,
-                    x + (dx / dist) * warp,
-                    y + (dy / dist) * warp,
-                    this.sliceSize,
-                    this.sliceSize
-                );
+                    this.drawTile(
+                        srcX, srcY,
+                        drawW, drawH,
+                        x + (dx / dist) * warp, y + (dy / dist) * warp
+                    );
+                }
             }
+        } else {
+            this.exitProgress += this.exitSpeed;
+
+            for (let i = 0; i < this.exitVectors.length; i++) {
+                const tile = this.exitVectors[i];
+                const x = tile.x + tile.dirX * this.exitProgress;
+                const y = tile.y + tile.dirY * this.exitProgress;
+
+                const srcX = (tile.x - offsetX) / drawW * this.img.width;
+                const srcY = (tile.y - offsetY) / drawH * this.img.height;
+
+                this.drawTile(srcX, srcY,drawW, drawH,x, y);
+
+            }
+
+            this.alphaValue -= this.exitFade;
+        }
+
+        if (this.alphaValue <= 0) {
+            this.destroy();
+            return;
         }
 
         this.animationFrame = requestAnimationFrame(() => this.animate());
+    }
+
+    drawTile(srcX, srcY, drawW, drawH, x, y) {
+        const sW = (this.sliceSize / drawW) * this.img.width;
+        const sH = (this.sliceSize / drawH) * this.img.height;
+
+        this.ctx.drawImage(
+            this.img,
+            srcX, srcY,
+            sW, sH,
+            x, y,
+            this.sliceSize,
+            this.sliceSize
+        );
     }
 }
 
