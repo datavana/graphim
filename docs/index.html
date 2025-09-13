@@ -45,10 +45,10 @@
           <h1>
             <a href="src/index.html?mode=getimg" class="linkbutton">CSV → Images + Data URLs</a>
           </h1>
-
         </div>
+
         <div class="text-block">
-          <h2> 📨 Input</h2>
+          <h2>📨 Input</h2>
           <p>
             CSV with at least one column: <code>image_url</code>.
             Ensure your file contains additional metadata columns (e.g., <code>id</code>,
@@ -62,7 +62,7 @@
             <li>Converts each image to a Base64 data URL (inline, text form of the image).</li>
           </ul>
 
-          <h2> ☑️ Output</h2>
+          <h2>☑️ Output</h2>
           <ul>
             <li>
               Enhanced CSV with original columns:
@@ -76,29 +76,32 @@
           </ul>
         </div>
 
-       <h2>What’s next?</h2>
+        <div class="text-block">
+          <h2>What’s next?</h2>
 
+          <p>
+            Build the bipartite network with
+            <a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>.
+          </p>
+          <ul>
+            <li>Include <code>img_dataurl</code> as an attribute on the <strong>image</strong> nodes (along with any other metadata).</li>
+            <li>Export as <strong>GEXF</strong> (nodes, edges, and attributes).</li>
+          </ul>
+          <p>
+            Open in Gephi Lite
+          </p>
+          <ul>
+            <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
+          </ul>
+          <p>
+            Display images
+           </p>
+          <ul>
+            <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
+            <li>Set images from <em>Attribute</em> and choose the <code>img_dataurl</code> column.</li>
+          </ul>
 
-    Build the bipartite network with
-    <a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>.
-    <ul>
-      <li>Include <code>img_dataurl</code> as an attribute on the <strong>image</strong> nodes (along with any other metadata).</li>
-      <li>Export as <strong>GEXF</strong> (nodes, edges, and attributes).</li>
-    </ul>
-<p>
-    Open in Gephi Lite
-    </p>
-    <ul>
-      <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
-    </ul>
-<p>
-    Display images
-     </p>
-    <ul>
-      <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
-      <li>Set images from <em>Attribute</em> and choose the <code>img_dataurl</code> column.</li>
-    </ul>
-
+        </div>
       </section>
 
       <section class="image2url">
@@ -109,7 +112,7 @@
         </div>
 
         <div class="text-block">
-          <h2> 📨 Input</h2>
+          <h2>📨 Input</h2>
           <p>
             Provide an image folder whose filenames match the <code>image_filename</code> values in your
             dataset (CSV, JSON, or other).
@@ -121,49 +124,53 @@
             <li>Leaves your existing folder as-is (no downloads required).</li>
           </ul>
 
-          <h2> ☑️ Output</h2>
+          <h2>☑️ Output</h2>
           <ul>
             <li>
               Enhanced CSV with original columns:
               <code>image_filename</code> and <code>img_dataurl</code> (Base64 data URL)
-
-
             </li>
           </ul>
+        </div>
 
-           <h2>What’s next?</h2>
-					<p>
-					Join the enhanced CSV to your dataset using <code>image_filename</code> as the key.
-				  </p>
+        <div class="text-block">
+          <h2>What’s next?</h2>
+          <p>
+            Join the enhanced CSV to your dataset using <code>image_filename</code> as the key.
+          </p>
 
-					<p>Build the bipartite network with</p>
-					<a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>
-					<ul>
-					  <li>Include <code>img_dataurl</code> as an attribute on the
-					  <strong>image</strong> nodes (along with any other metadata).</li>
-					  <li>Export as <strong>GEXF</strong>.</li>
-					</ul>
-					<p>
-					Open in Gephi Lite
-					</p>
-					<ul>
-					  <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
-					</ul>
-				  </li>
+          <p>
+            Build the bipartite network with
+            <a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>
+          </p>
 
-					<p>
-					Display images
-					</p>
-					<ul>
-					  <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
-					  <li>Set images from <em>Attribute</em> and select the <code>img_dataurl</code> column.</li>
-					</ul>
+          <ul>
+            <li>
+              Include <code>img_dataurl</code> as an attribute on the
+              <strong>image</strong> nodes (along with any other metadata).
+            </li>
+            <li>
+              Export as <strong>GEXF</strong>.
+            </li>
+          </ul>
+          <p>
+            Open in Gephi Lite
+          </p>
+          <ul>
+            <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
+          </ul>
 
+          <p>
+          Display images
+          </p>
+          <ul>
+            <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
+            <li>Set images from <em>Attribute</em> and select the <code>img_dataurl</code> column.</li>
+          </ul>
         </div>
       </section>
     </div>
   </div>
-
 
     <footer>
       <div id="footertext">
