@@ -47,6 +47,7 @@ class WarpCanvas {
 
     initCanvas() {
         this.canvas = document.getElementById(this.canvasId);
+        this.canvas.style.display = 'block';
         this.ctx = this.canvas.getContext("2d");
 
         this.img = new Image();
@@ -201,5 +202,8 @@ class WarpCanvas {
 }
 
 window.addEventListener("load", () => {
-  new WarpCanvas("src/img/background_2000.jpg", "warpCanvas");
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has("mode")) {
+      new WarpCanvas("src/img/background_2000.jpg", "warpCanvas");
+  }
 });

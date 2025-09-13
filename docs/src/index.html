@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <script src="js/util.js"></script>
   <script src="js/events.js"></script>
@@ -24,8 +25,10 @@
   <div id="pageWidget" class="stage-start">
 
     <header>
-      <img src="img/favicon.png" alt="Logo of ImgNetMaker" class="headerLogo">
-      <h1 class="headerTitle">ImgNetMaker</h1>
+      <a href="../index.html?mode=text">
+        <img src="img/favicon.png" alt="Logo of ImgNetMaker" class="headerLogo">
+        <h1 class="headerTitle">ImgNetMaker</h1>
+      </a>
     </header>
 
     <section id="introWrapper">
@@ -59,8 +62,10 @@
           </div>
 
           <div id="fetchWidgetColumn" class="box">
-            <label for="urlColumn">Select Image URL Column: </label>
-            <select id="urlColumn"></select>
+            <div class="input-wrapper input-wrapper-select">
+              <label for="urlColumn">Select Image URL Column</label>
+              <select id="urlColumn"></select>
+            </div>
             <button id="fetchBtn">Fetch Images</button>
           </div>
 
@@ -71,7 +76,7 @@
           <div id="fetchWidgetSelectFolder" class="box">
             <label for="imgFolder" class="upload-btn">Upload Folder</label>
             <input type="file" id="imgFolder" webkitdirectory multiple>
-           <div id="fetchWidgetFolderColumn" class="box">
+           <div id="fetchWidgetFolderColumn" class="input-wrapper">
               <label for="fileColumn">Select Image File Column: </label>
               <select id="fileColumn"></select>
             </div>
@@ -116,15 +121,14 @@
 
   <footer>
     <div id="footertext">
-      <p class="hide-small">
-        ImgNetMaker - Public Beta Version: v0.1.0-beta
-        <a href="https://github.com/datavana/graphim" target="_blank">
-        <span class="emoji">📖 </span>GitHub
-        </a>
-      </p>
+        <p class="hide-small">
+          ImgNetMaker - Public Beta Version: v0.1.0-beta.
+          <i class="fab fa-github" aria-hidden="true"></i>
+          <a href="https://github.com/datavana/graphim" target="_blank">GitHub</a>
+        </p>
       <p>
         Developed by the
-        <a href="https://github.com/datavana/graphim?tab=readme-ov-file#contributions" style="color: #7C00FF;">
+        <a href="https://github.com/datavana/graphim?tab=readme-ov-file#contributions" class="accent">
           Net Image Research Initiative [NIRI]
         </a>
       </p>

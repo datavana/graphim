@@ -1,24 +1,25 @@
 :root {
-  --base-corner-radius: 10px;
-  --main-bg-color: white;
-  --header-bg: url("../img/background_100.jpg");
-  --button-bg-color: white;               /* primary button background */
-  --fail-bg-color: #F38CA9;  /* fail status background */
-  --success-bg-color: #C8F5D3;  /* success status background */
-  --landing-bg-color: #7C00FF;
-  --inm-bg-color: #efefff;
+    --base-corner-radius: 10px;
+    --main-bg-color: white;
+    --header-bg: url("../img/background_100.jpg");
+    --button-bg-color: white; /* primary button background */
+    --fail-bg-color: #F38CA9; /* fail status background */
+    --success-bg-color: #C8F5D3; /* success status background */
+    --landing-bg-color: #7C00FF;
+    --color-accent: #7C00FF;
+    --inm-bg-color: #efefff;
 }
 
 /*
  * General settings --------------------------------
  */
 html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: "Segoe UI", Roboto, sans-serif;
-  background: var(--main-bg-color);
-  color: #333;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Roboto, sans-serif;
+    background: var(--main-bg-color);
+    color: #333;
 }
 
 h1 {
@@ -26,90 +27,105 @@ h1 {
 }
 
 h2 {
-  color: black;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
+    color: black;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
 }
 
 button {
-  background: white;
-  color: black;
-  border: 0.125rem solid black;   /* proper black border */
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s ease-in-out,
-              box-shadow 0.2s ease-in-out;
+    background: white;
+    color: black;
+    border: 0.125rem solid black; /* proper black border */
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
 
-  /* subtle shadow */
-  box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
+    /* subtle shadow */
+    box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
 }
 
 button:hover {
-  background: #f5f5f5;       /* slightly darker on hover */
-  box-shadow: 0.1875rem 0.1875rem 0.5rem rgba(0, 0, 0, 0.3);
+    background: #f5f5f5; /* slightly darker on hover */
+    box-shadow: 0.1875rem 0.1875rem 0.5rem rgba(0, 0, 0, 0.3);
 }
 
 button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+    background: #ccc;
+    cursor: not-allowed;
 }
 
 input[type="file"] {
-  display: none;
+    display: none;
+}
+
+.input-wrapper-select label {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.input-wrapper-select select {
+  display: block;
+  width: 100%;
+  font-size: 1rem;
 }
 
 table {
-  border-collapse: collapse;
-  width: 100%;
-  background: white;
-  border-radius: 0.5rem;
-  overflow: auto;
-  box-shadow: 0 0.125rem 0.375rem rgba(0,0,0,0.05);
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    border-radius: 0.5rem;
+    overflow: auto;
+    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.05);
 }
 
 th, td {
-  border: 0.0625rem solid #eee;
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 20em;
+    border: 0.0625rem solid #eee;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 20em;
 }
 
 th {
-  background: white; /* slightly darker than #FAF0E6 */
-  text-align: left;
-  font-weight: 600;
+    background: white; /* slightly darker than #FAF0E6 */
+    text-align: left;
+    font-weight: 600;
 }
 
 td.status {
-  width: 2rem;
-  text-align: center;
+    width: 2rem;
+    text-align: center;
 }
 
 th.row-number, th.inm-column {
-  background-color: var(--inm-bg-color);
+    background-color: var(--inm-bg-color);
 }
 
 .success td.row-number {
-  background-color: var(--success-bg-color);
+    background-color: var(--success-bg-color);
 }
 
 .fail td.row-number {
-  background-color: var(--fail-bg-color);
+    background-color: var(--fail-bg-color);
 }
 
 ul {
-  list-style-position: outside;
-  padding-left: 1.5em;
-  margin-left: 0;
+    list-style-position: outside;
+    padding-left: 1.5em;
+    margin-left: 0;
+}
+
+.accent {
+    color: var(--color-accent);
 }
 
 /**
@@ -117,38 +133,37 @@ ul {
  */
 
 canvas#warpCanvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  /*mix-blend-mode: multiply;*/
+    display: none;
+    width: 100%;
+    height: 100%;
+    /*mix-blend-mode: multiply;*/
 }
 
 #pageWidget {
-  margin: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column; /* stack children vertically */
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* stack children vertically */
 }
 
 #contentWrapper {
-  flex:1;
-  overflow: auto;
+    flex: 1;
+    overflow: auto;
 }
 
 /* Header */
+
 header {
-  position: relative;
-  background: var(--header-bg);
-  background-size: cover;
-  background-position: center;
-  color: white;
-  padding: 0.5rem 2rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  z-index: 1;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    position: relative;
+    background: var(--header-bg);
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 0.5rem 2rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    height: 80px;
+    display: flex;
 }
 
 header::before {
@@ -163,49 +178,61 @@ header::before {
     z-index: 0;
 }
 
+header a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+header a,
+header a:hover,
+header a:focus {
+    text-decoration: none;
+}
+
 /* Logo styling */
 .headerLogo {
-  height: 95%;
-  width: auto;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 2;
-  margin-right: 0.5em;
+    height: 95%;
+    width: auto;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    margin-right: 0.5em;
 }
 
 h1.headerTitle {
-  font-family: monospace; /* typewriter style */
-  color: #000000;           /* black text */
-  font-size: 1.4rem;        /* adjust as needed */
-  margin: 0;                /* remove default margin */
-  position: relative;
-  font-weight: 570;
-  z-index: 2;               /* above overlay */
-  letter-spacing: 1px;      /* optional typewriter spacing */
+    font-family: monospace; /* typewriter style */
+    color: #000000; /* black text */
+    font-size: 1.4rem; /* adjust as needed */
+    margin: 0; /* remove default margin */
+    position: relative;
+    font-weight: 570;
+    z-index: 2; /* above overlay */
+    letter-spacing: 1px; /* optional typewriter spacing */
 }
 
 
 .two-columns {
-  display: flex;
-  flex-wrap: wrap; /* allows stacking on smaller screens */
-  gap: 2rem; /* space between the boxes */
-  justify-content: center; /* centers the boxes horizontally */
-  padding: 2rem; /* space from screen edges */
-  box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap; /* allows stacking on smaller screens */
+    gap: 2rem; /* space between the boxes */
+    justify-content: center; /* centers the boxes horizontally */
+    padding: 2rem; /* space from screen edges */
+    box-sizing: border-box;
 }
 
 .two-columns section {
-  flex: 1 1 18.75rem; /* grow, shrink, min width */
-  box-sizing: border-box;
-  padding: 1.5rem;
-  background: #fafafa;
-  border-radius: 0.75rem;
-  box-shadow: 0 0.125rem 0.375rem rgba(0,0,0,0.08);
+    flex: 1 1 18.75rem; /* grow, shrink, min width */
+    box-sizing: border-box;
+    padding: 1.5rem;
+    background: #fafafa;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.08);
 }
 
 .text-block {
-  max-width: 37.5rem;
-  margin-bottom: 2em;
+    max-width: 37.5rem;
+    margin-bottom: 2em;
 }
 
 /*
@@ -213,16 +240,16 @@ h1.headerTitle {
  */
 
 section#introWrapper {
-  display: flex;
-  flex-direction: row;
+    display: flex;
+    flex-direction: row;
 }
 
 section#introWrapper div.text-block {
-  flex:2;
-  padding: 0.5rem 1rem;
-  margin: 0.5rem 1rem 0;
-  font-size: 1rem;
-  max-width: 70rem;
+    flex: 2;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem 0;
+    font-size: 1rem;
+    max-width: 70rem;
 }
 
 /*
@@ -230,128 +257,124 @@ section#introWrapper div.text-block {
  */
 
 .box {
-  padding: 1.5rem;
-  background: white;
-  border-radius: var(--base-corner-radius);
-  margin: 0.75rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--base-corner-radius);
+    margin: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1rem;
 }
 
 #fetchWidget {
-  display: flex;
+    display: flex;
 }
 
 #processCsvWrapper {
-  display: flex;
+    display: flex;
 }
 
 #fetchWidgetSelectCsv,
 #fetchWidgetSelectFolder {
-  display : flex;
+    display: flex;
 }
 
 #fetchWidgetColumn,
 #fetchWidgetProgress,
 #fetchWidgetDownload {
-  display: none;
-}
-
-#urlColumn {
-  display: inline-block;
+    display: none;
 }
 
 #fetchBtn, #stopButton {
-  display: inline-block;
+    display: inline-block;
 }
 
 #fileName {
-  margin-left: 1rem;
-  font-style: italic;
-  color: #333;
+    margin-left: 1rem;
+    font-style: italic;
+    color: #333;
 }
 
 .upload-btn {
-  background: white;
-  color: black;
-  border: 0.125rem solid black;
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s ease-in-out,
-              box-shadow 0.2s ease-in-out;
+    background: white;
+    color: black;
+    border: 0.125rem solid black;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
 
-  box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
+    box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
 }
 
 .upload-btn:hover {
-  background: #f5f5f5;
-  box-shadow: 0.1875rem 0.1875rem 0.5rem rgba(0, 0, 0, 0.3);
+    background: #f5f5f5;
+    box-shadow: 0.1875rem 0.1875rem 0.5rem rgba(0, 0, 0, 0.3);
 }
 
 
 /* Progress controls */
 #progressControls {
-  display: flex;
-  flex: 1;
+    display: flex;
+    flex: 1;
 }
 
 #progress {
-  font-weight: bold;
-  margin-left: 2em;
+    font-weight: bold;
+    margin-left: 2em;
 }
 
 /* Thumbnails area */
 #thumbsWidget {
-  flex:1;
-  display: flex;
-  flex-wrap: wrap;             /* wrap into new rows */
-  justify-content: flex-start; /* align items to the left */
-  align-items: flex-start;
-  gap: 0.5rem;
-  margin-top: 1rem;
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap; /* wrap into new rows */
+    justify-content: flex-start; /* align items to the left */
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 1rem;
 
-  height: auto;                /* grow as needed */
-  max-height: none;            /* no cutoff */
-  overflow: hidden;
+    height: auto; /* grow as needed */
+    max-height: none; /* no cutoff */
+    overflow: hidden;
 }
 
 /* Thumbnails */
 #thumbsWidget img {
-  max-width: 9.375rem;            /* don’t upscale */
-  height: auto;                /* keep proportions */
-  border-radius: 0.375rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
-  object-fit: contain;         /* never crop */
+    max-width: 9.375rem; /* don’t upscale */
+    height: auto; /* keep proportions */
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    object-fit: contain; /* never crop */
 }
 
 /* Finish buttons */
 #downloadZipBtn,
 #downloadCsvBtn,
 #startOverBtn {
-  display: block;
-  background: white;
-  color: black;
-  border: 0.125rem solid black;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
-    width: 12.5rem;     /* ✅ fixed width */
-  text-align: center; /* ✅ center text inside */
+    display: block;
+    background: white;
+    color: black;
+    border: 0.125rem solid black;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.2);
+    width: 12.5rem; /* ✅ fixed width */
+    text-align: center; /* ✅ center text inside */
 }
 
 /* Hover effect for finish buttons */
 #downloadZipBtn:hover,
 #downloadCsvBtn:hover,
 #startOverBtn:hover {
-  background: #f5f5f5;
-  box-shadow: 0.1875rem 0.1875rem 0.5rem rgba(0, 0, 0, 0.3);
+    background: #f5f5f5;
+    box-shadow: 0.1875rem 0.1875rem 0.5rem rgba(0, 0, 0, 0.3);
 }
 
 /*
@@ -359,251 +382,249 @@ section#introWrapper div.text-block {
  */
 
 #dataWrapper {
-  display: flex;
-  flex-direction: row;
-  flex: 1;              /* middle row grows */
-  padding: 1rem;        /* spacing so table isn’t glued to edges */
-  overflow: auto;
+    display: flex;
+    flex-direction: row;
+    flex: 1; /* middle row grows */
+    padding: 1rem; /* spacing so table isn’t glued to edges */
+    overflow: auto;
 }
 
 /* Table */
 .tableWrapper {
-  flex:2;
-  overflow: auto;
+    flex: 2;
+    overflow: auto;
 }
 
 /* Log */
 #logWidget {
-  flex: 1;
-  display: none;
-  overflow: auto;
-  margin-left: 3em;
+    flex: 1;
+    display: none;
+    overflow: auto;
+    margin-left: 3em;
 }
 
 #logWidget.log-notempty {
-  display: flex;
+    display: flex;
 }
 
 #showLogBtn {
-  display: none;
+    display: none;
 }
 
 /* Log Viewer Styles */
 .log-section {
-  border-top: 0.0625rem solid #ccc;
-  background: #f9f9f9;
-  display: flex;
-  flex-direction: column;
+    border-top: 0.0625rem solid #ccc;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
 }
 
 .log-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 1rem;
-  background: #f0f0f0;
-  border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background: #f0f0f0;
+    border-bottom: 1px solid #ddd;
 }
 
 .log-header h3 {
-  margin: 0;
-  color: #d9534f;
-  font-size: 1rem;
+    margin: 0;
+    color: #d9534f;
+    font-size: 1rem;
 }
 
 .log-header button {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.8rem;
-  border: 0.0625rem solid #ccc;
-  background: white;
-  cursor: pointer;
-  border-radius: 0.1875rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    border: 0.0625rem solid #ccc;
+    background: white;
+    cursor: pointer;
+    border-radius: 0.1875rem;
 }
 
 .log-header button:hover {
-  background: #f0f0f0;
+    background: #f0f0f0;
 }
 
 .log-data {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.5rem;
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
 }
 
 .log-entry {
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 0.1875rem;
-  border-left: 0.1875rem solid #d9534f;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 0.1875rem;
+    border-left: 0.1875rem solid #d9534f;
 }
 
 .log-timestamp {
-  font-size: 0.75rem;
-  color: #666;
-  margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 0.25rem;
 }
 
 .log-url {
-  font-size: 0.85rem;
-  margin-bottom: 0.25rem;
-  font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
 }
 
 .url-text {
-  font-family: monospace;
-  background: #f5f5f5;
-  padding: 0.1rem 0.3rem;
-  border-radius: 0.125rem;
-  font-weight: normal;
-  word-break: break-all;
+    font-family: monospace;
+    background: #f5f5f5;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.125rem;
+    font-weight: normal;
+    word-break: break-all;
 }
 
 .log-error {
-  color: #d9534f;
-  font-weight: bold;
-  margin-bottom: 0.25rem;
+    color: #d9534f;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
 }
 
 .log-details {
-  font-size: 0.8rem;
-  color: #666;
-  font-style: italic;
-  margin-top: 0.25rem;
-  white-space: pre-wrap;
-  font-family: monospace;
-  background: #f8f8f8;
-  padding: 0.5rem;
-  border-radius: 0.1875rem;
-  border-left: 0.125rem solid #ddd;
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+    margin-top: 0.25rem;
+    white-space: pre-wrap;
+    font-family: monospace;
+    background: #f8f8f8;
+    padding: 0.5rem;
+    border-radius: 0.1875rem;
+    border-left: 0.125rem solid #ddd;
 }
 
 /*
  * Footer section --------------------------------
  */
 footer {
-  display: flex;
-  margin-top: auto;
-  justify-content: space-between; /* text left, logos right */
-  align-items: center;
-  padding: 0.9375rem 1.875rem;
-  background-color: white;
-  color: black;
+    display: flex;
+    margin-top: auto;
+    justify-content: space-between; /* text left, logos right */
+    align-items: center;
+    padding: 0.9375rem 1.875rem;
+    background-color: white;
+    color: black;
 }
 
 #footertext p {
-  margin: 0;
-  font-weight: normal;
-  font-size: 0.8rem;
+    margin: 0;
+    font-weight: normal;
+    font-size: 0.8rem;
 
 }
 
 #footertext a {
-  color: black;
-  text-decoration: none;
+    color: black;
+    text-decoration: none;
+}
+
+#footertext a.accent {
+  color: var(--color-accent);
 }
 
 #footertext a:hover {
-  text-decoration: underline;
-}
-
-#footertext a .emoji {
-  text-decoration: none;
-  margin-right: 0.25rem;
-  display: inline-block;
+    text-decoration: underline;
 }
 
 /* Logos container */
 #inslogo {
-  display: flex;
-  gap: 0.625rem;
-  align-items: center;
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
 }
 
 /* Logos themselves */
 #inslogo img {
-  height: 3.125rem;       /* small size */
-  width: auto;        /* keep aspect ratio */
-  filter: brightness(0); /* make black */
+    height: 3.125rem; /* small size */
+    width: auto; /* keep aspect ratio */
+    filter: brightness(0); /* make black */
 }
 
 /* Buttons */
 .linkbutton {
-  display: inline-block;             /* works well inside <h1> */
-  background: white;
-  color: black;
-  border: 0.125rem solid var(--landing-bg-color); /* 2px → 0.125rem */
-  padding: 0.6rem 1.2rem;            /* already in rem, keep */
-  border-radius: 0.5rem;             /* 8px → 0.5rem */
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1.5;                  /* vertical centering */
-  width: 14rem;
-  text-align: center;
-  text-decoration: none;
-  transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.2); /* 2px 2px 6px → 0.125rem 0.125rem 0.375rem */
+    display: inline-block; /* works well inside <h1> */
+    background: white;
+    color: black;
+    border: 0.125rem solid var(--landing-bg-color); /* 2px → 0.125rem */
+    padding: 0.6rem 1.2rem; /* already in rem, keep */
+    border-radius: 0.5rem; /* 8px → 0.5rem */
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1.5; /* vertical centering */
+    width: 14rem;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0.125rem 0.125rem 0.375rem rgba(0, 0, 0, 0.2); /* 2px 2px 6px → 0.125rem 0.125rem 0.375rem */
 }
 
 .linkbutton:hover {
-  background: #f0f0f0;
-  box-shadow: 0.25rem 0.25rem 0.625rem rgba(0, 0, 0, 0.3); /* hover shadow slightly bigger */
+    background: #f0f0f0;
+    box-shadow: 0.25rem 0.25rem 0.625rem rgba(0, 0, 0, 0.3); /* hover shadow slightly bigger */
 }
 
 
 /* Small screens */
 
 @media (max-width: 600px) {
-  #contentWrapper {
-    overflow: visible;
-  }
+    #contentWrapper {
+        overflow: visible;
+    }
 
-  .two-columns {
-    flex-direction: column; /* stack columns vertically */
-    padding: 1rem;          /* reduce padding a bit on smaller screens */
-    gap: 1.5rem;            /* less gap between sections */
-  }
+    .two-columns {
+        flex-direction: column; /* stack columns vertically */
+        padding: 1rem; /* reduce padding a bit on smaller screens */
+        gap: 1.5rem; /* less gap between sections */
+    }
 
-  .two-columns section {
-    flex: 1 1 100%;      /* full width for each section */
-    padding: 0.9rem;
-    font-size: 1.1rem;
-  }
+    .two-columns section {
+        flex: 1 1 100%; /* full width for each section */
+        padding: 0.9rem;
+        font-size: 1.1rem;
+    }
 
-  /* let text block fill available width */
-  section#introWrapper div.text-block,
-  .text-block {
-    max-width: 100%;
-    flex:auto;
-  }
+    /* let text block fill available width */
+    section#introWrapper div.text-block,
+    .text-block {
+        max-width: 100%;
+        flex: auto;
+    }
 
-  /* Increase header font-size and height a bit on mobile */
-  header {
-    height: 100px;
-    padding: 1rem 1.5rem;
-  }
+    /* Increase header font-size and height a bit on mobile */
+    header {
+        height: 100px;
+        padding: 1rem 1.5rem;
+    }
 
-  h1.headerTitle {
-    font-size: 1.8rem;  /* bigger heading */
-  }
+    h1.headerTitle {
+        font-size: 1.8rem; /* bigger heading */
+    }
 
-  .headerLogo {
-    max-height: 80px;
-  }
+    .headerLogo {
+        max-height: 80px;
+    }
 
-  .hide-small {
-    display: none;
-  }
+    .hide-small {
+        display: none;
+    }
 
-  #fetchWidget,
-  .inputWrapper {
-    flex-direction: column;
-  }
+    #fetchWidget,
+    .inputWrapper {
+        flex-direction: column;
+    }
 }
 
 @media (max-width: 400px) {
-  .headerLogo {
-    max-height: 60px;
-  }
+    .headerLogo {
+        max-height: 60px;
+    }
 }
