@@ -70,6 +70,8 @@ class PageWidget extends BaseWidgetClass {
 
     reset() {
         this.tableWidget.reset();
+        this.folderWidget.reset();
+
         this.logWidget.reset();
         this.fetchWidget.reset();
         this.thumbsWidget.reset();
@@ -151,11 +153,14 @@ class FetchWidget extends BaseWidgetClass {
         if (!inputElm.files.length) return;
         const file = inputElm.files[0];
         document.getElementById('fileName').textContent = file.name;
+        inputElm.value = "";
         return file;
     }
     getFolderFiles() {
         const inputElm = document.getElementById("imgFolder");
-        return  inputElm.files;
+        const files = Array.from(inputElm.files);
+        inputElm.value = "";
+        return  files;
     }
 
     getSettings() {

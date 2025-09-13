@@ -61,9 +61,9 @@ class RequestModule {
 
 class BaseDataSource {
     constructor() {
-
         this.data = [];
         this.headers = [];
+        this.clear();
     }
 
     clear() {
@@ -79,12 +79,11 @@ class BaseDataSource {
 class CsvDataSource extends BaseDataSource {
     constructor() {
         super();
-        this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
     }
 
     clear() {
         super.clear();
-         this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
+        this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
     }
 
  /**
@@ -98,6 +97,7 @@ class CsvDataSource extends BaseDataSource {
             Papa.parse(file, {
                 header: true,
                 complete: (results) => {
+                    this.clear();
                     this.data = results.data;
                     this.headers = [...this.headers, ...results.meta.fields];
 
@@ -131,17 +131,18 @@ class CsvDataSource extends BaseDataSource {
 class FolderDataSource extends BaseDataSource {
     constructor() {
         super();
-         this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
     }
 
         clear() {
-        super.clear();
-         this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
+            super.clear();
+            this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
     }
 
 
      async load(files) {
         return new Promise((resolve, reject) => {
+
+            this.clear();
 
             this.data = Array.from(files)
                 .filter(file => file.type.startsWith('image/'))
