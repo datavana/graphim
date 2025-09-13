@@ -474,9 +474,11 @@ class LogWidget extends BaseWidgetClass {
         const logEntry = document.createElement("div");
         logEntry.className = "log-entry";
         logEntry.innerHTML = `
-            <div class="log-timestamp">${logData.timestamp}</div>
-            <div class="log-severity">${logData.severity.toUpperCase()}</div>
-            <div class="log-name">${logData.name}</div>
+            <div class="log-meta">
+                <div class="log-timestamp">${logData.timestamp}</div>
+                <div class="log-severity">${logData.severity.toUpperCase()}</div>
+                <div class="log-name">${logData.name}</div>
+            </div>
             <div class="log-details">${this.formatDetails(logData.details)}</div>
         `;
         this.logViewer.appendChild(logEntry);
