@@ -218,6 +218,9 @@ class WarpShader {
 
 if (window.WebGLRenderingContext) {
   window.addEventListener("load", () => {
-    new WarpShader("src/img/background_2000.jpg", "src/img/logo.png");
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("mode")) {
+      new WarpShader("src/img/background_2000.jpg", "src/img/logo.png");
+    }
   });
 }
