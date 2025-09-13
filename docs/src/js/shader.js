@@ -10,11 +10,12 @@ class WarpShader {
 
     // Follow the mouse settings
     this.followSpeed = 0.005;
-    this.focusX = window.innerWidth / 2;
-    this.focusY = window.innerHeight / 2;
+    this.focusX = Math.random() * window.innerWidth;
+    this.focusY = Math.random() * window.innerHeight;
     this.targetX = this.focusX;
     this.targetY = this.focusY;
 
+    this.disableScroll();
     this.initRenderer();
     this.initScene();
     this.initEvents();
@@ -152,6 +153,7 @@ class WarpShader {
     this.logo.style.zIndex = "10000";
     this.logo.style.pointerEvents = "none";
     this.logo.style.width = "400px";
+    this.logo.style.maxWidth = "80%";
     this.logo.style.height = "auto";
     document.body.appendChild(this.logo);
   }
@@ -164,7 +166,30 @@ class WarpShader {
     }
   }
 
+  _preventScroll = (e) => { e.preventDefault(); };
+
+  disableScroll() {
+    this._originalOverflow = {
+      html: document.documentElement.style.overflow,
+      body: document.body.style.overflow,
+      htmlTouch: document.documentElement.style.touchAction
+    };
+
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.touchAction = 'none';
+    document.addEventListener("touchmove", this._preventScroll, { passive: false });
+  }
+
+  restoreScroll() {
+    document.documentElement.style.overflow = this._originalOverflow.html;
+    document.body.style.overflow = this._originalOverflow.body;
+    document.documentElement.style.touchAction = this._originalOverflow.htmlTouch;
+    document.removeEventListener("touchmove", this._preventScroll, { passive: false });
+  }
+
   destroy() {
+    this.restoreScroll();
     this.renderer.domElement.remove();
     if (this.logo) this.logo.remove();
   }
