@@ -133,14 +133,6 @@ Add a deploy key to provide GPU resources to your containers:
               capabilities: [gpu]
 ```
 
-# Credits for components of ImgNetMaker
-- Background image by [Pawel Czerwinski](https://unsplash.com/de/@pawel_czerwinski), Unsplash Licence
-- Logo
-- [Font Awesome](https://fontawesome.com/), SIL OFL 1.1 License
-- [Papaparse](https://www.papaparse.com/), MIT Licence
-- [JsZip](https://stuk.github.io/jszip/), MIT licence
-- [FileSaver](https://github.com/eligrey/FileSaver.js), MIT licence
-
 # Conventions
 
 Please mind, before you commit and push any scripts or notebooks: 
@@ -152,19 +144,27 @@ Please mind, before you commit and push any scripts or notebooks:
 If you need folders or files not to be pushed to the repository:
 All folder named "private" are ignored by git.
 
+# Credits for third-party compontents
+- [Pawel Czerwinski](https://unsplash.com/de/@pawel_czerwinski) for the background image, Unsplash Licence
+- Logo
+- [Font Awesome](https://fontawesome.com/), SIL OFL 1.1 License
+- [Papaparse](https://www.papaparse.com/), MIT Licence
+- [JsZip](https://stuk.github.io/jszip/), MIT licence
+- [FileSaver](https://github.com/eligrey/FileSaver.js), MIT licence
+
 # Contributions
 
 In September 2025, the Net Image Research Initiative emerged during a Methods Café Week in Münster, Germany.
 
 - Annabell Jendrilek
-- Georg Hertkorn
+- [Georg Hertkorn](https://orcid.org/0009-0005-0760-2818)
 - Henrieke Kotthoff
-- Jakob Jünger
+- [Jakob Jünger](https://orcid.org/0000-0003-1860-6695)
 - Jane Knispel
-- Janna Joceli Omena
+- [Janna Joceli Omena](https://orcid.org/0000-0001-8445-9502)
 - Johanna Stahl
-- Katharina Maubach
-- Lennart Höfig
-- Luana Moraes Costa
-- Maiia Guseva
+- [Katharina Maubach](https://orcid.org/0009-0005-1466-7943)
+- [Lennart Höfig](https://orcid.org/0009-0001-8500-3117)
+- [Luana Moraes Costa](https://orcid.org/0009-0004-3303-8408)
+- [Maiia Guseva](https://orcid.org/0009-0006-5024-7919)
 - Paula Dicke
