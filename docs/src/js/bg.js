@@ -24,6 +24,7 @@ class WarpCanvas {
         this.exitVectors = [];
 
         this.initCanvas();
+        this.initLogo();
         this.initEvents();
     }
 
@@ -43,6 +44,25 @@ class WarpCanvas {
 
         // Start animation when image is loaded
         this.img.onload = () => this.animate();
+    }
+
+    initLogo() {
+        this.logoImg = new Image();
+        this.logoImg.src = "src/img/logo.png";
+        this.logoImg.style.position = "fixed";
+        this.logoImg.style.left = "3em";
+        this.logoImg.style.bottom = "-3em";
+        this.logoImg.style.zIndex = "10000";
+        this.logoImg.style.pointerEvents = "none";
+
+        this.logoImg.style.width = "400px";
+        this.logoImg.style.height = "auto";
+
+        document.body.appendChild(this.logoImg);
+    }
+
+    destroyLogo() {
+        this.logoImg.style.display = "none";
     }
 
     initCanvas() {
@@ -68,6 +88,7 @@ class WarpCanvas {
         this.canvas.style.pointerEvents = "auto";
         this.canvas.style.zIndex = "9999";
     }
+
     resize() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
@@ -96,6 +117,8 @@ class WarpCanvas {
                     });
                 }
             }
+
+            this.logoImg.remove();
         }
     }
 
