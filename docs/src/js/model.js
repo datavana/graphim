@@ -36,14 +36,19 @@ class RequestModule {
                 target: dataTarget
             };
 
-            try {
-                newData.raw = await dataSource.fetch(seed);
-                newData.status = 'success';
+            if (!seed) {
+                newData.status = 'empty';
                 this.events.emit('data:add:node', newData)
-            } catch (error) {
-                newData.error = error;
-                newData.status = 'fail';
-                this.events.emit('data:node:error', newData)
+            } else {
+                try {
+                    newData.raw = await dataSource.fetch(seed);
+                    newData.status = 'success';
+                    this.events.emit('data:add:node', newData)
+                } catch (error) {
+                    newData.error = error;
+                    newData.status = 'fail';
+                    this.events.emit('data:node:error', newData)
+                }
             }
             
             processed++;
@@ -245,15 +250,6 @@ class DataTargetZip extends BaseDataDarget {
         this.usedFilenames = new Set();
     }
 
-    /**
-     * Gets the set of used filenames
-     *
-     * @returns {Set} Set of used filenames
-     */
-    getUsedFilenames() {
-        return this.usedFilenames;
-    }
-
     init() {
         this.zip = new JSZip();
         this.zip.folder("images");
@@ -271,29 +267,36 @@ class DataTargetZip extends BaseDataDarget {
      * @returns {Promise<void>}
      */
     async add(data) {
+        try {
+            const dataSource = data.source;
+            const row = dataSource.data[data.idx] || null;
+            if (!row) {
+                throw Error('Invalid node index');
+            }
 
-        const usedFilenames = this.getUsedFilenames();
-        const filename = Utils.generateUniqueFilename(data.seed, data.idx, usedFilenames);
-        const thumbnailData = await Utils.createThumbnailFromBlob(data.raw);
+            row.inm_status = data.status;
 
-        const dataSource = data.source;
+            if (data.raw) {
+                // Generate thumbnail
+                const filename = Utils.generateUniqueFilename(data.seed, data.idx, this.usedFilenames);
+                this.usedFilenames.add(filename);
+                const thumbnailData = await Utils.createThumbnailFromBlob(data.raw);
 
-        const row = dataSource.data[data.idx] || null;
-        if (!row) {
-            throw Error('Invalid node index');
+                // Add to table
+                row.inm_filename = filename;
+                row.inm_imgdataurl = thumbnailData;
+
+                // Add to ZIP
+                if (this.zip) {
+                    const imgFolder = this.zip.folder("images");
+                    imgFolder.file(filename, data.raw);
+                }
+            }
+
+            this.events.emit('data:node:added', {data: data, row: row})
+        } catch (error) {
+            this.events.emit('app:log:add', Utils.createLogEntry("error", error.message, error));
         }
-        row.inm_filename = filename;
-        row.inm_imgdataurl = thumbnailData;
-        row.inm_status = 'success';
-
-        // Add to ZIP
-        if (this.zip) {
-            const imgFolder = this.zip.folder("images");
-            imgFolder.file(filename, data.raw);
-            this.usedFilenames.add(filename);
-        }
-
-        this.events.emit('data:node:added', {data: data, row: row})
     }
 
   /**
@@ -456,8 +459,7 @@ class DataModule {
                 rowIndex: index,
                 row: row,
                 sourceType : sourceType
-            }))
-            .filter(item => item.seed);
+            }));
     }
 
     /**

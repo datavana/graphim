@@ -345,7 +345,6 @@ class TableWidget extends BaseWidgetClass {
         if (!row) return;
 
         row.classList.remove("success", "fail");
-        const statusCell = row.children[0];
         if (status === 'success') {
             row.classList.add("success");
         }

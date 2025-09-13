@@ -356,7 +356,7 @@ section#introWrapper div.text-block {
 #downloadZipBtn,
 #downloadCsvBtn,
 #startOverBtn {
-    display: block;
+    display: inline-block;
     background: white;
     color: black;
     border: 0.125rem solid black;
