@@ -210,6 +210,10 @@ class ThumbsWidget extends BaseWidgetClass {
      * Add thumbnail to display
      */
     addThumbnail(thumbnailData) {
+        if (!thumbnailData) {
+            return;
+        }
+
         const img = document.createElement("img");
         img.src = thumbnailData;
         img.style.maxWidth = "50px";

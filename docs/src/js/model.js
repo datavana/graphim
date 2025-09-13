@@ -75,6 +75,12 @@ class HTTPError extends Error {
     this.statusCode = response.status;
     this.statusText = response.statusText;
     this.url = response.url;
+
+    if (this.statusText === "") {
+        if (this.statusCode === 429) {
+            this.statusText = "Too many requests"
+        }
+    }
   }
 }
 
@@ -157,6 +163,8 @@ class CsvDataSource extends BaseDataSource {
 
     /**
      * Fetches an image from a URL
+     *
+     * TODO: fetch function should move to the RequestModule
      *
      * @param {Object} nodeData An object with the image URL in the seed property
      * @returns {Object} nodeData with added properties:
@@ -256,13 +264,15 @@ class FolderDataSource extends BaseDataSource {
     /**
      * Fetches an image from a file
      *
+     * TODO: fetch function should move to the RequestModule
+     *
      * @param {Object} nodeData An object with the file object in the seed property
      * @returns {Object} nodeData with added properties:
      *                          - thumbnail
      */
     async fetch(nodeData) {
         nodeData.thumbnail = await Utils.createThumbnailFromFile(nodeData.seed);
-        return (nodeData);
+        return nodeData;
     }
 
     update(nodeData) {

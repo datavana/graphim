@@ -37,6 +37,9 @@ class WebApp {
         this.dataModule.reset();
         this.requestModule.reset();
         this.pageWidget.reset();
+
+        this.pageWidget.tableWidget.setSource(this.dataModule.getDataSource('csv'));
+        this.pageWidget.folderWidget.setSource(this.dataModule.getDataSource('folder'));
     }
 
      /**
