@@ -115,16 +115,16 @@ class FetchWidget extends BaseWidgetClass {
 
     initEvents() {
         document.getElementById("csvFile").addEventListener(
-            "change", () => this.events.emit('app:input:changed', {'type' : 'csv'})
+            "change", () => this.events.emit('app:input:changed', {'sourceName' : 'csv'})
         );
         document.getElementById("imgFolder").addEventListener(
-            "change", () => this.events.emit('app:input:changed', {'type' : 'folder'})
+            "change", () => this.events.emit('app:input:changed', {'sourceName' : 'folder'})
         );
         document.getElementById("downloadZipBtn").addEventListener(
-            "click", () => this.events.emit('app:download:start', {'sourceType' : 'csv', 'targetType': 'zip'})
+            "click", () => this.events.emit('app:download:start', {'sourceName' : 'csv', 'targetName': 'zip'})
         );
         document.getElementById("downloadCsvBtn").addEventListener(
-            "click", () => this.events.emit('app:download:start', {'sourceType' : 'folder', 'targetType': 'csv'})
+            "click", () => this.events.emit('app:download:start', {'sourceName' : 'folder', 'targetName': 'csv'})
         );
         document.getElementById("fetchBtn").addEventListener(
             "click", () => this.events.emit('app:fetch:start')
@@ -199,7 +199,7 @@ class ThumbsWidget extends BaseWidgetClass {
 
     constructor(elementId, parent) {
         super(elementId, parent);
-        this.events.on('data:node:added', (data) => this.addThumbnail(data.row.inm_imgdataurl));
+        this.events.on('data:node:updated', (nodeData) => this.addThumbnail(nodeData.thumbnail));
     }
 
     reset() {
@@ -233,16 +233,16 @@ class TableWidget extends BaseWidgetClass {
         super(elementId, parent);
 
         this.dataSource = dataSource;
-        this.events.on('data:node:added', (data) => {
-            if (data.data.source === this.dataSource) {
-                this.updateRowStatus(data.data);
-                this.updateRowData(data.data);
+        this.events.on('data:node:updated', (nodeData) => {
+            if (nodeData.source === this.dataSource) {
+                this.updateRowStatus(nodeData);
+                this.updateRowData(nodeData);
             }
         });
-        this.events.on('data:node:error', (data) => {
-            if (data.source === this.dataSource) {
-                this.updateRowStatus(data);
-                this.updateRowData(data);
+        this.events.on('data:node:error', (nodeData) => {
+            if (nodeData.source === this.dataSource) {
+                this.updateRowStatus(nodeData);
+                this.updateRowData(nodeData);
             }
         });
     }

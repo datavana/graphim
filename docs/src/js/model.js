@@ -27,23 +27,17 @@ class RequestModule {
         for (let i = 0; i < nodes.length; i++) {
             if (this.stopFlag) break;
 
-            const { seed, idx, row } = nodes[i];
-            let nodeData = {
-                idx: idx,
-                row: row,
-                seed: seed,
-                source: dataSource,
-                target: dataTarget
-            };
+            let nodeData = nodes[i];
+            nodeData.target =  dataTarget;
 
-            if (!seed) {
+            if (!nodeData.seed) {
                 nodeData.status = 'empty';
-                this.events.emit('data:add:node', nodeData)
+                this.events.emit('data:node:update', nodeData)
             } else {
                 try {
                     nodeData = await dataSource.fetch(nodeData);
                     nodeData.status = 'success';
-                    this.events.emit('data:add:node', nodeData)
+                    this.events.emit('data:node:update', nodeData)
                 } catch (error) {
                     nodeData.error = error;
                     nodeData.status = 'fail';
@@ -96,7 +90,9 @@ class NetworkError extends Error {
 
 
 class BaseDataSource {
-    constructor() {
+    constructor(name, eventBus) {
+        this.name = name;
+        this.events = eventBus;
         this.data = [];
         this.headers = [];
         this.clear();
@@ -107,14 +103,23 @@ class BaseDataSource {
         this.headers = [];
     }
 
+    load() {
+        return;
+    }
+
     async fetch() {
         return;
     }
+
+    update(nodeData) {
+        return nodeData;
+    }
+
 }
 
 class CsvDataSource extends BaseDataSource {
-    constructor() {
-        super();
+    constructor(name, eventBus) {
+        super(name, eventBus);
     }
 
     clear() {
@@ -188,6 +193,28 @@ class CsvDataSource extends BaseDataSource {
         return nodeData;
     }
 
+    update(nodeData) {
+        try {
+            const row = this.data[nodeData.idx] || null;
+            if (!row) {
+                throw Error('Invalid node index');
+            }
+
+            row.inm_status = nodeData.status;
+
+            if (nodeData.raw && nodeData.thumbnail) {
+
+                // Update table
+                row.inm_filename = nodeData.filename;
+                row.inm_imgdataurl = nodeData.thumbnail;
+            }
+
+            this.events.emit('data:node:updated', nodeData)
+        } catch (error) {
+            this.events.emit('app:log:add', Utils.createLogEntry("error", error.message, error));
+        }
+    }
+
     uniqueFilename(nodeData) {
         const filename = Utils.generateUniqueFilename(nodeData.seed, nodeData.idx, this.usedFilenames);
         this.usedFilenames.add(filename);
@@ -196,8 +223,8 @@ class CsvDataSource extends BaseDataSource {
 }
 
 class FolderDataSource extends BaseDataSource {
-    constructor() {
-        super();
+    constructor(name, eventBus) {
+        super(name, eventBus);
     }
 
         clear() {
@@ -238,10 +265,23 @@ class FolderDataSource extends BaseDataSource {
         return (nodeData);
     }
 
+    update(nodeData) {
+        const row = this.data[nodeData.idx] || null;
+        if (!row) {
+            throw Error('Invalid node index');
+        }
+        row.inm_status = 'success';
+        row.inm_imgdataurl = nodeData.thumbnail;
+
+        this.events.emit('data:node:updated', nodeData)
+    }
+
+
 }
 
 class BaseDataTarget {
-    constructor(eventBus) {
+    constructor(name, eventBus) {
+        this.name = name;
         this.events = eventBus;
     }
 
@@ -253,8 +293,8 @@ class BaseDataTarget {
 
     }
 
-    add(data) {
-
+    add(nodeData) {
+        return nodeData;
     }
 
     download(dataSource) {
@@ -263,8 +303,8 @@ class BaseDataTarget {
 }
 
 class DataTargetZip extends BaseDataTarget {
-    constructor(eventBus) {
-        super(eventBus);
+    constructor(name, eventBus) {
+        super(name, eventBus);
 
         this.zip = null;
     }
@@ -286,28 +326,12 @@ class DataTargetZip extends BaseDataTarget {
      */
     async add(data) {
         try {
-            const dataSource = data.source;
-            const row = dataSource.data[data.idx] || null;
-            if (!row) {
-                throw Error('Invalid node index');
+            // Add to ZIP
+            if (this.zip && data.filename && data.raw) {
+                const imgFolder = this.zip.folder("images");
+                imgFolder.file(data.filename, data.raw);
             }
 
-            row.inm_status = data.status;
-
-            if (data.raw && data.thumbnail) {
-
-                // Add to table
-                row.inm_filename = data.filename;
-                row.inm_imgdataurl = data.thumbnail;
-
-                // Add to ZIP
-                if (this.zip && data.filename) {
-                    const imgFolder = this.zip.folder("images");
-                    imgFolder.file(data.filename, data.raw);
-                }
-            }
-
-            this.events.emit('data:node:added', {data: data, row: row})
         } catch (error) {
             this.events.emit('app:log:add', Utils.createLogEntry("error", error.message, error));
         }
@@ -344,29 +368,10 @@ class DataTargetZip extends BaseDataTarget {
 }
 
 class DataTargetCsv extends BaseDataTarget {
-    constructor(eventBus) {
-        super(eventBus);
+    constructor(name, eventBus) {
+        super(name, eventBus);
     }
 
-
-    /**
-     * Add new data
-     *
-     * @param {Object} data Object with properties source, target, idx, seed, raw
-     * @returns {Promise<void>}
-     */
-    async add(data) {
-
-        const dataSource = data.source;
-        const row = dataSource.data[data.idx] || null;
-        if (!row) {
-            throw Error('Invalid node index');
-        }
-        row.inm_status = 'success';
-        row.inm_imgdataurl = data.thumbnail;
-
-        this.events.emit('data:node:added', {data: data, row: row})
-    }
 
 /**
      * Generates CSV file and sends it for downloading
@@ -374,7 +379,6 @@ class DataTargetCsv extends BaseDataTarget {
      */
     async download(dataSource) {
         try {
-
             let csv = Papa.unparse(dataSource.data, {columns : dataSource.headers});
             csv = new Blob([csv], {type: "text/csv;charset=utf-8"});
             saveAs(csv, "imgnetmaker.csv");
@@ -403,40 +407,40 @@ class DataModule {
         this.initEvents();
     }
 
-    getDataSource(sourceType = 'csv') {
-        if (this.dataSources[sourceType]) {
-            return this.dataSources[sourceType];
+    getDataSource(sourceName = 'csv') {
+        if (this.dataSources[sourceName]) {
+            return this.dataSources[sourceName];
         }
 
-        if (sourceType === 'csv') {
-            this.dataSources[sourceType] = new CsvDataSource();
-        } else if (sourceType === 'folder')  {
-            this.dataSources[sourceType] = new FolderDataSource();
+        if (sourceName === 'csv') {
+            this.dataSources[sourceName] = new CsvDataSource(sourceName, this.events);
+        } else if (sourceName === 'folder')  {
+            this.dataSources[sourceName] = new FolderDataSource(sourceName, this.events);
         } else {
-            throw Error('Unsupported source type');
+            throw Error('Unsupported data source');
         }
 
-        return this.dataSources[sourceType];
+        return this.dataSources[sourceName];
     }
 
     clearDataSources() {
         this.dataSources = {};
     }
 
-    getDataTarget(targetType = 'csv') {
-        if (this.dataTargets[targetType]) {
-            return this.dataTargets[targetType];
+    getDataTarget(targetName = 'csv') {
+        if (this.dataTargets[targetName]) {
+            return this.dataTargets[targetName];
         }
 
-        if (targetType === 'csv') {
-            this.dataTargets[targetType] = new DataTargetCsv(this.events);
-        } else if (targetType === 'zip') {
-            this.dataTargets[targetType] = new DataTargetZip(this.events);
+        if (targetName === 'csv') {
+            this.dataTargets[targetName] = new DataTargetCsv(targetName, this.events);
+        } else if (targetName === 'zip') {
+            this.dataTargets[targetName] = new DataTargetZip(targetName, this.events);
         } else {
-            throw Error('Unsupported target type');
+            throw Error('Unsupported target');
         }
 
-        return this.dataTargets[targetType];
+        return this.dataTargets[targetName];
     }
 
     clearDataTargets() {
@@ -447,7 +451,7 @@ class DataModule {
         this.events.on('data:batch:start', (data) => this.onBatchStart(data));
         this.events.on('data:batch:finish', (data) => this.onBatchFinish(data));
 
-        this.events.on('data:add:node', (data) => this.addNode(data));
+        this.events.on('data:node:update', (data) => this.updateNode(data));
         this.events.on('data:node:error', (data) => this.addError(data));
     }
 
@@ -462,17 +466,17 @@ class DataModule {
     /**
      * Returns a list of seed node items
      *
+     * @param {Object} dataSource
      * @param {Object} fetchSettings An object with the key column
-     * @returns {{seed: *, idx: *, row: *, sourceType: *}[]}
+     * @returns {{seed: *, idx: *, row: *, source: *}[]}
      */
-    getSeedNodes(sourceType = 'csv', fetchSettings = {}) {
-        const dataSource = this.getDataSource(sourceType);
+    getSeedNodes(dataSource , fetchSettings = {}) {
         return dataSource.data
             .map((row, index) => ({
                 seed: row[fetchSettings.column], // A URL or a file object
                 idx: index,
                 row: row,
-                sourceType : sourceType
+                source : dataSource
             }));
     }
 
@@ -488,11 +492,12 @@ class DataModule {
     }
 
     /**
-     * Add node to database
+     * Update node in source and target
      *
-     * @param {Object} data An Object with the properties idx, row, seed, raw, status, source
+     * @param {Object} data An Object with the properties idx, row, seed, raw, status, source, target
      */
-    async addNode(data) {
+    async updateNode(data) {
+        data.source.update(data);
         data.target.add(data);
     }
 
@@ -524,8 +529,7 @@ class DataModule {
      *
      * @returns {Object} Statistics about processed data
      */
-    getStats(sourceType = 'csv') {
-        const dataSource = this.getDataSource(sourceType);
+    getStats(dataSource) {
         const total = dataSource.data.length;
         const successful = dataSource.data.filter(row => row.inm_status === "success").length;
         const failed = dataSource.data.filter(row => row.inm_status && row.inm_status !== "success" && row.inm_status !== "").length;

@@ -45,9 +45,9 @@ class WebApp {
     async actionInput(data) {
 
         try {
-            const dataSource = this.dataModule.getDataSource(data.type);
+            const dataSource = this.dataModule.getDataSource(data.sourceName);
 
-            if (data.type == 'csv') {
+            if (dataSource.name == 'csv') {
                 const file = this.pageWidget.fetchWidget.getCsvFile();
                 const result = await dataSource.load(file);
 
@@ -57,7 +57,7 @@ class WebApp {
                 this.pageWidget.setStage('select-urls');
             }
 
-            if (data.type == 'folder') {
+            if (dataSource.name == 'folder') {
                 const files = this.pageWidget.fetchWidget.getFolderFiles();
                 const result = await dataSource.load(files);
 
@@ -89,8 +89,10 @@ class WebApp {
         this.pageWidget.setStage('fetch')
 
         const fetchSettings = this.pageWidget.fetchWidget.getSettings();
-        const nodes = this.dataModule.getSeedNodes('csv', fetchSettings);
+
         const source = this.dataModule.getDataSource('csv');
+        const nodes = this.dataModule.getSeedNodes(source, fetchSettings);
+
         const target = this.dataModule.getDataTarget('zip');
         this.requestModule.processBatch(nodes, source, target);
     }
@@ -101,8 +103,8 @@ class WebApp {
         this.pageWidget.setStage('fetch')
 
         const fetchSettings = {'column': 'fileobject'};
-        const nodes = this.dataModule.getSeedNodes('folder', fetchSettings);
         const source = this.dataModule.getDataSource('folder');
+        const nodes = this.dataModule.getSeedNodes(source, fetchSettings);
         const target = this.dataModule.getDataTarget('csv');
         this.requestModule.processBatch(nodes, source, target);
     }
@@ -112,8 +114,8 @@ class WebApp {
     }
 
     async actionDownload(data) {
-        const target = this.dataModule.getDataTarget(data.targetType);
-        const source = this.dataModule.getDataSource(data.sourceType);
+        const target = this.dataModule.getDataTarget(data.targetName);
+        const source = this.dataModule.getDataSource(data.sourceName);
         target.download(source);
     }
 
