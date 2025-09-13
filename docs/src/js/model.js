@@ -13,11 +13,20 @@ class RequestModule {
         this.stopFlag = false;
     }
 
+    uniqueFilename(nodeData) {
+        const filename = Utils.generateUniqueFilename(nodeData.seed, nodeData.idx, this.usedFilenames);
+        this.usedFilenames.add(filename);
+        return filename;
+    }
+
     /**
      * Processes a batch of image URLs
      * @param {Array} nodes Array of URLs or file nodes to process
+     * @param {BaseDataSource} dataSource
+     * @param {BaseDataTarget} dataTarget
+     * @param {String} fetchMethod
      */
-    async processBatch(nodes, dataSource, dataTarget) {
+    async process(nodes, dataSource, dataTarget, fetchMethod) {
         this.reset();
         let processed = 0;
         const total = nodes.length;
@@ -35,7 +44,7 @@ class RequestModule {
                 this.events.emit('data:node:update', nodeData)
             } else {
                 try {
-                    nodeData = await dataSource.fetch(nodeData);
+                    nodeData = await this.fetch(nodeData, fetchMethod);
                     nodeData.status = 'success';
                     this.events.emit('data:node:update', nodeData)
                 } catch (error) {
@@ -64,6 +73,73 @@ class RequestModule {
      */
     reset() {
         this.stopFlag = false;
+        this.usedFilenames = new Set();
+    }
+
+    /**
+     * Fetches an image from a URL
+     *
+     * @param {Object} nodeData An object with node data
+     * @param {String} method The fetch method to invoke
+     * @returns {Object} nodeData with added properties
+     */
+    async fetch(nodeData, method) {
+        if (method === 'thumbnail') {
+            return this.fetchThumbnail(nodeData);
+        }
+        else if (method === 'http') {
+            return this.fetchHttp(nodeData);
+        }
+    }
+
+    /**
+     * Fetches an image from a URL
+     *
+     * @param {Object} nodeData An object with the image URL in the seed property
+     * @returns {Object} nodeData with added properties:
+     *                          - filename
+     *                          - raw
+     *                          - thumbnail
+     */
+    async fetchHttp(nodeData) {
+        let response;
+        try {
+            response = await fetch(nodeData.seed);
+        }
+        catch (error) {
+             if (error instanceof TypeError) {
+                 throw new NetworkError(nodeData.seed);
+             } else {
+                 // Re-throw other errors
+                 throw error;
+             }
+        }
+
+        if (!response) {
+            throw new Error('Response error');
+        }
+
+        if (!response.ok) {
+            throw new HTTPError(response);
+        }
+
+        nodeData.blob = await response.blob();
+        nodeData.filename = this.uniqueFilename(nodeData);
+        nodeData.thumbnail = await Utils.createThumbnailFromBlob(nodeData.blob);
+
+        return nodeData;
+    }
+
+    /**
+     * Fetches an image from a file
+     *
+     * @param {Object} nodeData An object with the file object in the seed property
+     * @returns {Object} nodeData with added properties:
+     *                          - thumbnail
+     */
+    async fetchThumbnail(nodeData) {
+        nodeData.thumbnail = await Utils.createThumbnailFromFile(nodeData.seed);
+        return nodeData;
     }
 
 }
@@ -101,40 +177,96 @@ class BaseDataSource {
         this.events = eventBus;
         this.data = [];
         this.headers = [];
+        this.zip = null;
+
         this.clear();
     }
 
     clear() {
+        this.zip = null;
         this.data = [];
-        this.headers = [];
+        this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
     }
 
     load() {
         return;
     }
 
-    async fetch() {
-        return;
+    /**
+     * Returns a list of seed node items
+     *
+     * @param {Object} fetchSettings An object with the key column
+     * @returns {{seed: *, idx: *, row: *, source: *}[]}
+     */
+    seeds(fetchSettings = {}) {
+        return this.data
+            .map((row, index) => ({
+                seed: row[fetchSettings.column], // A URL or a file object
+                idx: index,
+                row: row,
+                source : this
+            }));
     }
 
     update(nodeData) {
-        return nodeData;
+        try {
+            const row = this.data[nodeData.idx] || null;
+            if (!row) {
+                throw Error('Invalid node index');
+            }
+
+            row.inm_status = nodeData.status || 'success';
+
+            if (nodeData.thumbnail) {
+                row.inm_imgdataurl = nodeData.thumbnail;
+            }
+
+            if (nodeData.filename) {
+                row.inm_filename = nodeData.filename;
+            }
+
+            if (nodeData.blob && nodeData.filename) {
+                this.addFile(nodeData);
+            }
+
+            this.events.emit('data:node:updated', nodeData)
+        } catch (error) {
+            this.events.emit('app:log:add', Utils.createLogEntry("error", error.message, error));
+        }
     }
 
+
+    getZip() {
+        if (!this.zip) {
+            this.zip = new JSZip();
+        }
+        return this.zip;
+    }
+
+    /**
+     * Add new file to archive
+     *
+     * @param {Object} nodeData Object with properties filename and blob
+     * @returns {Promise<void>}
+     */
+    async addFile(nodeData) {
+        try {
+
+            const zip = this.getZip();
+            if (nodeData.filename && nodeData.blob) {
+                const imgFolder = zip.folder("images");
+                imgFolder.file(nodeData.filename, nodeData.blob);
+            }
+
+        } catch (error) {
+            this.events.emit('app:log:add', Utils.createLogEntry("error", error.message, error));
+        }
+    }
 }
 
 class CsvDataSource extends BaseDataSource {
-    constructor(name, eventBus) {
-        super(name, eventBus);
-    }
 
-    clear() {
-        super.clear();
-        this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
-        this.usedFilenames = new Set();
-    }
-
- /**
+    /**
      * Loads and parses CSV file
      *
      * @param {File} file The CSV file to parse
@@ -160,88 +292,17 @@ class CsvDataSource extends BaseDataSource {
             });
         });
     }
-
-    /**
-     * Fetches an image from a URL
-     *
-     * TODO: fetch function should move to the RequestModule
-     *
-     * @param {Object} nodeData An object with the image URL in the seed property
-     * @returns {Object} nodeData with added properties:
-     *                          - filename
-     *                          - raw
-     *                          - thumbnail
-     */
-    async fetch(nodeData) {
-        let response;
-        try {
-            response = await fetch(nodeData.seed);
-        }
-        catch (error) {
-             if (error instanceof TypeError) {
-                 throw new NetworkError(nodeData.seed);
-             } else {
-                 // Re-throw other errors
-                 throw error;
-             }
-        }
-
-        if (!response) {
-            throw new Error('Response error');
-        }
-
-        if (!response.ok) {
-            throw new HTTPError(response);
-        }
-
-        nodeData.raw = await response.blob();
-        nodeData.filename = this.uniqueFilename(nodeData);
-        nodeData.thumbnail = await Utils.createThumbnailFromBlob(nodeData.raw);
-
-        return nodeData;
-    }
-
-    update(nodeData) {
-        try {
-            const row = this.data[nodeData.idx] || null;
-            if (!row) {
-                throw Error('Invalid node index');
-            }
-
-            row.inm_status = nodeData.status;
-
-            if (nodeData.raw && nodeData.thumbnail) {
-
-                // Update table
-                row.inm_filename = nodeData.filename;
-                row.inm_imgdataurl = nodeData.thumbnail;
-            }
-
-            this.events.emit('data:node:updated', nodeData)
-        } catch (error) {
-            this.events.emit('app:log:add', Utils.createLogEntry("error", error.message, error));
-        }
-    }
-
-    uniqueFilename(nodeData) {
-        const filename = Utils.generateUniqueFilename(nodeData.seed, nodeData.idx, this.usedFilenames);
-        this.usedFilenames.add(filename);
-        return filename;
-    }
 }
 
 class FolderDataSource extends BaseDataSource {
-    constructor(name, eventBus) {
-        super(name, eventBus);
-    }
 
-        clear() {
-            super.clear();
-            this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
-    }
-
-
-     async load(files) {
+    /**
+     * Loads uploaded file names and objects
+     *
+     * @param {File[]} files
+     * @returns {Promise<Object>}
+     */
+    async load(files) {
         return new Promise((resolve, reject) => {
 
             this.clear();
@@ -254,39 +315,12 @@ class FolderDataSource extends BaseDataSource {
                 }));
 
 
-             resolve({
-                    headers: this.headers,
-                    rows: this.data
-                });
+            resolve({
+                headers: this.headers,
+                rows: this.data
+            });
         });
     }
-
-    /**
-     * Fetches an image from a file
-     *
-     * TODO: fetch function should move to the RequestModule
-     *
-     * @param {Object} nodeData An object with the file object in the seed property
-     * @returns {Object} nodeData with added properties:
-     *                          - thumbnail
-     */
-    async fetch(nodeData) {
-        nodeData.thumbnail = await Utils.createThumbnailFromFile(nodeData.seed);
-        return nodeData;
-    }
-
-    update(nodeData) {
-        const row = this.data[nodeData.idx] || null;
-        if (!row) {
-            throw Error('Invalid node index');
-        }
-        row.inm_status = 'success';
-        row.inm_imgdataurl = nodeData.thumbnail;
-
-        this.events.emit('data:node:updated', nodeData)
-    }
-
-
 }
 
 class BaseDataTarget {
@@ -295,75 +329,29 @@ class BaseDataTarget {
         this.events = eventBus;
     }
 
-    init() {
-
-    }
-
-    clear() {
-
-    }
-
-    add(nodeData) {
-        return nodeData;
-    }
-
     download(dataSource) {
 
     }
 }
 
 class DataTargetZip extends BaseDataTarget {
-    constructor(name, eventBus) {
-        super(name, eventBus);
-
-        this.zip = null;
-    }
-
-    init() {
-        this.zip = new JSZip();
-        this.zip.folder("images");
-    }
-
-    clear() {
-        this.zip = null;
-    }
 
     /**
-     * Add new data
-     *
-     * @param {Object} data Object with properties source, target, idx, seed, raw
-     * @returns {Promise<void>}
-     */
-    async add(data) {
-        try {
-            // Add to ZIP
-            if (this.zip && data.filename && data.raw) {
-                const imgFolder = this.zip.folder("images");
-                imgFolder.file(data.filename, data.raw);
-            }
-
-        } catch (error) {
-            this.events.emit('app:log:add', Utils.createLogEntry("error", error.message, error));
-        }
-    }
-
-  /**
      * Generates ZIP file with images and updated CSV and sends it for downloading
      *
      */
     async download(dataSource) {
         try {
-            if (!this.zip) {
-                throw new Error("No ZIP archive created yet.");
-            }
+            const zip = dataSource.getZip();
 
-            // Add updated CSV to ZIP
+            // Add CSV to ZIP
             const csv = Papa.unparse(dataSource.data);
-            this.zip.file("images.csv", csv);
+            zip.file("images.csv", csv);
 
-            // Generate and download ZIP
-            const content = await this.zip.generateAsync({ type: "blob" });
+            // Generate and send ZIP
+            const content = await zip.generateAsync({type: "blob"});
             saveAs(content, "imgnetmaker.zip");
+
         } catch (error) {
             const logEntry = Utils.createLogEntry(
                 'error',
@@ -378,18 +366,15 @@ class DataTargetZip extends BaseDataTarget {
 }
 
 class DataTargetCsv extends BaseDataTarget {
-    constructor(name, eventBus) {
-        super(name, eventBus);
-    }
 
 
-/**
+    /**
      * Generates CSV file and sends it for downloading
      *
      */
     async download(dataSource) {
         try {
-            let csv = Papa.unparse(dataSource.data, {columns : dataSource.headers});
+            let csv = Papa.unparse(dataSource.data, {columns: dataSource.headers});
             csv = new Blob([csv], {type: "text/csv;charset=utf-8"});
             saveAs(csv, "imgnetmaker.csv");
         } catch (error) {
@@ -474,29 +459,15 @@ class DataModule {
     }
 
     /**
-     * Returns a list of seed node items
-     *
-     * @param {Object} dataSource
-     * @param {Object} fetchSettings An object with the key column
-     * @returns {{seed: *, idx: *, row: *, source: *}[]}
+     * Initialize batch (not used by now)
      */
-    getSeedNodes(dataSource , fetchSettings = {}) {
-        return dataSource.data
-            .map((row, index) => ({
-                seed: row[fetchSettings.column], // A URL or a file object
-                idx: index,
-                row: row,
-                source : dataSource
-            }));
+    onBatchStart(data) {
+
     }
 
     /**
-     * Initializes ZIP file for image storage
+     * Finish batch
      */
-    onBatchStart(data) {
-        data.target.init();
-    }
-
     onBatchFinish() {
         this.events.emit('app:batch:ready');
     }
@@ -508,7 +479,6 @@ class DataModule {
      */
     async updateNode(data) {
         data.source.update(data);
-        data.target.add(data);
     }
 
     /**

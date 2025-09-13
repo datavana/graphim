@@ -92,12 +92,10 @@ class WebApp {
         this.pageWidget.setStage('fetch')
 
         const fetchSettings = this.pageWidget.fetchWidget.getSettings();
-
         const source = this.dataModule.getDataSource('csv');
-        const nodes = this.dataModule.getSeedNodes(source, fetchSettings);
-
+        const nodes = source.seeds(fetchSettings);
         const target = this.dataModule.getDataTarget('zip');
-        this.requestModule.processBatch(nodes, source, target);
+        this.requestModule.process(nodes, source, target, 'http');
     }
 
     async actionExtractStart() {
@@ -107,9 +105,9 @@ class WebApp {
 
         const fetchSettings = {'column': 'fileobject'};
         const source = this.dataModule.getDataSource('folder');
-        const nodes = this.dataModule.getSeedNodes(source, fetchSettings);
+        const nodes = source.seeds(fetchSettings);
         const target = this.dataModule.getDataTarget('csv');
-        this.requestModule.processBatch(nodes, source, target);
+        this.requestModule.process(nodes, source, target, 'thumbnail');
     }
 
     actionFetchStop() {
