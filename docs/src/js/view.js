@@ -127,13 +127,13 @@ class FetchWidget extends BaseWidgetClass {
             "click", () => this.events.emit('app:download:start', {'sourceName' : 'folder', 'targetName': 'csv'})
         );
         document.getElementById("fetchBtn").addEventListener(
-            "click", () => this.events.emit('app:fetch:start')
+            "click", () => this.events.emit('app:fetch:start', {method: 'http', sourceName: 'csv', targetName: 'zip'})
         );
         document.getElementById("stopBtn").addEventListener(
             "click", () => this.events.emit('app:fetch:stop')
         );
         document.getElementById("extractBtn").addEventListener(
-            "click", () => this.events.emit('app:extract:start')
+        "click", () => this.events.emit('app:fetch:start', {method: 'thumbnail', sourceName: 'folder', targetName: 'csv'})
         )
 
         this.events.on('data:progress:step', (data) => this.updateProgress(data));
@@ -166,7 +166,8 @@ class FetchWidget extends BaseWidgetClass {
     getSettings() {
         const urlCol = document.getElementById("urlColumn").value;
         return {
-            column: urlCol
+            column: urlCol,
+            method: 'http'
         }
     }
 

@@ -21,30 +21,30 @@ class RequestModule {
 
     /**
      * Processes a batch of image URLs
-     * @param {Array} nodes Array of URLs or file nodes to process
      * @param {BaseDataSource} dataSource
-     * @param {BaseDataTarget} dataTarget
-     * @param {String} fetchMethod
+     * @param {Object} fetchSettings
      */
-    async process(nodes, dataSource, dataTarget, fetchMethod) {
+    async process(dataSource,  fetchSettings) {
         this.reset();
+
+        const nodes = dataSource.seeds(fetchSettings);
+
         let processed = 0;
         const total = nodes.length;
 
-        this.events.emit('data:batch:start', {source: dataSource, target: dataTarget});
+        this.events.emit('data:batch:start');
 
         for (let i = 0; i < nodes.length; i++) {
             if (this.stopFlag) break;
 
             let nodeData = nodes[i];
-            nodeData.target =  dataTarget;
 
             if (!nodeData.seed) {
                 nodeData.status = 'empty';
                 this.events.emit('data:node:update', nodeData)
             } else {
                 try {
-                    nodeData = await this.fetch(nodeData, fetchMethod);
+                    nodeData = await this.fetch(nodeData, fetchSettings.method);
                     nodeData.status = 'success';
                     this.events.emit('data:node:update', nodeData)
                 } catch (error) {
@@ -58,7 +58,7 @@ class RequestModule {
             this.events.emit('data:progress:step', {current: processed, total: total});
         }
 
-        this.events.emit('data:batch:finish', {source: dataSource, target: dataTarget});
+        this.events.emit('data:batch:finish');
     }
 
     /**

@@ -23,8 +23,7 @@ class WebApp {
     initEvents() {
         this.eventBus.on('app:reset:start', () => this.actionReset());
         this.eventBus.on('app:input:changed', (data) => this.actionInput(data));
-        this.eventBus.on('app:fetch:start', () => this.actionFetchStart());
-        this.eventBus.on('app:extract:start', () => this.actionExtractStart());
+        this.eventBus.on('app:fetch:start', (data) => this.actionFetchStart(data));
         this.eventBus.on('app:fetch:stop', () => this.actionFetchStop());
         this.eventBus.on('app:batch:ready', () => this.onBatchReady());
         this.eventBus.on('app:download:start', (data) => this.actionDownload(data));
@@ -82,32 +81,25 @@ class WebApp {
     }
 
     /**
-     * TODO: Merge actionFetchSart and actionExtractStart
+     * Start fetching
      *
-     * @returns {Promise<void>}
+     * @param {Object} data Object with keys method, sourceName, targetName
      */
-    async actionFetchStart() {
+    async actionFetchStart(data) {
 
         this.pageWidget.clearStage();
         this.pageWidget.setStage('fetch')
 
-        const fetchSettings = this.pageWidget.fetchWidget.getSettings();
-        const source = this.dataModule.getDataSource('csv');
-        const nodes = source.seeds(fetchSettings);
-        const target = this.dataModule.getDataTarget('zip');
-        this.requestModule.process(nodes, source, target, 'http');
-    }
+        let fetchSettings;
+        if (data.method === 'http') {
+            fetchSettings = this.pageWidget.fetchWidget.getSettings();
+        }
+        else if (data.method === 'thumbnail') {
+            fetchSettings = {'column': 'fileobject', 'method' : 'thumbnail'};
+        }
 
-    async actionExtractStart() {
-
-        this.pageWidget.clearStage();
-        this.pageWidget.setStage('fetch')
-
-        const fetchSettings = {'column': 'fileobject'};
-        const source = this.dataModule.getDataSource('folder');
-        const nodes = source.seeds(fetchSettings);
-        const target = this.dataModule.getDataTarget('csv');
-        this.requestModule.process(nodes, source, target, 'thumbnail');
+        const source = this.dataModule.getDataSource(data.sourceName);
+        this.requestModule.process(source, fetchSettings);
     }
 
     actionFetchStop() {
