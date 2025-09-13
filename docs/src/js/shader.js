@@ -58,7 +58,7 @@ class WarpShader {
         }
       `,
       fragmentShader: `
-    precision mediump float;
+        precision mediump float;
 
         uniform sampler2D uTexture;
         uniform vec2 uResolution;
@@ -77,7 +77,7 @@ class WarpShader {
           
           vec2 uv;
           
-          // Warp or exit offsets (screen space)
+          // Warp or exit offsets
           if (uIsExiting == 0) {
               float warp = sin(dist * 0.02 - uTime) * uWarpStrength;
               uv = pos + normalize(toFocus) * warp;
@@ -85,23 +85,19 @@ class WarpShader {
               uv = pos + normalize(toFocus) * uExitProgress;
           }
           
-          // ===== Top-anchored cover =====
           float screenAspect = uResolution.x / uResolution.y;
           float texAspect = uTexAspect;
-          
-          // Flip Y **after offsets**
-          float yTop = uResolution.y - uv.y;
           
           if (screenAspect >= texAspect) {
               // width covers, crop bottom
               float imgHeight = uResolution.x / texAspect;
               uv.x = uv.x / uResolution.x;
-              uv.y = yTop / imgHeight;
+              uv.y = uv.y / imgHeight;
           } else {
               // height covers, crop sides
               float imgWidth = uResolution.y * texAspect;
               uv.x = uv.x / imgWidth;
-              uv.y = yTop / uResolution.y;
+              uv.y = uv.y / uResolution.y;
           }
           
           // Clamp to [0,1]
@@ -202,11 +198,7 @@ class WarpShader {
 
     // Update shader uniform
     this.uniforms.uFocus.value.set(this.focusX, window.innerHeight - this.focusY);
-
-
     this.animationId = requestAnimationFrame(() => this.animate());
-
-
     this.uniforms.uTime.value += 0.02;
 
     if (this.uniforms.uIsExiting.value === 1) {
