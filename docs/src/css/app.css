@@ -466,6 +466,7 @@ section#introWrapper div.text-block {
 }
 
 .log-meta {
+    white-space: nowrap;
     margin-bottom: 0.25rem;
 }
 

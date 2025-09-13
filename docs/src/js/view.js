@@ -415,6 +415,7 @@ class LogWidget extends BaseWidgetClass {
 
     constructor(logWidgetId, parent) {
         super(logWidgetId, parent);
+        this.debugMode = false;
         this.logViewer =  this.element.querySelector('.log-data');
         this.initEvents();
     }
@@ -463,21 +464,22 @@ class LogWidget extends BaseWidgetClass {
     /**
      * Add structured log message
      *
-     * @param {Object} logData Structured log data {timestamp, severity, name, details}
+     * @param {Object} logData Structured log data {timestamp, severity, msg, details}
      */
     addMessage(logData) {
-        console[logData.severity === 'error' ? 'error' : 'log'](
-            `[${logData.timestamp}] ${logData.name}`, 
-            logData.details
-        );
+        if (this.debugMode) {
+            console[logData.severity === 'error' ? 'error' : 'log'](
+                `[${logData.timestamp}] ${logData.msg}`,
+                logData.details
+            );
+        }
 
         const logEntry = document.createElement("div");
         logEntry.className = "log-entry";
         logEntry.innerHTML = `
             <div class="log-meta">
                 <div class="log-timestamp">${logData.timestamp}</div>
-                <div class="log-severity">${logData.severity.toUpperCase()}</div>
-                <div class="log-name">${logData.name}</div>
+                <div class="log-msg">${logData.msg}</div>
             </div>
             <div class="log-details">${this.formatDetails(logData.details)}</div>
         `;
@@ -498,8 +500,9 @@ class LogWidget extends BaseWidgetClass {
         if (!details || Object.keys(details).length === 0) return '';
         
         const parts = [];
-        if (details.statusCode) parts.push(`Status: ${details.statusCode}`);
-        if (details.url) parts.push(`URL: ${details.url}`);  
+        if (details.statusCode || details.statusText) {
+            parts.push(`Status: ${details.statusCode} ${details.statusText}`);
+        }
         if (details.row) parts.push(`Row: ${details.row}`);
         
         return parts.join(' | ');

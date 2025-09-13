@@ -67,10 +67,13 @@ class WebApp {
             }
 
         } catch (error) {
-            const logEntry = Utils.createLogEntry('error', 'DATA_LOAD_ERROR', {
-                originalMessage: error.message,
-                errorType: error.name
-            });
+            const logEntry = Utils.createLogEntry(
+                'error',
+                'Could not load input data',
+                {
+                    originalMessage: error.message,
+                    errorType: error.name
+                });
             this.eventBus.emit('app:log:add', logEntry);
         }
     }

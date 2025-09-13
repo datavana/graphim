@@ -28,12 +28,22 @@ class RequestModule {
             if (this.stopFlag) break;
 
             const { seed, rowIndex, row } = nodes[i];
-            
+            const newData = {
+                idx: rowIndex,
+                row: row,
+                seed: seed,
+                source: dataSource,
+                target: dataTarget
+            };
+
             try {
-                const raw = await dataSource.fetch(seed);
-                this.events.emit('data:add:node', {idx: rowIndex, row: row, seed: seed,  status: 'success', raw: raw, source: dataSource, target: dataTarget})
+                newData.raw = await dataSource.fetch(seed);
+                newData.status = 'success';
+                this.events.emit('data:add:node', newData)
             } catch (error) {
-                this.events.emit('data:node:error', {idx: rowIndex, row: row, seed: seed, status: 'fail', error: error, source: dataSource, target: dataTarget})
+                newData.error = error;
+                newData.status = 'fail';
+                this.events.emit('data:node:error', newData)
             }
             
             processed++;
@@ -58,6 +68,27 @@ class RequestModule {
     }
 
 }
+
+class HTTPError extends Error {
+  constructor(response) {
+    super(`Failed to fetch ${response.url}`);
+    this.name = "HTTPError";
+    this.statusCode = response.status;
+    this.statusText = response.statusText;
+    this.url = response.url;
+  }
+}
+
+class NetworkError extends Error {
+  constructor(url) {
+    super(`Failed to fetch ${url}`);
+    this.name = "NetworkError";
+    this.statusCode = '';
+    this.statusText = 'Network or CORS error';
+    this.url = url;
+  }
+}
+
 
 class BaseDataSource {
     constructor() {
@@ -120,9 +151,20 @@ class CsvDataSource extends BaseDataSource {
      * @returns {Promise<Blob>} Promise resolving to image blob
      */
     async fetch(node) {
-        const response = await fetch(node);
+        try {
+            const response = await fetch(node);
+        }
+        catch (error) {
+             if (error instanceof TypeError) {
+                 throw new NetworkError(node);
+             } else {
+                 // Re-throw other errors
+                 throw error;
+             }
+        }
+
         if (!response.ok) {
-            throw new Error(`Failed to fetch ${node} - ${response.status} ${response.statusText}`);
+            throw new HTTPError(response);
         }
         return await response.blob();
     }
@@ -272,10 +314,13 @@ class DataTargetZip extends BaseDataDarget {
             const content = await this.zip.generateAsync({ type: "blob" });
             saveAs(content, "imgnetmaker.zip");
         } catch (error) {
-            const logEntry = Utils.createLogEntry('error', 'DOWNLOAD_ERROR', {
-                originalMessage: error.message,
-                errorType: error.name
-            });
+            const logEntry = Utils.createLogEntry(
+                'error',
+                'Could not generate download file',
+                {
+                    originalMessage: error.message,
+                    errorType: error.name
+                });
             this.events.emit('app:log:add', logEntry);
         }
     }
@@ -317,10 +362,12 @@ class DataTargetCsv extends BaseDataDarget {
             csv = new Blob([csv], {type: "text/csv;charset=utf-8"});
             saveAs(csv, "imgnetmaker.csv");
         } catch (error) {
-            const logEntry = Utils.createLogEntry('error', 'DOWNLOAD_ERROR', {
-                originalMessage: error.message,
-                errorType: error.name
-            });
+            const logEntry = Utils.createLogEntry(
+                'error',
+                'Could not generate download file', {
+                    originalMessage: error.message,
+                    errorType: error.name
+                });
             this.events.emit('app:log:add', logEntry);
         }
     }
@@ -439,15 +486,21 @@ class DataModule {
      * @param {Object} data Object with properties idx, row, url, status, error, source
      */
     addError(data) {
+        if (!data.error) {
+            return;
+        }
+
+        // Add error to table
         const dataSource = data.source;
         if ((data.idx >= 0) && (data.idx < dataSource.data.length)) {
-            const errorMessage = Utils.humanizeError(data.error);
-            dataSource.data[data.idx].inm_status = errorMessage;
+            dataSource.data[data.idx].inm_status = `${data.error.name} ${data.error.statusCode} ${data.error.statusText}`;
         }
 
         // Log error
-        const structuredError = Utils.structureHttpError(data.error, data.seed, data.idx);
-        this.events.emit('app:log:add', structuredError)
+        const msg = `${data.error.name}: ${data.error.message}`;
+        const details = data.error;
+        details.row = data.idx + 1;
+        this.events.emit('app:log:add', Utils.createLogEntry("error", msg, details));
     }
 
     /**

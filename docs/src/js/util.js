@@ -154,64 +154,22 @@ class Utils {
     /**
      * Creates a structured error log entry
      * @param {string} severity - 'error', 'warn', 'info'  
-     * @param {string} name - Short error identifier
-     * @param {Object} details - Object containing error specifics
+     * @param {string} msg - Short error message
+     * @param {Object} details - Object containing error details
      * @returns {Object} Structured log entry
      */
-    static createLogEntry(severity, name, details = {}) {
+    static createLogEntry(severity, msg, details = {}) {
         return {
             timestamp: Utils.getCurrentTimestamp(),
-            severity: severity.toLowerCase(),
-            name: name,
+            severity: severity,
+            msg: msg,
             details: details
         };
     }
 
-    /**
-     * Converts an HTTP error into structured log data
-     * @param {Error} error - The error object
-     * @param {string} url - The URL that failed
-     * @param {number} rowIndex - Row index in the dataset
-     * @returns {Object} Structured error data for logging
-     */
-    static structureHttpError(error, url, rowIndex) {
-        let errorName = "UNKNOWN_ERROR";
-        let severity = "error";
-
-        if (error.name === "TypeError") {
-            errorName = "NETWORK_ERROR";
-        }
-        else if (error.message.includes("404")) {
-            errorName = "NOT_FOUND";
-        }
-        else if (error.message.includes("403")) {
-            errorName = "ACCESS_DENIED";
-        }
-        else if (error.message.includes("500")) {
-            errorName = "SERVER_ERROR";
-        }
-
-        const statusCode = Utils.extractStatusCode(error.message);
-
-        const details = {
-            statusCode: statusCode,
-            url: url,
-            row: rowIndex + 1,
-            originalMessage: error.message,
-            errorType: error.name
-        };
-
-        return Utils.createLogEntry(severity, errorName, details);
-    }
-
-    /**
-     * Extracts status code from error message
-     * @param {string} message - Error message
-     * @returns {string|null} Status code or null
-     */
-    static extractStatusCode(message) {
-        const match = message.match(/(\d{3})/);
-        return match ? match[1] : null;
+    static capitalize(str) {
+      if (!str) return "";
+      return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     /**
