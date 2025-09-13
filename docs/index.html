@@ -43,7 +43,7 @@
     </section>
 
     <div class="two-columns">
-      <section class="csv2image">
+      <section>
 
         <div class="text-block">
           <h1>
@@ -54,61 +54,36 @@
         <div class="text-block">
           <h2>📨 Input</h2>
           <p>
-            CSV with at least one column: <code>image_url</code>.
+            CSV with at least one column containing an image URL (e.g. <code>image_url</code>).
             Ensure your file contains additional metadata columns (e.g., <code>id</code>,
             <code>author</code>, <code>date</code>, …)
           </p>
 
           <h2>⚙️ What ImgNetMaker does</h2>
           <ul>
-            <li>Downloads each <code>image_url</code> (when allowed),</li>
-            <li>Derives a stable <code>image_filename</code> from a unique identifier in the URL,</li>
-            <li>Converts each image to a Base64 data URL (inline, text form of the image).</li>
+            <li>Downloads each image (when the server allows it),</li>
+            <li>Derives a stable filename from the last path element in the URL,</li>
+            <li>Converts each image to a base64-encoded data URL.</li>
           </ul>
 
           <h2>☑️ Output</h2>
           <ul>
             <li>
-              Enhanced CSV with original columns:
-              <code>image_filename</code> — clean filename used as the image key and
-              <code>img_dataurl</code> — the data URL embedding the image (Base64)
+              Enhanced CSV with original columns and<br>
+              <code>inm_status</code> — status of image download.<br>
+              <code>inm_filename</code> — clean filename used as the image key.<br>
+              <code>inm_imgdataurl</code> — the embedded image (data URL).
             </li>
             <li>
               <code>/images/</code> folder with the downloaded image files
-              (mirrors <code>image_filename</code>)
+              (mirrors <code>inm_filename</code>)
             </li>
           </ul>
         </div>
 
-        <div class="text-block">
-          <h2>What’s next?</h2>
-
-          <p>
-            Build the bipartite network with
-            <a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>.
-          </p>
-          <ul>
-            <li>Include <code>img_dataurl</code> as an attribute on the <strong>image</strong> nodes (along with any other metadata).</li>
-            <li>Export as <strong>GEXF</strong> (nodes, edges, and attributes).</li>
-          </ul>
-          <p>
-            Open in Gephi Lite
-          </p>
-          <ul>
-            <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
-          </ul>
-          <p>
-            Display images
-           </p>
-          <ul>
-            <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
-            <li>Set images from <em>Attribute</em> and choose the <code>img_dataurl</code> column.</li>
-          </ul>
-
-        </div>
       </section>
 
-      <section class="image2url">
+      <section>
         <div class="text-block">
           <h1>
             <a href="src/index.html?mode=geturl" class="linkbutton">Image folder → Data URLs</a>
@@ -118,63 +93,68 @@
         <div class="text-block">
           <h2>📨 Input</h2>
           <p>
-            Provide an image folder whose filenames match the <code>image_filename</code> values in your
-            dataset (CSV, JSON, or other).
+            Provide an image folder whose filenames match column values in your dataset
+            (e.g., <code>image_filename</code> in a CSV, JSON or other data file).
+            Although the browser will ask to confirm that you want to upload files, nothing is really uploaded.
+            All files stay on your computer and are processed locally in your browser.
           </p>
 
           <h2>⚙️ What ImgNetMaker does</h2>
           <ul>
-            <li>Generates a Base64 data URL for each image,</li>
-            <li>Leaves your existing folder as-is (no downloads required).</li>
+            <li>Generates a base64-encoded data URL for each image.</li>
+            <li>Leaves your existing folder as-is.</li>
           </ul>
 
           <h2>☑️ Output</h2>
           <ul>
             <li>
-              Enhanced CSV with original columns:
-              <code>image_filename</code> and <code>img_dataurl</code> (Base64 data URL)
+              A CSV with the columns<br>
+              <code>inm_status</code> — status of image conversion,<br>
+              <code>inm_filename</code> — your input filename, <br>
+              <code>inm_imgdataurl</code> — the embedded image (data URL).
             </li>
+            <li>Join the CSV to your original dataset by matching your source column and the new <code>inm_filename</code>.</li>
           </ul>
         </div>
 
-        <div class="text-block">
-          <h2>What’s next?</h2>
-          <p>
-            Join the enhanced CSV to your dataset using <code>image_filename</code> as the key.
-          </p>
-
-          <p>
-            Build the bipartite network with
-            <a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>
-          </p>
-
-          <ul>
-            <li>
-              Include <code>img_dataurl</code> as an attribute on the
-              <strong>image</strong> nodes (along with any other metadata).
-            </li>
-            <li>
-              Export as <strong>GEXF</strong>.
-            </li>
-          </ul>
-          <p>
-            Open in Gephi Lite
-          </p>
-          <ul>
-            <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
-          </ul>
-
-          <p>
-          Display images
-          </p>
-          <ul>
-            <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
-            <li>Set images from <em>Attribute</em> and select the <code>img_dataurl</code> column.</li>
-          </ul>
-        </div>
       </section>
     </div>
+
+     <section>
+          <div class="text-block">
+                <h2>What's next: How to create image networks with Gephi Lite?</h2>
+
+                <p>
+                    Build the bipartite network with
+                    <a href="https://medialab.github.io/table2net/" target="_blank" rel="noopener">Table2Net</a>.
+                </p>
+
+                <ul>
+                    <li>Include <code>inm_imgdataurl</code> as an attribute on the <strong>image</strong> nodes (along with any
+                        other metadata).
+                    </li>
+                    <li>Export as <strong>GEXF</strong> (nodes, edges, and attributes).</li>
+                </ul>
+                <p>
+                    Open in Gephi Lite
+                </p>
+                <ul>
+                    <li>Drag and drop the <code>.gexf</code> file into Gephi Lite.</li>
+                </ul>
+                <p>
+                    Display images
+                </p>
+                <ul>
+                    <li>Go to <strong>Appearance → Nodes → Images</strong>.</li>
+                    <li>Set images from <em>Attribute</em> and choose the <code>inm_imgdataurl</code> column (in Gephi Lite it may
+                        appear under some name such as <em>attr_1_1</em> .
+                    </li>
+                </ul>
+
+            </div>
+      </section>
   </div>
+
 
     <footer>
       <div id="footertext">
