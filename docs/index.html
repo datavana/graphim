@@ -75,7 +75,7 @@
               <code>inm_imgdataurl</code> — the embedded image (data URL).
             </li>
             <li>
-              <code>/images/</code> folder with the downloaded image files
+              <code>Zip with /images/</code> folder containing the downloaded images
               (mirrors <code>inm_filename</code>)
             </li>
           </ul>
@@ -95,14 +95,16 @@
           <p>
             Provide an image folder whose filenames match column values in your dataset
             (e.g., <code>image_filename</code> in a CSV, JSON or other data file).
-            Although the browser will ask to confirm that you want to upload files, nothing is really uploaded.
-            All files stay on your computer and are processed locally in your browser.
           </p>
 
           <h2>⚙️ What ImgNetMaker does</h2>
           <ul>
-            <li>Generates a base64-encoded data URL for each image.</li>
+            <li>
+                All files stay on your computer and are processed locally in your browser.
+                Although the browser will ask to confirm, nothing is uploaded.
+            </li>
             <li>Leaves your existing folder as-is.</li>
+            <li>Generates a base64-encoded data URL for each image.</li>
           </ul>
 
           <h2>☑️ Output</h2>
