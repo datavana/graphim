@@ -30,7 +30,7 @@
 }
 
 .mode-geturl #downloadCsvBtn {
-    display: flex;
+    display: inline-block;
 }
 
 

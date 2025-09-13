@@ -98,7 +98,7 @@ class WebApp {
     async actionExtractStart() {
 
         this.pageWidget.clearStage();
-        this.pageWidget.setStage('extract')
+        this.pageWidget.setStage('fetch')
 
         const fetchSettings = {'column': 'fileobject'};
         const nodes = this.dataModule.getSeedNodes('folder', fetchSettings);

@@ -27,9 +27,9 @@ class RequestModule {
         for (let i = 0; i < nodes.length; i++) {
             if (this.stopFlag) break;
 
-            const { seed, rowIndex, row } = nodes[i];
-            const newData = {
-                idx: rowIndex,
+            const { seed, idx, row } = nodes[i];
+            let nodeData = {
+                idx: idx,
                 row: row,
                 seed: seed,
                 source: dataSource,
@@ -37,17 +37,17 @@ class RequestModule {
             };
 
             if (!seed) {
-                newData.status = 'empty';
-                this.events.emit('data:add:node', newData)
+                nodeData.status = 'empty';
+                this.events.emit('data:add:node', nodeData)
             } else {
                 try {
-                    newData.raw = await dataSource.fetch(seed);
-                    newData.status = 'success';
-                    this.events.emit('data:add:node', newData)
+                    nodeData = await dataSource.fetch(nodeData);
+                    nodeData.status = 'success';
+                    this.events.emit('data:add:node', nodeData)
                 } catch (error) {
-                    newData.error = error;
-                    newData.status = 'fail';
-                    this.events.emit('data:node:error', newData)
+                    nodeData.error = error;
+                    nodeData.status = 'fail';
+                    this.events.emit('data:node:error', nodeData)
                 }
             }
             
@@ -120,6 +120,7 @@ class CsvDataSource extends BaseDataSource {
     clear() {
         super.clear();
         this.headers = ["inm_status","inm_imgdataurl","inm_filename"];
+        this.usedFilenames = new Set();
     }
 
  /**
@@ -152,26 +153,45 @@ class CsvDataSource extends BaseDataSource {
     /**
      * Fetches an image from a URL
      *
-     * @param {string} node The image URL to fetch or the file object to use
-     * @returns {Promise<Blob>} Promise resolving to image blob
+     * @param {Object} nodeData An object with the image URL in the seed property
+     * @returns {Object} nodeData with added properties:
+     *                          - filename
+     *                          - raw
+     *                          - thumbnail
      */
-    async fetch(node) {
+    async fetch(nodeData) {
+        let response;
         try {
-            const response = await fetch(node);
+            response = await fetch(nodeData.seed);
         }
         catch (error) {
              if (error instanceof TypeError) {
-                 throw new NetworkError(node);
+                 throw new NetworkError(nodeData.seed);
              } else {
                  // Re-throw other errors
                  throw error;
              }
         }
 
+        if (!response) {
+            throw new Error('Response error');
+        }
+
         if (!response.ok) {
             throw new HTTPError(response);
         }
-        return await response.blob();
+
+        nodeData.raw = await response.blob();
+        nodeData.filename = this.uniqueFilename(nodeData);
+        nodeData.thumbnail = await Utils.createThumbnailFromBlob(nodeData.raw);
+
+        return nodeData;
+    }
+
+    uniqueFilename(nodeData) {
+        const filename = Utils.generateUniqueFilename(nodeData.seed, nodeData.idx, this.usedFilenames);
+        this.usedFilenames.add(filename);
+        return filename;
     }
 }
 
@@ -206,21 +226,21 @@ class FolderDataSource extends BaseDataSource {
         });
     }
 
- /**
+    /**
      * Fetches an image from a file
      *
-     * @param {File} node The uploaded file
-     * @returns {Promise<Blob>} Promise resolving to image blob
+     * @param {Object} nodeData An object with the file object in the seed property
+     * @returns {Object} nodeData with added properties:
+     *                          - thumbnail
      */
-    async fetch(node) {
-        return new Promise((resolve, reject) => {
-            resolve(node);
-        });
+    async fetch(nodeData) {
+        nodeData.thumbnail = await Utils.createThumbnailFromFile(nodeData.seed);
+        return (nodeData);
     }
 
 }
 
-class BaseDataDarget {
+class BaseDataTarget {
     constructor(eventBus) {
         this.events = eventBus;
     }
@@ -242,12 +262,11 @@ class BaseDataDarget {
     }
 }
 
-class DataTargetZip extends BaseDataDarget {
+class DataTargetZip extends BaseDataTarget {
     constructor(eventBus) {
         super(eventBus);
 
         this.zip = null;
-        this.usedFilenames = new Set();
     }
 
     init() {
@@ -257,7 +276,6 @@ class DataTargetZip extends BaseDataDarget {
 
     clear() {
         this.zip = null;
-        this.usedFilenames.clear();
     }
 
     /**
@@ -276,20 +294,16 @@ class DataTargetZip extends BaseDataDarget {
 
             row.inm_status = data.status;
 
-            if (data.raw) {
-                // Generate thumbnail
-                const filename = Utils.generateUniqueFilename(data.seed, data.idx, this.usedFilenames);
-                this.usedFilenames.add(filename);
-                const thumbnailData = await Utils.createThumbnailFromBlob(data.raw);
+            if (data.raw && data.thumbnail) {
 
                 // Add to table
-                row.inm_filename = filename;
-                row.inm_imgdataurl = thumbnailData;
+                row.inm_filename = data.filename;
+                row.inm_imgdataurl = data.thumbnail;
 
                 // Add to ZIP
-                if (this.zip) {
+                if (this.zip && data.filename) {
                     const imgFolder = this.zip.folder("images");
-                    imgFolder.file(filename, data.raw);
+                    imgFolder.file(data.filename, data.raw);
                 }
             }
 
@@ -329,7 +343,7 @@ class DataTargetZip extends BaseDataDarget {
     }
 }
 
-class DataTargetCsv extends BaseDataDarget {
+class DataTargetCsv extends BaseDataTarget {
     constructor(eventBus) {
         super(eventBus);
     }
@@ -349,7 +363,7 @@ class DataTargetCsv extends BaseDataDarget {
             throw Error('Invalid node index');
         }
         row.inm_status = 'success';
-        row.inm_imgdataurl = await Utils.createThumbnailFromFile(data.raw);
+        row.inm_imgdataurl = data.thumbnail;
 
         this.events.emit('data:node:added', {data: data, row: row})
     }
@@ -446,17 +460,17 @@ class DataModule {
     }
 
     /**
-     * Returns a list of URLs
+     * Returns a list of seed node items
      *
      * @param {Object} fetchSettings An object with the key column
-     * @returns {{rowIndex: *, row: *, url: *}[]}
+     * @returns {{seed: *, idx: *, row: *, sourceType: *}[]}
      */
     getSeedNodes(sourceType = 'csv', fetchSettings = {}) {
         const dataSource = this.getDataSource(sourceType);
         return dataSource.data
             .map((row, index) => ({
                 seed: row[fetchSettings.column], // A URL or a file object
-                rowIndex: index,
+                idx: index,
                 row: row,
                 sourceType : sourceType
             }));
