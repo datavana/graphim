@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ImageNetMaker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ImgNetMaker</title>
     <link rel="icon" type="image/png" href="src/img/favicon.png" />
 
     <link rel="stylesheet" href="src/css/app.css">
@@ -22,7 +23,7 @@
 
   <div id="contentWrapper">
     <section id="introWrapper">
-      <div id="topText">
+      <div class="text-block">
         <p>
           <strong>ImgNetMaker</strong> converts your CSV and/or image folder into
           network-ready data for visualising image networks with
@@ -39,26 +40,29 @@
 
     <div class="two-columns">
       <section class="csv2image">
-        <div class="text-block">
 
+        <div class="text-block">
           <h1>
             <a href="src/index.html?mode=getimg" class="linkbutton">CSV → Images + Data URLs</a>
           </h1>
-          <h2 class="accent"> 📨 Input</h2>
+
+        </div>
+        <div class="text-block">
+          <h2> 📨 Input</h2>
           <p>
             CSV with at least one column: <code>image_url</code>.
             Ensure your file contains additional metadata columns (e.g., <code>id</code>,
             <code>author</code>, <code>date</code>, …)
           </p>
 
-          <h2 class="accent">⚙️ What ImgNetMaker does</h2>
+          <h2>⚙️ What ImgNetMaker does</h2>
           <ul>
             <li>Downloads each <code>image_url</code> (when allowed),</li>
             <li>Derives a stable <code>image_filename</code> from a unique identifier in the URL,</li>
             <li>Converts each image to a Base64 data URL (inline, text form of the image).</li>
           </ul>
 
-          <h2 class="accent"> ☑️ Output</h2>
+          <h2> ☑️ Output</h2>
           <ul>
             <li>
               Enhanced CSV with original columns:
@@ -72,7 +76,7 @@
           </ul>
         </div>
 
-       <h2 class="accent">What’s next?</h2>
+       <h2>What’s next?</h2>
 
 
     Build the bipartite network with
@@ -99,23 +103,25 @@
 
       <section class="image2url">
         <div class="text-block">
-
           <h1>
             <a href="src/index.html?mode=geturl" class="linkbutton">Image folder → Data URLs</a>
           </h1>
-          <h2 class="accent"> 📨 Input</h2>
+        </div>
+
+        <div class="text-block">
+          <h2> 📨 Input</h2>
           <p>
             Provide an image folder whose filenames match the <code>image_filename</code> values in your
             dataset (CSV, JSON, or other).
           </p>
 
-          <h2 class="accent">⚙️ What ImgNetMaker does</h2>
+          <h2>⚙️ What ImgNetMaker does</h2>
           <ul>
             <li>Generates a Base64 data URL for each image,</li>
             <li>Leaves your existing folder as-is (no downloads required).</li>
           </ul>
 
-          <h2 class="accent"> ☑️ Output</h2>
+          <h2> ☑️ Output</h2>
           <ul>
             <li>
               Enhanced CSV with original columns:
@@ -125,7 +131,7 @@
             </li>
           </ul>
 
-           <h2 class="accent">What’s next?</h2>
+           <h2>What’s next?</h2>
 					<p>
 					Join the enhanced CSV to your dataset using <code>image_filename</code> as the key.
 				  </p>
@@ -161,18 +167,18 @@
 
     <footer>
       <div id="footertext">
-        <h1>
+        <p class="hide-small">
           ImgNetMaker - Public Beta Version: v0.1.0-beta
           <a href="https://github.com/datavana/graphim" target="_blank">
-            <span class="emoji">📖</span> GitHub
+            <span class="emoji">📖 </span>GitHub
           </a>
-        </h1>
-        <h2>
+        </p>
+        <p>
           Developed by the
           <a href="https://github.com/datavana/graphim?tab=readme-ov-file#contributions" style="color: #7C00FF;">
             Net Image Research Initiative [NIRI]
           </a>
-        </h2>
+        </p>
       </div>
       <div id="inslogo">
         <img src="src/img/logo_ifk.svg" alt="Logo of the Institute of Communication, University of Münster" class="headerLogo">
