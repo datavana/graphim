@@ -133,6 +133,14 @@ Add a deploy key to provide GPU resources to your containers:
               capabilities: [gpu]
 ```
 
+# Credits for components of ImgNetMaker
+- Background image by [Pawel Czerwinski](https://unsplash.com/de/@pawel_czerwinski), Unsplash Licence
+- Logo
+- [Font Awesome](https://fontawesome.com/), SIL OFL 1.1 License
+- [Papaparse](https://www.papaparse.com/), MIT Licence
+- [JsZip](https://stuk.github.io/jszip/), MIT licence
+- [FileSaver](https://github.com/eligrey/FileSaver.js), MIT licence
+
 # Conventions
 
 Please mind, before you commit and push any scripts or notebooks: 
