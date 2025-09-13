@@ -2,7 +2,7 @@
 
 This repository contains tools and workflows for image network and context analysis.
 
-1. ImgNetMaker
+**1. ImgNetMaker**
 
 Converts your CSV and/or image folder into network-ready data for visualising image networks with Gephi Lite. 
 It downloads the images when a CSV is provided, pairing each image with its metadata, and adding two fields:
@@ -11,7 +11,7 @@ Source code of the ImgNetMaker tool is located in the docs folder.
 It is made entirely from HTML, CSS and JavaScript, 
 runs in the browser and is deployed using GitHub Pages.
 
-2. Exploration & Analysis
+**2. Exploration & Analysis Scripts**
 
 Folder Structure:  
 
