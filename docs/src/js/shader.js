@@ -220,7 +220,11 @@ if (window.WebGLRenderingContext) {
   window.addEventListener("load", () => {
     const params = new URLSearchParams(window.location.search);
     if (!params.has("mode")) {
-      new WarpShader("src/img/background_2000.jpg", "src/img/logo.png");
+      try {
+        new WarpShader("src/img/background_2000.jpg", "src/img/logo.png");
+      } catch (error) {
+        console.log(error);
+      }
     }
   });
 }

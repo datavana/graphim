@@ -35,7 +35,7 @@ such as Epigraf or Facepager.
 ## Getting started with ImageNetMaker
 
 The app is deployed using GitHub Pages.
-You can access it online at [https://datavana.github.io/graphim](https://datavana.github.io/graphim)
+You can access it online at [https://datavana.github.io/imgnetmkr](https://datavana.github.io/imgnetmkr)
 
 For local development:
 
@@ -99,7 +99,7 @@ For keeping ids, scores and descriptions of the web entities in the network,
    ```
 2. Open Jupyter at http://localhost:8888
 
-3. Run the notebook BLIP example notebook
+3. Run the BLIP example notebook
 
 
 The notebooks, data and lib folders are mounted into the Jupyter environment.
@@ -144,7 +144,7 @@ Please mind, before you commit and push any scripts or notebooks:
 If you need folders or files not to be pushed to the repository:
 All folder named "private" are ignored by git.
 
-# Credits for third-party compontents
+# Credits for third-party components
 - [Pawel Czerwinski](https://unsplash.com/de/@pawel_czerwinski) for the background image, Unsplash Licence
 - Logo
 - [Font Awesome](https://fontawesome.com/), SIL OFL 1.1 License
