@@ -146,7 +146,8 @@ All folder named "private" are ignored by git.
 
 # Credits for third-party components
 - [Pawel Czerwinski](https://unsplash.com/de/@pawel_czerwinski) for the background image, Unsplash Licence
-- Logo
+- Logo, © 2025 Janna Joceli Omena. Licensed CC BY 4.0.
+Inspiration: iconography by B. Gobbo & J. J. Omena in “Researching visual protest and politics with ‘extra-hard’ data” (2024). The ImgNetMaker mark is a newly redrawn square-node variant.
 - [Font Awesome](https://fontawesome.com/), SIL OFL 1.1 License
 - [Papaparse](https://www.papaparse.com/), MIT Licence
 - [JsZip](https://stuk.github.io/jszip/), MIT licence
