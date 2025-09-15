@@ -1,0 +1,18 @@
+name = "WebDetection"
+uuid = "ed37eb5d-cff4-4cb4-9d50-b6f3a5d64bdc"
+authors = ["Hertkorn, Georg <georg.hertkorn@adwmainz.de>"]
+version = "0.1.0"
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+
+[compat]
+CSV = "0.10.15"
+DataFrames = "1.8.0"
+HTTP = "1.10.17"
+JSON3 = "1.14.3"
+Revise = "3.9.0"
