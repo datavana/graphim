@@ -1,12 +1,13 @@
 using Revise, Pkg
+repo_root = "./Documents/projects/graphim"
+Pkg.activate(joinpath(repo_root, "scripts_jl/WebDetection/"))
 using DataFrames
-Pkg.activate("C:/Users/Georg/Documents/projects/imgnetmkr/scripts_jl/WebDetection/")
 using WebDetection
 
 # 2025-09-15 
 # ** query Wikidata, count classes per file
 # extract web entities from Google vision results
-cd("C:/Users/Georg/Documents/projects/imgnetmkr/")
+cd(repo_root)
 
 # read JSON files 
 dirname = "data/di-100/vision_results"
