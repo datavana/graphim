@@ -19,3 +19,4 @@ venv
 # scripts/web_detection/*run.py
 
 secrets/*
+.vscode/*
