@@ -12,7 +12,7 @@ Read JSON-files in `dirname` an extract web entities
 """
 
 function extract_web_entities(dirname::String)
-    df = DataFrame(filename = String[], web_entity = String[])
+    df = DataFrame(filename = String[], web_entity = String[], web_entity_description = String[])
     for file in readdir(dirname, join=true)        
         json_string = read(file, String)
         json = JSON3.read(json_string)
@@ -20,7 +20,8 @@ function extract_web_entities(dirname::String)
         if haskey(web_detection, "webEntities")
             file_short = splitdir(file) |> last
             for web_entity in web_detection["webEntities"]
-                push!(df, (file_short, web_entity["entityId"]))
+                description = get(web_entity, "description", "")
+                push!(df, (file_short, web_entity["entityId"], description))
             end
         end
     end

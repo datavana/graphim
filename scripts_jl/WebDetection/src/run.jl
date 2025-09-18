@@ -18,7 +18,7 @@ using WebDetection
 cd(repo_root)
 
 # read JSON files 
-dirname = "data/di-100/vision_results"
+dirname = "./data/di-100/vision_results"
 df_file_web_entities = WebDetection.extract_web_entities(dirname)
 
 using CSV
@@ -124,4 +124,60 @@ sort!(df_p921_count, :nrow, rev=true)
 
 CSV.write("./data/di-100/counts/p921_filecount_de.csv", df_p921_count)
 
+# 2029-09-18
+# merge files of different properties
+using DataFrames, CSV
 
+function merge_class_files(file_name_list)    
+    df = DataFrame(prop = String[], wd_id = String[], wd_label = String[], nrow = Int[])    
+    for file in file_name_list
+        df_loop = CSV.read(file, DataFrame)
+        prop = names(df_loop) |> first
+        rename!(df_loop, [1 => :wd_id, 2 => :wd_label])
+        df_loop.prop .= prop
+        append!(df, df_loop)            
+    end             
+    return df
+end
+
+
+using Revise, Pkg
+repo_root = "./Documents/projects/imgnetmkr"
+Pkg.activate(joinpath(repo_root, "scripts_jl/WebDetection/"))
+
+cd(repo_root)
+
+file_name_list = ["./data/di-100/counts/$(prop)_filecount_de.csv" for prop in ["p31", "p136", "p279", "p921"]]
+df_fc_prop_all = merge_class_files(file_name_list)
+
+sort!(df_fc_prop_all, :nrow, rev=true)
+
+CSV.write("./data/di-100/counts/pAll_filecount_de.csv", df_fc_prop_all)
+
+# 2025-09-18
+## ** select web entities by p31 classes
+data_path = "./data/di-100/counts/"
+
+# selection on P31
+df_p31_graph = CSV.read(joinpath(data_path, "p31_filecount_de_graph.csv"), DataFrame)
+
+# mapping web entity to selected P31 classes and image files to selected web entities
+df_entity_p31 = CSV.read(joinpath(data_path, "web_entity-P31.csv"), DataFrame)
+
+df_entity_p31_graph = innerjoin(df_entity_p31, df_p31_graph[:, [:p31, :graph2]], on=:p31)
+
+df_img = CSV.read(joinpath(data_path, "image-web_entity.csv"), DataFrame)
+
+df_img_graph = leftjoin(df_img, df_entity_p31_graph[:, [:entityId, :p31Label, :graph2]], on=:web_entity => :entityId)
+
+# evaluate the selection
+df_img_graph_filtered = subset(df_img_graph, :graph2 => ByRow(isequal(1)))
+
+CSV.write(joinpath(data_path, "image-web_entity-p31-filtered.csv"), df_img_graph_filtered)
+
+function set_ext(file, new_ext)
+    parts = splitext(file)
+    return string(parts |> first, ".", new_ext)
+end
+
+transform!(df_img_graph_filtered, :filename => ByRow(x -> set_ext(x, "jpg")) => :filename_jpg)
