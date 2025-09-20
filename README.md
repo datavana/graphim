@@ -168,4 +168,4 @@ In September 2025, the Net Image Research Initiative emerged during a Methods Ca
 - [Lennart Höfig](https://orcid.org/0009-0001-8500-3117)
 - [Luana Moraes Costa](https://orcid.org/0009-0004-3303-8408)
 - [Maiia Guseva](https://orcid.org/0009-0006-5024-7919)
-- Paula Dicke
+- [Paula Dicke](https://orcid.org/0009-0001-2141-1031)
